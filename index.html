@@ -136,7 +136,7 @@ function renderMenu() {
   drinkGrid.innerHTML = RC.bar.menu.map(function (d) {
     var on = trayN(d.id) > 0;
     return '<div class="drink' + (on ? ' ordered' : '') + '" data-id="' + d.id + '">' +
-      '<div class="d-ico">' + (ICON[d.id] || '🍸') + '</div>' +
+      '<div class="d-ico"><span class="d-glyph">' + (ICON[d.id] || '🍸') + '</span></div>' +
       '<div class="d-main">' +
         '<div class="d-name">' + RC.util.esc(d.cn) + '<span class="jp">' + RC.util.esc(d.jp) + '</span></div>' +
         '<div class="d-desc">' + RC.util.esc(d.desc) + '</div>' +
@@ -180,7 +180,7 @@ drinkGrid.addEventListener('click', function (e) {
   var id = btn.getAttribute('data-order'), d = RC.bar.byId(id);
   RC.bar.add(id);
   var card = drinkGrid.querySelector('.drink[data-id="' + id + '"]');
-  if (card) { card.classList.add('ordered', 'pour'); setTimeout(function () { card.classList.remove('pour'); }, 520); }
+  if (card) { card.classList.add('ordered', 'pour'); setTimeout(function () { card.classList.remove('pour'); }, 900); }
   renderTray(); sayBy(d);
   toast('已点：' + d.cn + ' ×' + trayN(id));
 });
