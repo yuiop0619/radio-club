@@ -87,30 +87,49 @@
     count: function () { return store.get('visits', 0); }
   };
 
-  /* ---------- 吧台：饮品单 + 托盘 ---------- */
+  /* ---------- 吧台：饮品单 + 主食单 + 托盘 ---------- */
   var DRINKS = [
-    { id: 'highball', cn: '琥珀高球',   jp: 'ハイボール',          alc: true,  by: '岩夫',
+    { id: 'highball', cn: '琥珀高球',   jp: 'ハイボール',          alc: true,  by: '岩夫', kind: 'drink',
       desc: '威士忌苏打。气泡打得很细，不呛口。',
       line: '琥珀高球。气泡要打得细才不呛口。慢慢喝，我们有的是时间。' },
-    { id: 'milk',     cn: '热牛奶',     jp: 'ホットミルク',        alc: false, by: '涟',
+    { id: 'milk',     cn: '热牛奶',     jp: 'ホットミルク',        alc: false, by: '涟', kind: 'drink',
       desc: '给不喝酒的客人。涟会多加一点蜂蜜。',
       line: '……热牛奶。蜂蜜多放了一点。手先暖起来，话才好说。' },
-    { id: 'fizz',     cn: '藏红气泡',   jp: 'サフラン・フィズ',    alc: true,  by: '岩夫',
+    { id: 'fizz',     cn: '藏红气泡',   jp: 'サフラン・フィズ',    alc: true,  by: '岩夫', kind: 'drink',
       desc: '本店招牌，以那位小姐命名。颜色像她的外套。',
       line: '藏红气泡，本店招牌。颜色像那位小姐的外套——她本人对这个说法不予置评。' },
-    { id: 'coffee',   cn: '午夜咖啡',   jp: 'ミッドナイト・コーヒー', alc: false, by: '涟',
+    { id: 'coffee',   cn: '午夜咖啡',   jp: 'ミッドナイト・コーヒー', alc: false, by: '涟', kind: 'drink',
       desc: '无酒精，偏苦。适合清醒地把一件事讲完。',
       line: '午夜咖啡，很苦。想清醒地把话讲完，点它没错。' },
-    { id: 'orange',   cn: '血橙苏打',   jp: 'ブラッドオレンジ',    alc: false, by: '涟',
+    { id: 'orange',   cn: '血橙苏打',   jp: 'ブラッドオレンジ',    alc: false, by: '涟', kind: 'drink',
       desc: '微酸带气。涟说适合“想说又说不出口”的时候。',
       line: '血橙苏打，酸的。……有时候酸一点，话反而说得出口。' },
-    { id: 'water',    cn: '一杯冷水',   jp: '冷水',                alc: false, by: '岩夫',
+    { id: 'water',    cn: '一杯冷水',   jp: '冷水',                alc: false, by: '岩夫', kind: 'drink',
       desc: '也有人只想喝这个。我们不问原因。',
       line: '冷水一杯。不问原因——这里没那种规矩。坐吧。' }
   ];
+  /* 主食：点下后不立刻上，等精神分析做完才和答案一起端上来 */
+  var FOODS = [
+    { id: 'ramen', cn: '深夜拉面', jp: '夜ラーメン', alc: false, by: '岩夫', kind: 'food',
+      desc: '味噌汤底、叉烧两片、溏心蛋。打烊前吊的最后一锅汤。',
+      line: '深夜拉面。汤是白天吊的，面是现煮的——趁热。' },
+    { id: 'steak', cn: '铁板牛排', jp: 'ステーキ',   alc: false, by: '岩夫', kind: 'food',
+      desc: '厚切，五分熟，配蒜片与一点岩盐。',
+      line: '铁板牛排，五分熟。刀在右手边——慢慢切，没人催你。' },
+    { id: 'sandwich', cn: '玉子三明治', jp: '玉子サンド', alc: false, by: '涟', kind: 'food',
+      desc: '厚蛋烧夹吐司，切掉硬边。涟的拿手。',
+      line: '玉子三明治，边切掉了。……不喜欢边的人，运气都不会太差。' },
+    { id: 'onigiri', cn: '味噌烤饭团', jp: '焼きおにぎり', alc: false, by: '涟', kind: 'food',
+      desc: '刷味噌烤到焦香。配茶、配沉默都可以。',
+      line: '味噌烤饭团，焦的那面朝上。留给你。' }
+  ];
+  var ALL = DRINKS.concat(FOODS);
   var Bar = {
-    menu: DRINKS,
-    byId: function (id) { for (var i = 0; i < DRINKS.length; i++) if (DRINKS[i].id === id) return DRINKS[i]; return null; },
+    menu: ALL,
+    drinks: DRINKS,
+    foods: FOODS,
+    byId: function (id) { for (var i = 0; i < ALL.length; i++) if (ALL[i].id === id) return ALL[i]; return null; },
+    isFood: function (id) { var d = Bar.byId(id); return !!(d && d.kind === 'food'); },
     tray: function () { return store.get('tray', []); },          // [{id, n}]
     add: function (id) {
       var t = Bar.tray(), hit = false;
@@ -119,9 +138,29 @@
       store.set('tray', t);
       return t;
     },
-    remove: function (id) { var t = Bar.tray().filter(function (x) { return x.id !== id; }); store.set('tray', t); return t; },
-    clear: function () { store.del('tray'); return []; },
+    remove: function (id) { var t = Bar.tray().filter(function (x) { return x !== id && x.id !== id; }); store.set('tray', t); return t; },
+    clear: function () { store.del('tray'); store.del('served'); return []; },
     count: function () { return Bar.tray().reduce(function (a, x) { return a + x.n; }, 0); },
+    /* 已送上桌的数量 {id:n} */
+    served: function () { return store.get('served', {}); },
+    markServed: function (ids) {
+      var s = Bar.served();
+      (ids || []).forEach(function (id) { s[id] = (s[id] || 0) + 1; });
+      store.set('served', s);
+      return s;
+    },
+    /* 还没送上桌的（tray - served） */
+    pending: function () {
+      var s = Bar.served();
+      return Bar.tray().map(function (x) {
+        var left = x.n - (s[x.id] || 0);
+        return left > 0 ? { id: x.id, n: left } : null;
+      }).filter(Boolean);
+    },
+    /* 待送的主食（拉面/牛排等）——只有点了这些才触发“上菜” */
+    pendingFood: function () {
+      return Bar.pending().filter(function (x) { return Bar.isFood(x.id); });
+    },
     checkoutLine: '好，今晚这些记在账上——账就是你的故事。什么时候想讲了，去吧台另一端找她。'
   };
 

@@ -9,20 +9,39 @@
 <body data-amb-whisper>
 <div id="app">
 
-  <header class="site-head">
-    <div class="hero">
-      <img src="assets/img/bar-interior.jpg" alt="RADIO CLUB 店内">
-      <div class="hero-veil"></div>
-      <div class="hero-txt">
-        <div class="logo">RADIO <b>CLUB</b></div>
-        <div class="logo-sub">网络上的酒吧 <span class="jp">／</span> 梦侦探事务所 <span class="jp">／</span> EST. 2006</div>
-      </div>
-      <div class="open-lamp"><span class="lamp"></span>现在营业中<br><span class="faint small">22:00 – 次日 5:00（不定期休息）</span></div>
+  <header class="site-head slim">
+    <div class="slim-bar">
+      <a class="logo-sm" href="index.html">RADIO <b>CLUB</b></a>
+      <span class="logo-sub-sm">网络上的酒吧／梦侦探事务所</span>
+      <span class="open-lamp-sm"><span class="lamp"></span>营业中</span>
     </div>
     <div id="navMount"></div>
   </header>
 
-  <div class="marquee"><span class="mq-in">欢迎光临……　欢迎光临……　今晚也谢谢你来了……　随便找个位子坐……　吧台内侧，永远是站在你这边的……　欢迎光临……</span></div>
+  <!-- 第一人称进店镜头 -->
+  <div class="vp" id="vp">
+    <div class="shot" id="shHall"><img src="assets/img/scene-hall.jpg" alt="RADIO CLUB 店内：两位酒保站在吧台后，侦探在另一张桌子边看书"></div>
+    <div class="shot" id="shPov"><img src="assets/img/scene-seated.jpg" alt="吧台"></div>
+    <img class="vfig det" id="figDet" src="assets/img/fig-detective.png" alt="萨弗兰坐在吧台边">
+    <img class="vfig srv" id="figSrv" src="assets/img/fig-serve.png" alt="酒保端菜上桌">
+    <div class="shot look" id="shBt"><img id="shBtImg" alt="酒保递菜单"></div>
+    <div class="shot look" id="shDet"><img src="assets/img/det-push-form.jpg" alt="侦探推来咨询单"></div>
+    <div class="dishes3d" id="dishes"></div>
+    <div class="chair" id="chair" title="拉开椅子">
+      <span class="c-back"></span><span class="c-seat"></span>
+      <span class="c-leg l"></span><span class="c-leg r"></span>
+    </div>
+    <div class="vprompt walk-hint" id="vpWalk">滑动鼠标，往前走一步<span class="arr">▼</span></div>
+    <div class="vprompt chair-hint" id="vpChair">拉开椅子，坐下</div>
+    <div class="vfloat" id="menuWrap"></div>
+    <div class="vfloat" id="formWrap"></div>
+    <div class="vsub" id="vsub"></div>
+    <div class="vtools">
+      <button type="button" class="btn ghost mini" id="btnSkip">直接入座</button>
+      <button type="button" class="btn mini" id="btnMenuOpen">看菜单</button>
+      <button type="button" class="btn ghost mini" id="btnReset">回到门口</button>
+    </div>
+  </div>
 
   <div class="wrap">
 
@@ -42,12 +61,10 @@
     </div>
 
     <div class="panel">
-      <div class="p-head"><h2>饮品单</h2><span class="p-en">DRINK MENU</span><span class="p-note">先喝点东西，再讲也不迟</span></div>
+      <div class="p-head"><h2>你的吧台</h2><span class="p-en">YOUR COUNTER</span><span class="p-note">点过的都记在这里</span></div>
       <div class="p-body">
-        <div id="barLine"></div>
-        <div class="drinks" id="drinkGrid"></div>
-        <div class="tray" id="trayBox"></div>
-        <p class="hint">※ 想喝哪杯就点哪杯，酒保会应你。点的单会记在这台设备上，翻页、刷新都不会丢。</p>
+        <div class="tray" id="trayBox" style="width:auto;margin:0"></div>
+        <p class="hint">※ 饮品点下即上桌；主食（拉面／牛排等）先记单，等精神分析做完，会和答案一起端上来。</p>
       </div>
     </div>
 
@@ -104,92 +121,56 @@
 <script src="assets/js/engine.js"></script>
 <script src="assets/js/ui.js"></script>
 <script src="assets/js/haunt.js"></script>
+<script src="assets/js/scene.js"></script>
 <script>
 RC.ui.chrome({ title: '吧台', path: 'index.html' });
 document.getElementById('navMount').innerHTML = RC.ui.nav('index.html');
 
-// 开场：侦探打招呼（打字机）
+// 开场问候
 var mount = document.getElementById('greetMount');
-var visits = RC.store.get('visits', 0);   // 尚未 +1，故本次为第 visits+1 回
+var visits = RC.store.get('visits', 0);
 var n = visits + 1;
 RC.ui.dialog({
   who: '萨弗兰', jp: '梦侦探',
   mount: mount,
   text: n === 1
-    ? '晚上好，我是萨弗兰。坐吧，不用客气。先从饮品单上点杯喝的，然后把你的事慢慢讲给我听——讲不清楚也没关系，讲不清楚的地方往往就是答案在的地方。'
+    ? '晚上好，我是萨弗兰。坐吧，不用客气。先从菜单上点杯喝的，然后把你的事慢慢讲给我听——讲不清楚也没关系，讲不清楚的地方往往就是答案在的地方。'
     : '又见面了，第 ' + n + ' 次。我记得每一位客人的次数，也记得他们上次讲到哪儿。……上次那件事，后来怎么样了？',
   speed: 26
 });
 
-/* ---------- 饮品单：真·点饮料 ---------- */
-var ICON = { highball: '🥃', milk: '🥛', fizz: '🍸', coffee: '☕', orange: '🍊', water: '💧' };
-var drinkGrid = document.getElementById('drinkGrid');
+/* ---------- 你的吧台（账单） ---------- */
 var trayBox = document.getElementById('trayBox');
-var barLine = document.getElementById('barLine');
-
 function trayN(id) {
   var t = RC.bar.tray();
   for (var i = 0; i < t.length; i++) if (t[i].id === id) return t[i].n;
   return 0;
 }
-function renderMenu() {
-  drinkGrid.innerHTML = RC.bar.menu.map(function (d) {
-    var on = trayN(d.id) > 0;
-    return '<div class="drink' + (on ? ' ordered' : '') + '" data-id="' + d.id + '">' +
-      '<div class="d-ico"><span class="d-glyph">' + (ICON[d.id] || '🍸') + '</span></div>' +
-      '<div class="d-main">' +
-        '<div class="d-name">' + RC.util.esc(d.cn) + '<span class="jp">' + RC.util.esc(d.jp) + '</span></div>' +
-        '<div class="d-desc">' + RC.util.esc(d.desc) + '</div>' +
-        '<div class="d-tags"><span class="d-tag' + (d.alc ? ' alc' : '') + '">' + (d.alc ? '含酒精' : '无酒精') + '</span>' +
-        '<span class="d-tag">' + RC.util.esc(d.by) + ' 调</span></div>' +
-      '</div>' +
-      '<div class="d-order"><button type="button" class="btn mini" data-order="' + d.id + '">点一杯</button></div>' +
-    '</div>';
-  }).join('');
-}
 function renderTray() {
   var t = RC.bar.tray(), total = RC.bar.count();
+  var served = RC.bar.served();
   var items = t.length ? t.map(function (x) {
     var d = RC.bar.byId(x.id);
+    var left = x.n - (served[x.id] || 0);
+    var state = d.kind === 'food' && left > 0
+      ? '<span class="ti-by">厨房里 · 稍后上</span>'
+      : (d.kind === 'food' ? '<span class="ti-by">已上桌</span>' : '<span class="ti-by">' + RC.util.esc(d.by) + ' 调</span>');
     return '<div class="tray-item"><span class="ti-n">×' + x.n + '</span><span>' + RC.util.esc(d.cn) + '</span>' +
-      '<span class="ti-by">' + RC.util.esc(d.by) + ' 调</span><span class="ti-x" data-rm="' + x.id + '">撤掉</span></div>';
-  }).join('') : '<div class="tray-empty">吧台还空着。上面点一杯，岩夫或涟会应你。</div>';
+      state + '<span class="ti-x" data-rm="' + x.id + '">撤掉</span></div>';
+  }).join('') : '<div class="tray-empty">吧台还空着。坐下之后翻翻菜单，岩夫或涟会应你。</div>';
   trayBox.innerHTML =
-    '<div class="tray-head">你的吧台<span class="cnt">今晚共 ' + total + ' 杯</span></div>' + items +
+    '<div class="tray-head">你的吧台<span class="cnt">今晚共 ' + total + ' 件</span></div>' + items +
     (t.length ? '<div class="tray-foot"><button type="button" class="btn ghost mini" id="trayClear">清空吧台</button>' +
       '<a class="btn mini" href="order.html">就这些了 · 去讲我的事 →</a></div>' : '');
 }
-var toastEl = document.createElement('div');
-toastEl.className = 'toast';
-document.body.appendChild(toastEl);
-var toastT;
-function toast(msg) {
-  toastEl.textContent = msg; toastEl.classList.add('show');
-  clearTimeout(toastT); toastT = setTimeout(function () { toastEl.classList.remove('show'); }, 1900);
-}
-function sayBy(d) {
-  barLine.innerHTML = '';
-  RC.ui.dialog({
-    who: d.by, jp: d.by === '岩夫' ? '店主' : '酒保',
-    master: d.by === '岩夫', other: d.by !== '岩夫',
-    mount: barLine, text: d.line, speed: 26
-  });
-}
-drinkGrid.addEventListener('click', function (e) {
-  var btn = e.target.closest('[data-order]'); if (!btn) return;
-  var id = btn.getAttribute('data-order'), d = RC.bar.byId(id);
-  RC.bar.add(id);
-  var card = drinkGrid.querySelector('.drink[data-id="' + id + '"]');
-  if (card) { card.classList.add('ordered', 'pour'); setTimeout(function () { card.classList.remove('pour'); }, 900); }
-  renderTray(); sayBy(d);
-  toast('已点：' + d.cn + ' ×' + trayN(id));
-});
 trayBox.addEventListener('click', function (e) {
   var rm = e.target.closest('[data-rm]');
-  if (rm) { RC.bar.remove(rm.getAttribute('data-rm')); renderTray(); renderMenu(); return; }
-  if (e.target.id === 'trayClear') { RC.bar.clear(); renderTray(); renderMenu(); toast('吧台已清空'); }
+  if (rm) { RC.bar.remove(rm.getAttribute('data-rm')); renderTray(); if (RC.scene) RC.scene.renderDishes(false); return; }
+  if (e.target.id === 'trayClear') { RC.bar.clear(); renderTray(); if (RC.scene) RC.scene.renderDishes(false); }
 });
-renderMenu(); renderTray();
+RC.scene = RC.scene || {};
+RC.scene.renderTray = renderTray;
+renderTray();
 </script>
 </body>
 </html>
