@@ -137,37 +137,37 @@
     var H = [];
     var push = function (id, score, title, jp, body) { if (score > 0) H.push({ id: id, score: score, title: title, jp: jp, body: body }); };
 
-    push('persona', (blot.counts.mask ? 40 : 0) + (S.shm.v > 30 ? 25 : 0) + (c.category === '仕事' || c.category === '自己' ? 15 : 0) + (S.dis.hits ? 20 : 0),
-      'ペルソナの過剰適用 ／ 面具的过度使用',
+    push('persona', (blot.counts.mask ? 40 : 0) + (S.shm.v > 30 ? 25 : 0) + (c.category === '工作' || c.category === '自我' ? 15 : 0) + (S.dis.hits ? 20 : 0),
+      '面具的过度使用',
       '你戴着的脸已经长在了脸上。问题不在于扮演，而在于你已经想不起卸下来之后那张脸的表情。' +
       (q.story ? '你说「' + q.story + '」——注意，你在描述自己时用的全是角色和职责，没有一处是"我想要"。' : '') +
       (blot.counts.mask ? '墨迹测试里你看见了面具，这不是巧合。' : ''),
       null);
 
     push('shadow', (S.ang.hits ? 30 : 0) + (S.esc.v > 30 ? 20 : 0) + (assoc.flagged.length ? 10 : 0),
-      '抑圧された影 ／ 被压进地下室的愤怒',
+      '被压进地下室的愤怒',
       '你的叙述里愤怒的浓度和你句子的克制程度不成比例。你把"我不允许自己生气"执行得太彻底，于是它改道了——变成失眠、变成反复的念头、变成梦里那只追你的东西。' +
       (q.rec ? '你反复想起的那句「' + q.rec + '」，就是它敲门的方式。' : ''),
       null);
 
     push('grief', (S.los.v > 30 ? 40 : 0) + ((c.dream || '').match(/死|去世|走|棺|葬|告别/) ? 20 : 0),
-      '未完了の喪失 ／ 一场没有办完的告别',
+      '一场没有办完的告别',
       '有一件事你还没有允许自己哀悼。你可能觉得"已经过去了"，但哀悼不是时间问题，是工序问题——跳过的那一步会一直在原地等你。' +
       (q.dream ? '你的梦里写着「' + q.dream + '」。梦不处理事件，梦处理没说完的话。' : ''),
       null);
 
-    push('dissoc', (S.dis.v > 30 ? 40 : 0) + (c.paralysis ? 20 : 0) + (c.dreamFreq === '毎夜' ? 15 : 0),
-      '解離的防衛 ／ 把"我"切成两半来减震',
+    push('dissoc', (S.dis.v > 30 ? 40 : 0) + (c.paralysis ? 20 : 0) + (c.dreamFreq === '每夜' ? 15 : 0),
+      '把“我”切成两半来减震',
       '当冲击超过承受上限时，心智会做的第一件事不是解决，而是"让承受的人不是我"。你描述的陌生感、断片感、镜子里的错位感，都是这个减震器在工作。它保护过你，但它现在不肯关了。',
       null);
 
     push('repeat', (c.recurring && c.recurring.length > 3 ? 30 : 0) + ((c.dream || '').length > 10 ? 15 : 0),
-      '反復強迫 ／ 同一幕戏的第 n 次重演',
+      '同一幕戏的第 n 次重演',
       '你在重复一个没有被理解的场景。重复不是记忆太好，而是理解没到位——心智会一直重放，直到有人（通常是你自己）看懂那一帧到底发生了什么。',
       null);
 
     push('judge', (S.gui.v > 30 ? 40 : 0),
-      '内面化された裁判官 ／ 你替别人继续审判自己',
+      '你替别人继续审判自己',
       '最初指责你的那个声音已经不在场了，但你把它录了下来，并且每天自己播放。你现在的痛苦里，有一半是替一个早已离场的人执行的刑罚。',
       null);
 
@@ -233,7 +233,7 @@
       };
     });
     var code = 'RC-' + new Date().getFullYear() + '-' + U.pad(U.hash(JSON.stringify(c.story || '')).toString(36).slice(0, 4).toUpperCase(), 4);
-    var stamp = H.length && H[0].score >= 60 ? '仮説成立' : (H.length ? '要観察' : '資料不足');
+    var stamp = H.length && H[0].score >= 60 ? '假说成立' : (H.length ? '需观察' : '资料不足');
     return {
       code: code, stamp: stamp,
       spectrum: sp, inkblot: blot, assoc: assoc, birth: birth,

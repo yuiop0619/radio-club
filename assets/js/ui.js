@@ -25,16 +25,16 @@
     b.className = 'browser';
     b.innerHTML =
       '<div class="b-title"><span class="b-dot"></span>' +
-      '<span class="b-tname">RADIO CLUB - ' + U.esc(meta.title) + ' - 夢ブラウザ 6.0</span>' +
+      '<span class="b-tname">RADIO CLUB - ' + U.esc(meta.title) + ' - 梦浏览器 6.0</span>' +
       '<span class="b-btns"><i></i><i></i><i></i></span></div>' +
-      '<div class="b-menu"><span><u>フ</u>ァイル(F)</span><span><u>編</u>集(E)</span><span><u>表</u>示(V)</span>' +
-      '<span>お気に入り(A)</span><span>ツール(T)</span><span>ヘルプ(H)</span></div>' +
-      '<div class="b-bar"><span class="b-lbl">アドレス</span>' +
+      '<div class="b-menu"><span><u>文</u>件(F)</span><span><u>编</u>辑(E)</span><span><u>查</u>看(V)</span>' +
+      '<span>收藏(A)</span><span>工具(T)</span><span>帮助(H)</span></div>' +
+      '<div class="b-bar"><span class="b-lbl">地址</span>' +
       '<input class="b-addr" id="rcAddr" readonly value="' + BASE_URL + U.esc(meta.path || 'index.html') + '">' +
-      '<button type="button" id="rcGo">移動</button></div>' +
+      '<button type="button" id="rcGo">前往</button></div>' +
       '<div class="b-viewport"></div>' +
-      '<div class="b-status"><span class="b-status-text" id="rcStatus">完了</span>' +
-      '<span class="b-zone">インターネットゾーン</span></div>';
+      '<div class="b-status"><span class="b-status-text" id="rcStatus">完成</span>' +
+      '<span class="b-zone">网络区域</span></div>';
     app.parentNode.insertBefore(b, app);
     b.querySelector('.b-viewport').appendChild(app);
     document.title = 'RADIO CLUB｜' + meta.title;
@@ -48,12 +48,12 @@
   function nav(active) {
     var html = NAV.map(function (n) {
       var on = n.href === active ? ' class="on"' : '';
-      return '<a href="' + n.href + '"' + on + '>' + n.jp +
+      return '<a href="' + n.href + '"' + on + '>' + n.cn +
         '<span class="nav-en">' + n.en + '</span></a>';
     }).join('');
     return '<nav class="nav">' + html +
       '<span class="spacer"></span>' +
-      '<span class="counter-mini">来店者数 <span class="digits" id="rcVisit"></span></span></nav>';
+      '<span class="counter-mini">来店人数 <span class="digits" id="rcVisit"></span></span></nav>';
   }
 
   /* ---------- 计数器 ---------- */

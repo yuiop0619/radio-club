@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RADIO CLUB｜ご注文</title>
+<title>RADIO CLUB｜委托点单</title>
 <link rel="stylesheet" href="assets/css/club.css">
 </head>
 <body data-amb-whisper>
@@ -12,8 +12,8 @@
   <header class="site-head slim">
     <div class="slim-bar">
       <a class="logo-sm" href="index.html">RADIO <b>CLUB</b></a>
-      <span class="logo-sub-sm">ネット上のバー／夢探偵事務所</span>
-      <span class="open-lamp-sm"><span class="lamp"></span>営業中</span>
+      <span class="logo-sub-sm">网络上的酒吧／梦侦探事务所</span>
+      <span class="open-lamp-sm"><span class="lamp"></span>营业中</span>
     </div>
     <div id="navMount"></div>
   </header>
@@ -24,30 +24,30 @@
 
     <form id="orderForm" autocomplete="off">
       <div class="panel">
-        <div class="p-head"><h2>ご用件承り</h2><span class="p-en">ORDER</span><span class="p-note">※ 帯 * 为必填</span></div>
+        <div class="p-head"><h2>委托点单</h2><span class="p-en">ORDER</span><span class="p-note">※ 带 * 为必填</span></div>
         <div class="p-body">
 
           <div class="row">
             <div class="field">
-              <label class="f">怎么称呼你 <span class="jp">／ハンドルネーム</span> <span class="req">*</span></label>
+              <label class="f">怎么称呼你 <span class="req">*</span></label>
               <input type="text" id="fHandle" placeholder="真名或昵称都行">
             </div>
             <div class="field">
-              <label class="f">年龄段 <span class="jp">／年代</span></label>
+              <label class="f">年龄段</label>
               <select id="fAge">
                 <option value="">（不说也行）</option>
-                <option>10代</option><option>20代</option><option>30代</option><option>40代</option><option>50代以上</option>
+                <option>10 多岁</option><option>20 多岁</option><option>30 多岁</option><option>40 多岁</option><option>50 岁以上</option>
               </select>
             </div>
             <div class="field">
-              <label class="f">生日 <span class="jp">／生年月日</span></label>
+              <label class="f">生日</label>
               <input type="date" id="fBirth">
               <div class="hint">用于数秘与本命牌，可留空</div>
             </div>
           </div>
 
           <div class="field">
-            <label class="f">这件事属于哪一类 <span class="jp">／カテゴリ</span> <span class="req">*</span></label>
+            <label class="f">这件事属于哪一类 <span class="req">*</span></label>
             <div class="radio-row" id="catRow">
               <span class="chip" data-v="人际关系">人际关系</span>
               <span class="chip" data-v="工作">工作</span>
@@ -60,19 +60,19 @@
           </div>
 
           <div class="field">
-            <label class="f">把这件事讲给我听 <span class="jp">／ご用件</span> <span class="req">*</span></label>
+            <label class="f">把这件事讲给我听 <span class="req">*</span></label>
             <textarea id="fStory" placeholder="想到什么写什么，不用组织语言。越乱越好，乱的地方就是线头。"></textarea>
             <div class="hint" id="storyHint">至少写一句话。她真的会逐字读。</div>
           </div>
 
           <div class="field">
-            <label class="f">最近反复做的梦 <span class="jp">／夢</span></label>
+            <label class="f">最近反复做的梦</label>
             <textarea id="fDream" style="min-height:64px" placeholder="片段也可以。记不清就写记不清。"></textarea>
           </div>
 
           <div class="row">
             <div class="field">
-              <label class="f">做梦的频率 <span class="jp">／頻度</span></label>
+              <label class="f">做梦的频率</label>
               <div class="radio-row" id="freqRow">
                 <span class="chip" data-v="每夜">每夜</span>
                 <span class="chip" data-v="每周数次">每周数次</span>
@@ -81,7 +81,7 @@
               </div>
             </div>
             <div class="field">
-              <label class="f">是否有过"醒着但动不了"的经历 <span class="jp">／金縛り</span></label>
+              <label class="f">是否有过"醒着但动不了"的经历</label>
               <div class="radio-row" id="parRow">
                 <span class="chip" data-v="1">有过</span>
                 <span class="chip" data-v="0">没有</span>
@@ -90,13 +90,13 @@
           </div>
 
           <div class="field">
-            <label class="f">最近反复想起的一句话或一个画面 <span class="jp">／反復</span></label>
+            <label class="f">最近反复想起的一句话或一个画面</label>
             <input type="text" id="fRecurring" placeholder="例如：某人说过的某句话 / 某个走廊 / 某扇关不上的门">
           </div>
 
           <div class="center mt">
-            <button type="submit" class="btn red">吧台に渡す ／ 交给吧台</button>
-            <button type="button" class="btn ghost" id="btnClear">書き直す ／ 重写</button>
+            <button type="submit" class="btn red">交给吧台</button>
+            <button type="button" class="btn ghost" id="btnClear">重写</button>
           </div>
           <div class="hint center" id="formMsg"></div>
 
@@ -109,8 +109,8 @@
   </div>
 
   <footer class="site-foot">
-    <span class="f-links"><a href="index.html">カウンター</a> │ <a href="tarot.html">タロット</a> │ <a href="psyche.html">精神分析</a></span>
-    <span class="copy">© 2006- RADIO CLUB ／ ネット上のバー</span>
+    <span class="f-links"><a href="index.html">吧台</a> │ <a href="tarot.html">塔罗</a> │ <a href="psyche.html">精神分析</a></span>
+    <span class="copy">© 2006- RADIO CLUB ／ 网络上的酒吧</span>
   </footer>
 
 </div>
@@ -121,11 +121,11 @@
 <script src="assets/js/ui.js"></script>
 <script src="assets/js/haunt.js"></script>
 <script>
-RC.ui.chrome({ title: 'ご注文', path: 'order.html' });
+RC.ui.chrome({ title: '委托点单', path: 'order.html' });
 document.getElementById('navMount').innerHTML = RC.ui.nav('order.html');
 
 RC.ui.dialog({
-  who: 'サフラン', jp: '夢探偵',
+  who: '萨弗兰', jp: '梦侦探',
   mount: document.getElementById('introMount'),
   text: '点单不用写得漂亮。你负责把事实倒出来，我负责把它们摆整齐。写不下去的地方就空着——空着本身也是信息。',
   speed: 26
@@ -193,13 +193,13 @@ document.getElementById('orderForm').addEventListener('submit', function (e) {
   var done = document.getElementById('doneMount');
   done.classList.remove('hidden');
   RC.ui.dialog({
-    who: 'サフラン', jp: '夢探偵', mount: done,
+    who: '萨弗兰', jp: '梦侦探', mount: done,
     text: '收到了，' + handle + '。我先读完，你别急。……读完了。下一步，去抽牌。牌会替你说那些你还没准备好亲口说的部分。',
     speed: 26,
     done: function () {
       done.insertAdjacentHTML('beforeend',
-        '<div class="center mt"><a class="btn" href="tarot.html">タロットへ ／ 去抽牌 →</a> ' +
-        '<a class="btn ghost" href="psyche.html">精神分析へ ／ 先做分析 →</a></div>');
+        '<div class="center mt"><a class="btn" href="tarot.html">去抽牌 →</a> ' +
+        '<a class="btn ghost" href="psyche.html">先做分析 →</a></div>');
     }
   });
 });

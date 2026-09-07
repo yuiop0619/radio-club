@@ -27,12 +27,16 @@
       }, 200);
     }
 
-    /* 打烊低语：停留较久后，店主温和地问候一句 */
+    /* 打烊低语：停留较久后，店主温和地问候一句（呼应已点的饮品） */
     if (document.body.hasAttribute('data-amb-whisper')) {
       setTimeout(function () {
+        var cnt = (RC.bar && RC.bar.count) ? RC.bar.count() : 0;
+        var txt = cnt > 0
+          ? '……打烊前，你点的那 ' + cnt + ' 杯还合口味吗。想再来一杯，我们也不急着打烊。'
+          : '……打烊前，要来一杯吗。热的凉的都有。不着急，我们等你。';
         RC.ui.dialog({
-          who: 'マスター', jp: '店主', master: true,
-          text: '……打烊前，再来一杯吗。不着急，我们等你。',
+          who: '岩夫', jp: '店主', master: true,
+          text: txt,
           speed: 40
         });
       }, 30000 + Math.random() * 15000);

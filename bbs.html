@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RADIO CLUB｜BBS</title>
+<title>RADIO CLUB｜留言板</title>
 <link rel="stylesheet" href="assets/css/club.css">
 </head>
 <body data-amb-whisper>
@@ -12,8 +12,8 @@
   <header class="site-head slim">
     <div class="slim-bar">
       <a class="logo-sm" href="index.html">RADIO <b>CLUB</b></a>
-      <span class="logo-sub-sm">ネット上のバー／夢探偵事務所</span>
-      <span class="open-lamp-sm"><span class="lamp"></span>営業中</span>
+      <span class="logo-sub-sm">网络上的酒吧／梦侦探事务所</span>
+      <span class="open-lamp-sm"><span class="lamp"></span>营业中</span>
     </div>
     <div id="navMount"></div>
   </header>
@@ -21,21 +21,21 @@
   <div class="wrap">
 
     <div class="panel">
-      <div class="p-head"><h2>常連の落書き</h2><span class="p-en">BBS</span><span class="p-note">やさしく。ここに愚痴を置いていっていい</span></div>
+      <div class="p-head"><h2>常客留言</h2><span class="p-en">BBS</span><span class="p-note">温柔一点。可以把牢骚留在这儿</span></div>
       <div class="p-body">
         <div id="posts"></div>
         <hr class="rule dbl">
         <div class="row">
           <div class="field">
-            <label class="f">名前 <span class="jp">／名前</span></label>
-            <input type="text" id="pName" placeholder="名無しでも可">
+            <label class="f">名字</label>
+            <input type="text" id="pName" placeholder="匿名也行">
           </div>
           <div class="field" style="flex:2">
-            <label class="f">ひとこと <span class="jp">／本文</span></label>
-            <input type="text" id="pBody" placeholder="今夜的感想、愚痴、或只是打个招呼">
+            <label class="f">说点什么</label>
+            <input type="text" id="pBody" placeholder="今夜的感想、牢骚，或只是打个招呼">
           </div>
         </div>
-        <div class="center"><button type="button" class="btn" id="btnPost">書き込む ／ 发布</button></div>
+        <div class="center"><button type="button" class="btn" id="btnPost">发布</button></div>
         <div class="hint center" id="postMsg"></div>
       </div>
     </div>
@@ -43,8 +43,8 @@
   </div>
 
   <footer class="site-foot">
-    <span class="f-links"><a href="index.html">カウンター</a> │ <a href="link.html">LINK</a></span>
-    <span class="copy">© 2006- RADIO CLUB ／ ネット上のバー</span>
+    <span class="f-links"><a href="index.html">吧台</a> │ <a href="link.html">链接</a></span>
+    <span class="copy">© 2006- RADIO CLUB ／ 网络上的酒吧</span>
   </footer>
 
 </div>
@@ -55,15 +55,15 @@
 <script src="assets/js/ui.js"></script>
 <script src="assets/js/haunt.js"></script>
 <script>
-RC.ui.chrome({ title: 'BBS', path: 'bbs.html' });
+RC.ui.chrome({ title: '留言板', path: 'bbs.html' });
 document.getElementById('navMount').innerHTML = RC.ui.nav('bbs.html');
 
 var SEED = [
-  { name: '霧島岩夫', role: '店主', body: '今夜も営業中。寒い夜だから、ホットミルクを注文する子には蜂蜜を多めにしているぞ。' },
-  { name: '瀬田涟', role: 'バーテン', body: '……嗯。（新来的客人，牌不用怕抽错。）' },
-  { name: '常連・タカ', role: '客', body: '先週ここで話を聞いてもらって、やっと上司に言えました。ありがとう。' },
-  { name: 'サフラン', role: '夢探偵', body: '鑑定書はカウンターに置いておきます。受け取りに来てください。読んだら、反論も持って来てください。' },
-  { name: '常連・ミドリ', role: '客', body: 'ここのハイボール、ほんとに气泡很细。岩夫さん手艺没退步。' }
+  { name: '雾岛岩夫', role: '店主', body: '今晚也照常营业。天冷，点热牛奶的孩子，我蜂蜜都多放了一勺。' },
+  { name: '濑田涟', role: '酒保', body: '……嗯。（新来的客人，牌不用怕抽错。）' },
+  { name: '常客·阿孝', role: '客', body: '上周在这儿被人听我把话讲完，终于跟上司开口了。谢谢。' },
+  { name: '萨弗兰', role: '梦侦探', body: '鉴定书我放在吧台了，来取。读完，也请把你的反驳一起带来。' },
+  { name: '常客·小绿', role: '客', body: '这儿的高球，气泡是真细。岩夫的手艺没退步。' }
 ];
 
 function load() {
@@ -82,7 +82,7 @@ function render() {
 render();
 
 document.getElementById('btnPost').addEventListener('click', function () {
-  var name = document.getElementById('pName').value.trim() || '名無し';
+  var name = document.getElementById('pName').value.trim() || '匿名';
   var body = document.getElementById('pBody').value.trim();
   var msg = document.getElementById('postMsg');
   if (!body) { msg.innerHTML = '<span class="red">※ 至少写一个字。</span>'; return; }
@@ -90,7 +90,7 @@ document.getElementById('btnPost').addEventListener('click', function () {
   p.push({ name: name, role: '客', body: body, time: new Date().toLocaleString('zh-CN') });
   RC.store.set('bbs', p);
   document.getElementById('pBody').value = '';
-  msg.innerHTML = '<span class="amber">※ 書いたよ。岩夫が頷いてる。</span>';
+  msg.innerHTML = '<span class="amber">※ 发出去了。岩夫朝你点了点头。</span>';
   render();
 });
 </script>
