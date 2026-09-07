@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RADIO CLUB｜タロット</title>
+<link rel="stylesheet" href="assets/css/club.css">
+</head>
+<body data-amb-whisper>
+<div id="app">
+
+  <header class="site-head slim">
+    <div class="slim-bar">
+      <a class="logo-sm" href="index.html">RADIO <b>CLUB</b></a>
+      <span class="logo-sub-sm">ネット上のバー／夢探偵事務所</span>
+      <span class="open-lamp-sm"><span class="lamp"></span>営業中</span>
+    </div>
+    <div id="navMount"></div>
+  </header>
+
+  <div class="wrap">
+
+    <div id="introMount"></div>
+
+    <div class="panel">
+      <div class="p-head"><h2>タロット展開</h2><span class="p-en">FIVE CARDS</span><span class="p-note">過去・現在・隠れた動機・障害・結論</span></div>
+      <div class="p-body">
+        <div class="center mb">
+          <button type="button" class="btn" id="btnDeal">シャッフルして配る ／ 洗牌并抽牌</button>
+          <button type="button" class="btn ghost" id="btnFlipAll">全部めくる ／ 全部翻开</button>
+        </div>
+        <div class="spread" id="spread"></div>
+        <div class="hint center" id="dealHint">点"洗牌并抽牌"，然后一张张点开。慢慢来，翻牌的速度也是信息。</div>
+      </div>
+    </div>
+
+    <div class="panel hidden" id="readPanel">
+      <div class="p-head"><h2>読牌</h2><span class="p-en">READING</span></div>
+      <div class="p-body">
+        <table class="grid" id="readTable"></table>
+        <div id="synthMount"></div>
+        <div class="center mt">
+          <a class="btn" href="psyche.html">精神分析へ ／ 去做分析 →</a>
+          <a class="btn ghost" href="verdict.html">鑑定書を受取る ／ 领取鉴定书 →</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-foot">
+    <span class="f-links"><a href="order.html">ご注文</a> │ <a href="psyche.html">精神分析</a> │ <a href="verdict.html">鑑定</a></span>
+    <span class="copy">© 2006- RADIO CLUB ／ ネット上のバー</span>
+  </footer>
+
+</div>
+
+<script src="assets/js/store.js"></script>
+<script src="assets/js/tarot-data.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/haunt.js"></script>
+<script>
+RC.ui.chrome({ title: 'タロット', path: 'tarot.html' });
+document.getElementById('navMount').innerHTML = RC.ui.nav('tarot.html');
+
+RC.ui.dialog({
+  who: 'サフラン', jp: '夢探偵',
+  mount: document.getElementById('introMount'),
+  text: '牌不预言未来。它只是一面便宜的镜子，让你把心里已经有的答案，借着一张画说出来。所以——别挑，随手翻。',
+  speed: 26
+});
+
+var results = [];
+var flipped = 0;
+
+function cardHTML(d) {
+  var c = RC.tarot.byId(d.id);
+  var pos = RC.tarot.positions[d.pos];
+  return '<div class="tcard' + (d.upright ? '' : ' rev') + '" data-i="' + d.pos + '">' +
+    '<div class="inner">' +
+    '<div class="face back"><div class="seal">✦</div></div>' +
+    '<div class="face front">' +
+    '<div class="num">' + c.r + '</div>' +
+    '<div class="glyph">' + c.g + '</div>' +
+    '<div class="nm">' + RC.util.esc(c.cn) + '<span class="jp">' + RC.util.esc(c.jp) + '</span></div>' +
+    '</div></div>' +
+    '<div class="pos">' + RC.util.esc(pos.cn) + '／' + RC.util.esc(pos.jp) + (d.upright ? '・正位置' : '・逆位置') + '</div>' +
+    '</div>';
+}
+
+document.getElementById('btnDeal').addEventListener('click', function () {
+  results = RC.tarot.draw();
+  flipped = 0;
+  var sp = document.getElementById('spread');
+  sp.innerHTML = results.map(cardHTML).join('');
+  sp.querySelectorAll('.tcard').forEach(function (el) {
+    el.addEventListener('click', function () {
+      if (el.classList.contains('flip')) return;
+      el.classList.add('flip');
+      flipped++;
+      if (flipped === results.length) finish();
+    });
+  });
+  document.getElementById('dealHint').textContent = '一张张点开。或者点"全部翻开"。';
+  document.getElementById('readPanel').classList.add('hidden');
+});
+
+document.getElementById('btnFlipAll').addEventListener('click', function () {
+  var sp = document.getElementById('spread');
+  if (!sp.querySelector('.tcard')) return;
+  sp.querySelectorAll('.tcard').forEach(function (el) { el.classList.add('flip'); });
+  flipped = results.length;
+  finish();
+});
+
+function finish() {
+  RC.case.save({ tarot: results });
+  var rows = results.map(function (d) {
+    var c = RC.tarot.byId(d.id);
+    var pos = RC.tarot.positions[d.pos];
+    return '<tr><th>' + RC.util.esc(pos.cn) + '</th><td>' + RC.util.esc(c.cn) + '（' + RC.util.esc(c.jp) + '）' +
+      (d.upright ? '・正位置' : '・逆位置') + '<br><span class="dim">' + RC.util.esc(d.upright ? c.up : c.rv) + '</span></td></tr>';
+  }).join('');
+  document.getElementById('readTable').innerHTML = rows;
+  document.getElementById('readPanel').classList.remove('hidden');
+
+  var concl = results.filter(function (d) { return d.pos === 4; })[0];
+  var cc = RC.tarot.byId(concl.id);
+  RC.ui.dialog({
+    who: 'サフラン', jp: '夢探偵',
+    mount: document.getElementById('synthMount'),
+    text: '结论位落在「' + cc.cn + '」' + (concl.upright ? '正位' : '逆位') + '。' +
+      (concl.upright ? cc.up : cc.rv) + ' ……先别下结论，等墨迹和联想做完，我再把三样东西拼起来给你看。',
+    speed: 26
+  });
+}
+</script>
+</body>
+</html>

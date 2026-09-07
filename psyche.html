@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RADIO CLUB｜精神分析</title>
+<link rel="stylesheet" href="assets/css/club.css">
+</head>
+<body data-amb-whisper>
+<div id="app">
+
+  <header class="site-head slim">
+    <div class="slim-bar">
+      <a class="logo-sm" href="index.html">RADIO <b>CLUB</b></a>
+      <span class="logo-sub-sm">ネット上のバー／夢探偵事務所</span>
+      <span class="open-lamp-sm"><span class="lamp"></span>営業中</span>
+    </div>
+    <div id="navMount"></div>
+  </header>
+
+  <div class="wrap">
+
+    <div id="introMount"></div>
+
+    <div class="panel">
+      <div class="p-head"><h2>ロールシャッハ・テスト</h2><span class="p-en">INKBLOT ×5</span><span class="p-note">看到什么写什么，不要"正确答案"</span></div>
+      <div class="p-body">
+        <div id="blots"></div>
+        <div class="center mt">
+          <button type="button" class="btn" id="btnBlot">墨跡の反応を記録 ／ 记录墨迹反应</button>
+        </div>
+        <div class="hint center" id="blotMsg"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="p-head"><h2>単語連想テスト</h2><span class="p-en">WORD ASSOCIATION</span><span class="p-note">会记录你的反应时间</span></div>
+      <div class="p-body">
+        <div id="assocBox" class="center">
+          <div class="dim small">刺激語</div>
+          <div id="stim" class="logo" style="font-size:44px;margin:8px 0">―</div>
+          <div style="max-width:340px;margin:0 auto">
+            <input type="text" id="assocInput" placeholder="脑中浮出的第一个词，立刻写下" disabled>
+          </div>
+          <div class="mt">
+            <button type="button" class="btn" id="btnAssocStart">テスト開始 ／ 开始测试</button>
+            <button type="button" class="btn ghost hidden" id="btnAssocNext">回答 ／ 提交</button>
+          </div>
+          <div class="hint" id="assocProg"></div>
+        </div>
+        <div id="assocResult" class="hidden">
+          <table class="grid" id="assocTable"></table>
+          <div id="assocSumm" class="mt dim"></div>
+          <div class="center mt">
+            <a class="btn" href="verdict.html">鑑定書を受取る ／ 领取鉴定书 →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-foot">
+    <span class="f-links"><a href="order.html">ご注文</a> │ <a href="tarot.html">タロット</a> │ <a href="verdict.html">鑑定</a></span>
+    <span class="copy">© 2006- RADIO CLUB ／ ネット上のバー</span>
+  </footer>
+
+</div>
+
+<script src="assets/js/store.js"></script>
+<script src="assets/js/tarot-data.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/haunt.js"></script>
+<script>
+RC.ui.chrome({ title: '精神分析', path: 'psyche.html' });
+document.getElementById('navMount').innerHTML = RC.ui.nav('psyche.html');
+
+RC.ui.dialog({
+  who: 'サフラン', jp: '夢探偵',
+  mount: document.getElementById('introMount'),
+  text: '接下来两项没有对错。墨迹测的是"你习惯往哪里看"，联想测的是"哪个词会让你卡住"。卡住的地方，就是我们要去的地方。',
+  speed: 26
+});
+
+/* ---------- 罗夏墨迹（程序生成、左右对称） ---------- */
+function blotSVG(seed) {
+  var r = RC.util.rng(seed);
+  var shapes = '';
+  var n = 6 + Math.floor(r() * 4);
+  for (var i = 0; i < n; i++) {
+    var cx = 100 - (8 + r() * 70);
+    var cy = 18 + r() * 114;
+    var rx = 8 + r() * 26;
+    var ry = 6 + r() * 22;
+    var rot = Math.floor(r() * 180);
+    shapes += '<ellipse cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" rx="' + rx.toFixed(1) + '" ry="' + ry.toFixed(1) +
+      '" transform="rotate(' + rot + ' ' + cx.toFixed(1) + ' ' + cy.toFixed(1) + ')"/>';
+  }
+  shapes += '<ellipse cx="100" cy="' + (55 + r() * 45).toFixed(1) + '" rx="' + (10 + r() * 14).toFixed(1) + '" ry="' + (18 + r() * 30).toFixed(1) + '"/>';
+  return '<svg viewBox="0 0 200 150"><g fill="#17120f">' + shapes +
+    '<g transform="translate(200,0) scale(-1,1)">' + shapes + '</g></g></svg>';
+}
+var blotHost = document.getElementById('blots');
+var blotHTML = '';
+for (var b = 1; b <= 5; b++) {
+  blotHTML += '<div class="blot-row">' +
+    '<div class="blot">' + blotSVG(1000 + b * 77) + '<div class="blot-cap">FIG.' + b + '</div></div>' +
+    '<div class="blot-form"><label class="f">第 ' + b + ' 张：你看到了什么 <span class="jp">／何が見える</span></label>' +
+    '<input type="text" class="blotIn" data-i="' + b + '" placeholder="一个词或一句话都行">' +
+    '<div class="hint">第一反应即可，不用解释。</div></div></div>';
+}
+blotHost.innerHTML = blotHTML;
+
+document.getElementById('btnBlot').addEventListener('click', function () {
+  var ins = blotHost.querySelectorAll('.blotIn');
+  var arr = [];
+  ins.forEach(function (inp) { arr.push({ id: +inp.getAttribute('data-i'), text: inp.value.trim() }); });
+  var filled = arr.filter(function (a) { return a.text; }).length;
+  var msg = document.getElementById('blotMsg');
+  if (filled === 0) { msg.innerHTML = '<span class="red">※ 至少写一张。"看不出"也是一种回答，但得写下来。</span>'; return; }
+  RC.case.save({ inkblots: arr });
+  msg.innerHTML = '<span class="amber">※ 已记录 ' + filled + ' / 5 条墨迹反应。</span>';
+});
+
+/* ---------- 词联想（计时） ---------- */
+var STIM = ['镜', '母亲', '夜', '钥匙', '名字'];
+var ai = -1, t0 = 0, assocRows = [];
+var stimEl = document.getElementById('stim');
+var inputEl = document.getElementById('assocInput');
+var progEl = document.getElementById('assocProg');
+
+document.getElementById('btnAssocStart').addEventListener('click', function () {
+  this.classList.add('hidden');
+  document.getElementById('btnAssocNext').classList.remove('hidden');
+  inputEl.disabled = false;
+  nextStim();
+});
+function nextStim() {
+  ai++;
+  if (ai >= STIM.length) { finishAssoc(); return; }
+  assocRows.push(null);
+  stimEl.textContent = STIM[ai];
+  inputEl.value = '';
+  inputEl.focus();
+  t0 = performance.now();
+  progEl.textContent = (ai + 1) + ' / ' + STIM.length;
+}
+document.getElementById('btnAssocNext').addEventListener('click', function () {
+  if (ai < 0 || ai >= STIM.length) return;
+  var ms = Math.round(performance.now() - t0);
+  assocRows[ai] = { stim: STIM[ai], resp: inputEl.value.trim(), ms: ms };
+  nextStim();
+});
+inputEl.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('btnAssocNext').click(); }
+});
+
+function finishAssoc() {
+  inputEl.disabled = true;
+  document.getElementById('btnAssocNext').classList.add('hidden');
+  RC.case.save({ assoc: assocRows });
+  var prof = RC.engine.assocProfile(RC.case.get());
+  document.getElementById('assocTable').innerHTML = prof.rows.map(function (r) {
+    return '<tr><th>' + RC.util.esc(r.stim) + '</th><td>' + (r.resp ? RC.util.esc(r.resp) : '<span class="faint">（未答）</span>') + '</td>' +
+      '<td class="mono">' + (r.ms / 1000).toFixed(1) + 's</td>' +
+      '<td>' + (r.flag ? '<span class="amber">' + RC.util.esc(r.flag) + '</span>' : '<span class="faint">―</span>') + '</td></tr>';
+  }).join('');
+  document.getElementById('assocSumm').textContent = prof.summary;
+  document.getElementById('assocBox').classList.add('hidden');
+  document.getElementById('assocResult').classList.remove('hidden');
+}
+</script>
+</body>
+</html>

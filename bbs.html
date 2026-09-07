@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RADIO CLUB｜BBS</title>
+<link rel="stylesheet" href="assets/css/club.css">
+</head>
+<body data-amb-whisper>
+<div id="app">
+
+  <header class="site-head slim">
+    <div class="slim-bar">
+      <a class="logo-sm" href="index.html">RADIO <b>CLUB</b></a>
+      <span class="logo-sub-sm">ネット上のバー／夢探偵事務所</span>
+      <span class="open-lamp-sm"><span class="lamp"></span>営業中</span>
+    </div>
+    <div id="navMount"></div>
+  </header>
+
+  <div class="wrap">
+
+    <div class="panel">
+      <div class="p-head"><h2>常連の落書き</h2><span class="p-en">BBS</span><span class="p-note">やさしく。ここに愚痴を置いていっていい</span></div>
+      <div class="p-body">
+        <div id="posts"></div>
+        <hr class="rule dbl">
+        <div class="row">
+          <div class="field">
+            <label class="f">名前 <span class="jp">／名前</span></label>
+            <input type="text" id="pName" placeholder="名無しでも可">
+          </div>
+          <div class="field" style="flex:2">
+            <label class="f">ひとこと <span class="jp">／本文</span></label>
+            <input type="text" id="pBody" placeholder="今夜的感想、愚痴、或只是打个招呼">
+          </div>
+        </div>
+        <div class="center"><button type="button" class="btn" id="btnPost">書き込む ／ 发布</button></div>
+        <div class="hint center" id="postMsg"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-foot">
+    <span class="f-links"><a href="index.html">カウンター</a> │ <a href="link.html">LINK</a></span>
+    <span class="copy">© 2006- RADIO CLUB ／ ネット上のバー</span>
+  </footer>
+
+</div>
+
+<script src="assets/js/store.js"></script>
+<script src="assets/js/tarot-data.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/haunt.js"></script>
+<script>
+RC.ui.chrome({ title: 'BBS', path: 'bbs.html' });
+document.getElementById('navMount').innerHTML = RC.ui.nav('bbs.html');
+
+var SEED = [
+  { name: '霧島岩夫', role: '店主', body: '今夜も営業中。寒い夜だから、ホットミルクを注文する子には蜂蜜を多めにしているぞ。' },
+  { name: '瀬田涟', role: 'バーテン', body: '……嗯。（新来的客人，牌不用怕抽错。）' },
+  { name: '常連・タカ', role: '客', body: '先週ここで話を聞いてもらって、やっと上司に言えました。ありがとう。' },
+  { name: 'サフラン', role: '夢探偵', body: '鑑定書はカウンターに置いておきます。受け取りに来てください。読んだら、反論も持って来てください。' },
+  { name: '常連・ミドリ', role: '客', body: 'ここのハイボール、ほんとに气泡很细。岩夫さん手艺没退步。' }
+];
+
+function load() {
+  var p = RC.store.get('bbs', null);
+  if (!p) { p = SEED.slice(); RC.store.set('bbs', p); }
+  return p;
+}
+function render() {
+  var p = load();
+  document.getElementById('posts').innerHTML = p.slice().reverse().map(function (x) {
+    return '<div class="post"><div class="p-meta"><span class="p-name">' + RC.util.esc(x.name) + '</span>' +
+      '<span>' + RC.util.esc(x.role || '客') + '</span><span class="mono">' + RC.util.esc(x.time || '') + '</span></div>' +
+      '<div class="p-body">' + RC.util.esc(x.body) + '</div></div>';
+  }).join('');
+}
+render();
+
+document.getElementById('btnPost').addEventListener('click', function () {
+  var name = document.getElementById('pName').value.trim() || '名無し';
+  var body = document.getElementById('pBody').value.trim();
+  var msg = document.getElementById('postMsg');
+  if (!body) { msg.innerHTML = '<span class="red">※ 至少写一个字。</span>'; return; }
+  var p = load();
+  p.push({ name: name, role: '客', body: body, time: new Date().toLocaleString('zh-CN') });
+  RC.store.set('bbs', p);
+  document.getElementById('pBody').value = '';
+  msg.innerHTML = '<span class="amber">※ 書いたよ。岩夫が頷いてる。</span>';
+  render();
+});
+</script>
+</body>
+</html>

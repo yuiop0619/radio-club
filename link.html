@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RADIO CLUB｜LINK</title>
+<link rel="stylesheet" href="assets/css/club.css">
+</head>
+<body data-amb-whisper>
+<div id="app">
+
+  <header class="site-head slim">
+    <div class="slim-bar">
+      <a class="logo-sm" href="index.html">RADIO <b>CLUB</b></a>
+      <span class="logo-sub-sm">ネット上のバー／夢探偵事務所</span>
+      <span class="open-lamp-sm"><span class="lamp"></span>営業中</span>
+    </div>
+    <div id="navMount"></div>
+  </header>
+
+  <div class="wrap">
+
+    <div class="row">
+      <div class="panel">
+        <div class="p-head"><h2>サイトマップ</h2><span class="p-en">SITE MAP</span></div>
+        <div class="p-body">
+          <table class="menu">
+            <tr><td class="k"><a href="index.html">カウンター</a></td><td class="d">玄关・今夜的营业案内・菜单</td></tr>
+            <tr><td class="k"><a href="people.html">登場人物</a></td><td class="d">梦侦探萨弗兰与两位酒保</td></tr>
+            <tr><td class="k"><a href="order.html">ご注文</a></td><td class="d">委托点单（把事写下来）</td></tr>
+            <tr><td class="k"><a href="tarot.html">タロット</a></td><td class="d">五张牌阵</td></tr>
+            <tr><td class="k"><a href="psyche.html">精神分析</a></td><td class="d">罗夏墨迹 + 词联想</td></tr>
+            <tr><td class="k"><a href="verdict.html">鑑定</a></td><td class="d">领取书面鉴定书</td></tr>
+            <tr><td class="k"><a href="bbs.html">BBS</a></td><td class="d">常客留言板</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="p-head"><h2>リンク</h2><span class="p-en">NEIGHBORS</span></div>
+        <div class="p-body">
+          <p class="dim small">同一条小巷里的街坊。点不开也没关系，他们本来也只在夜里营业。</p>
+          <div class="mt" style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="badge88">隔壁<br>レコード行</span>
+            <span class="badge88">楼上<br>深夜食堂</span>
+            <span class="badge88">对街<br>洗衣店</span>
+            <span class="badge88">巷口<br>花屋</span>
+          </div>
+          <hr class="rule">
+          <div class="p-head" style="padding:0 0 6px;border:0;background:none"><h2>メール</h2><span class="p-en">MAIL</span></div>
+          <p class="dim small">给店主留言：<a href="mailto:master@radio-club.ne.jp">master@radio-club.ne.jp</a><br>
+          （店内信箱。回信通常在打烊后。）</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="p-head"><h2>このサイトについて</h2><span class="p-en">ABOUT</span></div>
+      <div class="p-body">
+        <p class="dim small">RADIO CLUB 是一间只存在于网络上的酒吧，也是梦侦探萨弗兰的工作台。全站离线运行：你写下的委托、抽到的牌、墨迹与联想反应，都只保存在你自己的浏览器里，不会上传到任何地方。</p>
+        <p class="dim small">塔罗与精神分析内容仅供娱乐与自我梳理，不构成医疗或心理诊断。若你正经历真实的困扰，请寻求专业帮助——萨弗兰也会这么建议。</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-foot">
+    <span class="f-links"><a href="index.html">カウンター</a> │ <a href="bbs.html">BBS</a></span>
+    <span class="badge88">RADIO CLUB<br>BEST VIEWED 1024×768</span>
+    <span class="copy">© 2006- RADIO CLUB ／ ネット上のバー<br>Since 2006.11.25</span>
+  </footer>
+
+</div>
+
+<script src="assets/js/store.js"></script>
+<script src="assets/js/tarot-data.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/haunt.js"></script>
+<script>
+RC.ui.chrome({ title: 'LINK', path: 'link.html' });
+document.getElementById('navMount').innerHTML = RC.ui.nav('link.html');
+</script>
+</body>
+</html>

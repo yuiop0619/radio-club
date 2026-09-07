@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RADIO CLUB｜鑑定書</title>
+<link rel="stylesheet" href="assets/css/club.css">
+</head>
+<body data-amb-whisper>
+<div id="app">
+
+  <header class="site-head slim">
+    <div class="slim-bar">
+      <a class="logo-sm" href="index.html">RADIO <b>CLUB</b></a>
+      <span class="logo-sub-sm">ネット上のバー／夢探偵事務所</span>
+      <span class="open-lamp-sm"><span class="lamp"></span>営業中</span>
+    </div>
+    <div id="navMount"></div>
+  </header>
+
+  <div class="wrap">
+
+    <div id="introMount"></div>
+
+    <div id="emptyMount" class="hidden">
+      <div class="panel"><div class="p-body center">
+        <p class="dim">吧台还没有收到你的委托。</p>
+        <a class="btn" href="order.html">ご注文へ ／ 去点单 →</a>
+      </div></div>
+    </div>
+
+    <div id="reportMount" class="hidden">
+      <div class="panel">
+        <div class="p-head"><h2>鑑定書</h2><span class="p-en">VERDICT</span><span class="p-note" id="vCode"></span></div>
+        <div class="p-body report" id="report"></div>
+      </div>
+      <div class="center mt">
+        <button type="button" class="btn ghost" onclick="window.print()">印刷 ／ 打印</button>
+        <a class="btn ghost" href="order.html">ご用件を書き直す ／ 重写委托</a>
+        <a class="btn" href="index.html">カウンターへ ／ 回吧台</a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-foot">
+    <span class="f-links"><a href="order.html">ご注文</a> │ <a href="tarot.html">タロット</a> │ <a href="psyche.html">精神分析</a></span>
+    <span class="copy">© 2006- RADIO CLUB ／ ネット上のバー</span>
+  </footer>
+
+</div>
+
+<script src="assets/js/store.js"></script>
+<script src="assets/js/tarot-data.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/haunt.js"></script>
+<script>
+RC.ui.chrome({ title: '鑑定書', path: 'verdict.html' });
+document.getElementById('navMount').innerHTML = RC.ui.nav('verdict.html');
+
+var c = RC.case.get();
+var esc = RC.util.esc;
+
+if (!RC.case.has()) {
+  document.getElementById('emptyMount').classList.remove('hidden');
+  RC.ui.dialog({ who: 'サフラン', jp: '夢探偵', mount: document.getElementById('introMount'),
+    text: '还没有委托内容呢。先去把事写下来，我才能给你写这份东西。', speed: 26 });
+} else {
+  var v = RC.engine.buildVerdict(c);
+  var visits = RC.store.get('visits', 0);
+
+  RC.ui.dialog({ who: 'サフラン', jp: '夢探偵', mount: document.getElementById('introMount'),
+    text: '坐好，' + (c.handle || '客人') + '。这份我写完了，逐条念给你听。不同意的地方现在就反驳我——反驳也是诊断的一部分。',
+    speed: 26, done: function () { document.getElementById('reportMount').classList.remove('hidden'); } });
+
+  document.getElementById('vCode').textContent = v.code + ' ／ ' + v.stamp;
+
+  var h = '';
+  h += '<table class="grid mb"><tr><th>称呼</th><td>' + esc(c.handle || '―') + '</td><th>类别</th><td>' + esc(c.category || '―') + '</td></tr>' +
+       '<tr><th>来店</th><td>第 ' + (visits) + ' 回</td><th>作成</th><td>' + new Date().toLocaleString('zh-CN') + '</td></tr></table>';
+
+  // 1 再构成
+  h += '<h3>一・事件の再構成 ／ 事件重述</h3>';
+  h += '<p>你用这样的话开头：<span class="quote">「' + esc(v.quotes.story || '…') + '」</span></p>';
+  if (v.quotes.dream) h += '<p>你的梦里反复出现：<span class="quote">「' + esc(v.quotes.dream) + '」</span></p>';
+  if (v.quotes.rec) h += '<p>而白天缠着你的那句是：<span class="quote">「' + esc(v.quotes.rec) + '」</span></p>';
+  if (v.absence) h += '<p class="dim">' + esc(v.absence) + '</p>';
+  h += '<p class="dim">' + esc(v.cold[0]) + '</p>';
+
+  // 2 情感谱
+  h += '<h3>二・感情スペクトル ／ 情感谱</h3><div class="bars">';
+  v.spectrum.forEach(function (s) {
+    var n = Math.round(s.v / 5);
+    h += '<div class="bar"><span class="bl">' + esc(s.label) + '</span><span class="bt">' + '█'.repeat(n) + '</span><span class="bv">' + s.v + '</span></div>';
+  });
+  h += '</div><p class="hint">※ 数值由你的用词与反应推算，仅作参照。</p>';
+
+  // 3 墨迹
+  h += '<h3>三・表象分析 ／ 罗夏墨迹</h3>';
+  h += '<table class="grid">' + v.inkblot.rows.map(function (r) {
+    return '<tr><th>FIG.' + r.i + '</th><td>' + (r.text ? esc(r.text) : '<span class="faint">（未答）</span>') + '</td><td>' + esc(r.catLabel) + '</td></tr>';
+  }).join('') + '</table>';
+  h += '<p class="mt dim">' + esc(v.inkblot.summary) + '</p>';
+
+  // 4 联想
+  h += '<h3>四・連想の断層 ／ 词联想</h3>';
+  h += '<table class="grid">' + v.assoc.rows.map(function (r) {
+    return '<tr><th>' + esc(r.stim) + '</th><td>' + (r.resp ? esc(r.resp) : '<span class="faint">（未答）</span>') + '</td>' +
+      '<td class="mono">' + (r.ms / 1000).toFixed(1) + 's</td><td>' + (r.note ? '<span class="amber">' + esc(r.note) + '</span>' : '<span class="faint">―</span>') + '</td></tr>';
+  }).join('') + '</table>';
+  h += '<p class="mt dim">' + esc(v.assoc.summary) + '</p>';
+
+  // 5 数秘
+  if (v.birth) {
+    h += '<h3>五・数秘 ／ 生日</h3>';
+    h += '<p>生命数 <b class="amber">' + v.birth.lifePath + '</b> ／ ' + esc(v.birth.zodiac) +
+      ' ／ 本命牌「' + esc(v.birth.birthCardObj.cn) + '（' + esc(v.birth.birthCardObj.jp) + ')」——' + esc(v.birth.birthCardObj.up) + '</p>';
+  }
+
+  // 6 塔罗
+  h += '<h3>' + (v.birth ? '六' : '五') + '・タロットの配置 ／ 牌阵</h3>';
+  if (v.tarot.length) {
+    h += '<table class="grid">' + v.tarot.map(function (t) {
+      return '<tr><th>' + esc(t.pos.cn) + '</th><td>' + esc(t.card.cn) + '（' + esc(t.card.jp) + '）' + (t.upright ? '・正位置' : '・逆位置') +
+        '<br><span class="dim">' + esc(t.meaning) + '</span></td></tr>';
+    }).join('') + '</table>';
+  } else {
+    h += '<p class="dim">（未抽牌。以下结论仅基于文字与测试，置信度下调。）</p>';
+  }
+
+  // 7 假说
+  h += '<h3>' + (v.birth ? '七' : '六') + '・仮説 ／ 我的结论</h3>';
+  if (v.hypotheses.length) {
+    v.hypotheses.forEach(function (hy, i) {
+      h += '<p><b class="amber">仮説' + (i + 1) + '：' + esc(hy.title) + '</b><br>' + esc(hy.body) + '</p>';
+    });
+  } else {
+    h += '<p class="dim">信息还不足以形成假说。再多告诉我一点。</p>';
+  }
+  h += '<p class="dim">' + esc(v.cold[1]) + '</p>';
+
+  // 8 处方
+  h += '<h3>' + (v.birth ? '八' : '七') + '・処方 ／ 回去之后</h3><ol style="padding-left:20px">';
+  v.prescription.forEach(function (p) { h += '<li>' + esc(p) + '</li>'; });
+  h += '</ol>';
+
+  // 9 未解决
+  h += '<h3>' + (v.birth ? '九' : '八') + '・未解決 ／ 我还想知道</h3><ul style="padding-left:20px">';
+  v.open.forEach(function (o) { h += '<li class="dim">' + esc(o) + '</li>'; });
+  h += '</ul>';
+
+  h += '<div class="center mt"><span class="stamp">' + esc(v.stamp) + '</span></div>';
+  h += '<p class="hint center">夢探偵サフラン ／ RADIO CLUB　――　本鑑定は娯楽であり、医療・診断の代替ではありません。</p>';
+
+  document.getElementById('report').innerHTML = h;
+}
+</script>
+</body>
+</html>

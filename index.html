@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RADIO CLUB</title>
+<link rel="stylesheet" href="assets/css/club.css">
+</head>
+<body data-amb-whisper>
+<div id="app">
+
+  <header class="site-head">
+    <div class="hero">
+      <img src="assets/img/bar-interior.jpg" alt="RADIO CLUB 店内">
+      <div class="hero-veil"></div>
+      <div class="hero-txt">
+        <div class="logo">RADIO <b>CLUB</b></div>
+        <div class="logo-sub">ネット上のバー <span class="jp">／</span> 夢探偵事務所 <span class="jp">／</span> EST. 2006</div>
+      </div>
+      <div class="open-lamp"><span class="lamp"></span>現在営業中<br><span class="faint small">22:00 〜 翌 5:00（不定休）</span></div>
+    </div>
+    <div id="navMount"></div>
+  </header>
+
+  <div class="marquee"><span class="mq-in">いらっしゃいませ……　いらっしゃいませ……　今夜もよく来てくれました……　お好きな席へどうぞ……　カウンターの内側は、いつでもあなたの味方です……　いらっしゃいませ……</span></div>
+
+  <div class="wrap">
+
+    <div id="greetMount"></div>
+
+    <div class="panel">
+      <div class="p-head"><h2>今夜の営業案内</h2><span class="p-en">TONIGHT</span><span class="p-note">※ 初来店のお客様へ</span></div>
+      <div class="p-body">
+        <p>这里是 <b class="amber">RADIO CLUB</b>。一间只存在于网络上的酒吧。</p>
+        <p class="dim">没有实体地址，白天也找不到入口。但只要你夜里带着某件"想不明白的事"打开这个网址，灯就是亮着的。</p>
+        <p class="dim">本店不收现金。<b class="amber">只收故事。</b>你讲，我们听，然后替你把线头理清楚。</p>
+        <hr class="rule">
+        <p>坐在吧台另一端的那位小姐是 <b class="amber">夢探偵サフラン（梦侦探·萨弗兰）</b>。<br>
+        她用 <b class="amber">塔罗牌</b> 和 <b class="amber">精神分析</b> 工作：前者负责把你没说出口的部分摆上桌，后者负责解释它为什么在那里。</p>
+        <p class="faint small">她不说安慰的话，但每一句都负责。</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="p-head"><h2>お品書き</h2><span class="p-en">MENU</span><span class="p-note">価格は"故事"で承ります</span></div>
+      <div class="p-body">
+        <table class="menu">
+          <tr><td class="k">① ご用件承り <span class="dim">／ 委托点单</span></td><td class="d">把你的事、你的梦、你反复想起的那句话，写下来交给吧台</td><td class="v"><a href="order.html">ご注文 →</a></td></tr>
+          <tr><td class="k">② タロット <span class="dim">／ 塔罗</span></td><td class="d">五枚：过去・现在・隐藏动机・障碍・结论</td><td class="v"><a href="tarot.html">展開 →</a></td></tr>
+          <tr><td class="k">③ 精神分析 <span class="dim">／ 精神分析</span></td><td class="d">罗夏墨迹五张 + 词联想测试（会记录你的反应时间）</td><td class="v"><a href="psyche.html">受診 →</a></td></tr>
+          <tr><td class="k">④ 鑑定書 <span class="dim">／ 鉴定书</span></td><td class="d">以上三项齐备后，她会给你一份书面结论</td><td class="v"><a href="verdict.html">受取 →</a></td></tr>
+        </table>
+        <p class="hint">※ 建议按 ①→②→③→④ 的顺序。跳过的部分她也会尽量补，但有你亲口说的版本会更准。</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="panel">
+        <div class="p-head"><h2>本店の約束</h2><span class="p-en">HOUSE RULES</span></div>
+        <div class="p-body">
+          <table class="menu">
+            <tr><td class="k">一</td><td class="d">先点单，再聊天。把你的事写下来，她会认真读完每一个字。</td></tr>
+            <tr><td class="k">二</td><td class="d">酒保记得每一位常客。第二次来，他们会先开口打招呼。</td></tr>
+            <tr><td class="k">三</td><td class="d">电梯只到 17 层。上面的楼层今晚不开放——别担心，只是不开放。</td></tr>
+            <tr><td class="k">四</td><td class="d">打烊是翌 5:00。在那之前，你可以一直坐着，没人催你。</td></tr>
+            <tr><td class="k">五</td><td class="d">她说的话不一定中听，但一定负责。不中听的部分，可以反驳。</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="p-head"><h2>本日のエレベータ</h2><span class="p-en">ELEVATOR</span></div>
+        <div class="p-body center">
+          <div style="font-size:11px" class="dim">現在地</div>
+          <div class="elevator" id="rcElevator" style="font-size:34px">01F</div>
+          <div class="hint" id="rcElevCap">※ 表示がゆっくり上がるのは、この店の癖です。</div>
+          <hr class="rule">
+          <div class="small dim">本日のおすすめ</div>
+          <table class="menu" style="margin-top:6px">
+            <tr><td class="k">琥珀ハイボール</td><td class="d">酒保岩夫的手艺，气泡很细</td><td class="v">一杯</td></tr>
+            <tr><td class="k">ホットミルク</td><td class="d">给不喝酒的客人，涟会多加一点蜂蜜</td><td class="v">一杯</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-foot">
+    <span class="f-links"><a href="people.html">登場人物</a> │ <a href="bbs.html">BBS</a> │ <a href="link.html">LINK</a></span>
+    <span class="badge88">RADIO CLUB<br>BEST VIEWED 1024×768</span>
+    <span class="copy">© 2006- RADIO CLUB ／ ネット上のバー<br>Since 2006.11.25</span>
+  </footer>
+
+</div>
+
+<script src="assets/js/store.js"></script>
+<script src="assets/js/tarot-data.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/haunt.js"></script>
+<script>
+RC.ui.chrome({ title: 'カウンター', path: 'index.html' });
+document.getElementById('navMount').innerHTML = RC.ui.nav('index.html');
+
+// 开场：侦探打招呼（打字机）
+var mount = document.getElementById('greetMount');
+var visits = RC.store.get('visits', 0);   // 尚未 +1，故本次为第 visits+1 回
+var n = visits + 1;
+RC.ui.dialog({
+  who: 'サフラン', jp: '夢探偵',
+  mount: mount,
+  text: n === 1
+    ? '晚上好，我是萨弗兰。坐吧，不用客气。先喝口热的，然后把你的事慢慢讲给我听——讲不清楚也没关系，讲不清楚的地方往往就是答案在的地方。'
+    : '又见面了，第 ' + n + ' 次。我记得每一位客人的次数，也记得他们上次讲到哪儿。……上次那件事，后来怎么样了？',
+  speed: 26
+});
+</script>
+</body>
+</html>
