@@ -12,8 +12,13 @@
   <header class="site-head slim">
     <div class="slim-bar">
       <a class="logo-sm" href="index.html">RADIO <b>CLUB</b></a>
-      <span class="logo-sub-sm">网络上的酒吧／梦侦探事务所</span>
-      <span class="open-lamp-sm"><span class="lamp"></span>营业中</span>
+      <span class="logo-sub-sm">
+        <span class="i18n-cn">网络酒吧／梦侦探事务所</span>
+        <span class="i18n-jp">ネット上のバー／夢探偵事務所</span>
+      </span>
+      <span class="open-lamp-sm"><span class="lamp"></span>
+        <span class="i18n-cn">营业中</span><span class="i18n-jp">営業中</span>
+      </span>
     </div>
     <div id="navMount"></div>
   </header>
@@ -22,29 +27,52 @@
 
     <div id="introMount"></div>
 
+    <!-- A · 解梦智能体：七大师会诊 -->
     <div class="panel">
-      <div class="p-head"><h2>罗夏墨迹测验</h2><span class="p-en">INKBLOT ×5</span><span class="p-note">看到什么写什么，没有"正确答案"</span></div>
+      <div class="p-head">
+        <h2><span class="i18n-cn">解梦智能体</span><span class="i18n-jp">夢解きエージェント</span></h2>
+        <span class="p-en">DREAM ANALYST ×7</span>
+        <span class="p-note"><span class="i18n-cn">选一位大师，讲一个梦，领一张卡</span><span class="i18n-jp">大師を一人選び、夢を語り、カードを受け取る</span></span>
+      </div>
       <div class="p-body">
-        <div id="blots"></div>
-        <div class="center mt">
-          <button type="button" class="btn" id="btnBlot">记录墨迹反应</button>
+        <div id="masterGrid" class="mgrid"></div>
+        <div id="analystChat" class="achat hidden">
+          <div class="achat-head">
+            <span id="chatWho" class="chat-who"></span>
+            <button type="button" class="btn ghost" id="btnMasterBack"><span class="i18n-cn">← 换一位</span><span class="i18n-jp">← 替える</span></button>
+          </div>
+          <div id="chatLog" class="chat-log"></div>
+          <div class="chat-input">
+            <textarea id="chatIn" rows="2" placeholder="把你记得的梦写在这里……"></textarea>
+            <div class="chat-btns">
+              <button type="button" class="btn" id="btnSend"><span class="i18n-cn">讲给大师</span><span class="i18n-jp">大師に語る</span></button>
+              <button type="button" class="btn" id="btnCard"><span class="i18n-cn">领成就卡</span><span class="i18n-jp">カード受取</span></button>
+            </div>
+          </div>
+          <div class="hint center" id="analystMsg"></div>
+          <div id="cardBox" class="center mt"></div>
         </div>
-        <div class="hint center" id="blotMsg"></div>
       </div>
     </div>
 
+    <!-- B · 词语联想（12 词，加入红辣椒意象） -->
     <div class="panel">
-      <div class="p-head"><h2>词联想测验</h2><span class="p-en">WORD ASSOCIATION</span><span class="p-note">会记录你的反应时间</span></div>
+      <div class="p-head">
+        <h2><span class="i18n-cn">词语联想测试</span><span class="i18n-jp">単語連想テスト</span></h2>
+        <span class="p-en">WORD ASSOCIATION ×12</span>
+        <span class="p-note"><span class="i18n-cn">会记录你的反应时间</span><span class="i18n-jp">反応潜時も記録します</span></span>
+      </div>
       <div class="p-body">
         <div id="assocBox" class="center">
-          <div class="dim small">刺激词</div>
-          <div id="stim" class="logo" style="font-size:44px;margin:8px 0">―</div>
+          <div class="dim small" data-i18n="stimWord">刺激词</div>
+          <div id="stim" class="logo" style="font-size:48px;margin:8px 0">―</div>
+          <div class="hint mb" id="stimBilingual"></div>
           <div style="max-width:340px;margin:0 auto">
-            <input type="text" id="assocInput" placeholder="脑中浮出的第一个词，立刻写下" disabled>
+            <input type="text" id="assocInput" data-i18n-ph="bodyPh2" placeholder="今夜想说、又说不出口的那句" disabled>
           </div>
           <div class="mt">
-            <button type="button" class="btn" id="btnAssocStart">开始测试</button>
-            <button type="button" class="btn ghost hidden" id="btnAssocNext">提交</button>
+            <button type="button" class="btn" id="btnAssocStart" data-i18n="startTest">开始测试</button>
+            <button type="button" class="btn ghost hidden" id="btnAssocNext" data-i18n="submit">提交</button>
           </div>
           <div class="hint" id="assocProg"></div>
         </div>
@@ -52,96 +80,95 @@
           <table class="grid" id="assocTable"></table>
           <div id="assocSumm" class="mt dim"></div>
           <div class="center mt">
-            <a class="btn" href="verdict.html">领取鉴定书 →</a>
-            <a class="btn ghost" href="index.html" style="margin-left:8px">回吧台坐下 →</a>
+            <a class="btn" href="verdict.html" data-i18n="toVerdict">领取鉴定书 →</a>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- C · 句子完成测试（SCT，6 句） -->
+    <div class="panel">
+      <div class="p-head">
+        <h2><span data-i18n="sctTitle">句子完成测试</span></h2>
+        <span class="p-en">SCT ×6</span>
+        <span class="p-note" data-i18n="sctSub">句子没有对错；写下脑子里冒出来的第一个答案</span>
+      </div>
+      <div class="p-body">
+        <div id="sctList"></div>
+        <div class="center mt">
+          <button type="button" class="btn" id="btnSct" data-i18n="sctSave">记录并提交</button>
+        </div>
+        <div class="hint center" id="sctMsg"></div>
+      </div>
+    </div>
+
   </div>
 
-  <footer class="site-foot">
-    <span class="f-links"><a href="order.html">委托点单</a> │ <a href="tarot.html">塔罗</a> │ <a href="verdict.html">鉴定</a></span>
-    <span class="copy">© 2006- RADIO CLUB ／ 网络上的酒吧</span>
-  </footer>
+<div id="footMount"></div>
 
 </div>
 
-<script src="assets/js/store.js"></script>
-<script src="assets/js/tarot-data.js"></script>
-<script src="assets/js/engine.js"></script>
-<script src="assets/js/ui.js"></script>
-<script src="assets/js/haunt.js"></script>
+<script src="assets/js/store.js?v=2"></script>
+<script src="assets/js/i18n.js?v=2"></script>
+<script src="assets/js/tarot-data.js?v=2"></script>
+<script src="assets/js/engine.js?v=2"></script>
+<script src="assets/js/ui.js?v=2"></script>
+<script src="assets/js/analyst.js?v=2"></script>
+<script src="assets/js/haunt.js?v=2"></script>
 <script>
-RC.ui.chrome({ title: '精神分析', path: 'psyche.html' });
+RC.ui.chrome({ title: RC.i18n.t('psyche'), path: 'psyche.html' });
 document.getElementById('navMount').innerHTML = RC.ui.nav('psyche.html');
+document.getElementById('footMount').innerHTML = RC.ui.siteFoot({ active: 'psyche.html' });
 
 RC.ui.dialog({
-  who: '萨弗兰', jp: '梦侦探',
+  who: { cn: '萨弗兰', jp: 'サフラン' },
+  jp: { cn: '梦侦探', jp: '夢探偵' },
   mount: document.getElementById('introMount'),
-  text: '接下来两项没有对错。墨迹测的是"你习惯往哪里看"，联想测的是"哪个词会让你卡住"。卡住的地方，就是我们要去的地方。',
+  text: '接下来三项没有对错。解梦会诊看的是"你反复梦见什么"，联想测的是"哪个词会让你卡住"，句子完成测的是"你通常怎么把一件事说完"。卡住的地方，就是我们要去的地方。',
   speed: 26
 });
 
-/* ---------- 罗夏墨迹（程序生成、左右对称） ---------- */
-function blotSVG(seed) {
-  var r = RC.util.rng(seed);
-  var shapes = '';
-  var n = 6 + Math.floor(r() * 4);
-  for (var i = 0; i < n; i++) {
-    var cx = 100 - (8 + r() * 70);
-    var cy = 18 + r() * 114;
-    var rx = 8 + r() * 26;
-    var ry = 6 + r() * 22;
-    var rot = Math.floor(r() * 180);
-    shapes += '<ellipse cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" rx="' + rx.toFixed(1) + '" ry="' + ry.toFixed(1) +
-      '" transform="rotate(' + rot + ' ' + cx.toFixed(1) + ' ' + cy.toFixed(1) + ')"/>';
-  }
-  shapes += '<ellipse cx="100" cy="' + (55 + r() * 45).toFixed(1) + '" rx="' + (10 + r() * 14).toFixed(1) + '" ry="' + (18 + r() * 30).toFixed(1) + '"/>';
-  return '<svg viewBox="0 0 200 150"><g fill="#17120f">' + shapes +
-    '<g transform="translate(200,0) scale(-1,1)">' + shapes + '</g></g></svg>';
-}
-var blotHost = document.getElementById('blots');
-var blotHTML = '';
-for (var b = 1; b <= 5; b++) {
-  blotHTML += '<div class="blot-row">' +
-    '<div class="blot">' + blotSVG(1000 + b * 77) + '<div class="blot-cap">FIG.' + b + '</div></div>' +
-    '<div class="blot-form"><label class="f">第 ' + b + ' 张：你看到了什么</label>' +
-    '<input type="text" class="blotIn" data-i="' + b + '" placeholder="一个词或一句话都行">' +
-    '<div class="hint">第一反应即可，不用解释。</div></div></div>';
-}
-blotHost.innerHTML = blotHTML;
-
-document.getElementById('btnBlot').addEventListener('click', function () {
-  var ins = blotHost.querySelectorAll('.blotIn');
-  var arr = [];
-  ins.forEach(function (inp) { arr.push({ id: +inp.getAttribute('data-i'), text: inp.value.trim() }); });
-  var filled = arr.filter(function (a) { return a.text; }).length;
-  var msg = document.getElementById('blotMsg');
-  if (filled === 0) { msg.innerHTML = '<span class="red">※ 至少写一张。"看不出"也是一种回答，但得写下来。</span>'; return; }
-  RC.case.save({ inkblots: arr });
-  msg.innerHTML = '<span class="amber">※ 已记录 ' + filled + ' / 5 条墨迹反应。</span>';
-});
-
-/* ---------- 词联想（计时） ---------- */
-var STIM = ['镜', '母亲', '夜', '钥匙', '名字'];
+/* ============================================================
+   B · 词语联想（12 词，含红辣椒意象）
+   ============================================================ */
+var STIM = [
+  { cn: '镜',   jp: '鏡' },
+  { cn: '母亲', jp: '母' },
+  { cn: '夜',   jp: '夜' },
+  { cn: '钥匙', jp: '鍵' },
+  { cn: '名字', jp: '名' },
+  { cn: '楼梯', jp: '階段' },
+  { cn: '电梯', jp: 'エレベーター' },
+  { cn: '17',   jp: '17' },
+  { cn: '戏',   jp: '芝居' },
+  { cn: '面具', jp: '仮面' },
+  { cn: '醒',   jp: '覚' },
+  { cn: '烟',   jp: '煙' }
+];
 var ai = -1, t0 = 0, assocRows = [];
 var stimEl = document.getElementById('stim');
+var stimBiEl = document.getElementById('stimBilingual');
 var inputEl = document.getElementById('assocInput');
 var progEl = document.getElementById('assocProg');
+
+function renderStim(n) {
+  stimEl.textContent = RC.i18n.of(STIM[n]);
+  stimBiEl.innerHTML = '<span class="i18n-cn">' + STIM[n].cn + '</span><span class="i18n-jp">' + STIM[n].jp + '</span>';
+}
+RC.i18n.onChange(function () { if (ai >= 0 && ai < STIM.length) renderStim(ai); });
 
 document.getElementById('btnAssocStart').addEventListener('click', function () {
   this.classList.add('hidden');
   document.getElementById('btnAssocNext').classList.remove('hidden');
   inputEl.disabled = false;
+  inputEl.value = '';
   nextStim();
 });
 function nextStim() {
   ai++;
   if (ai >= STIM.length) { finishAssoc(); return; }
   assocRows.push(null);
-  stimEl.textContent = STIM[ai];
+  renderStim(ai);
   inputEl.value = '';
   inputEl.focus();
   t0 = performance.now();
@@ -163,14 +190,73 @@ function finishAssoc() {
   RC.case.save({ assoc: assocRows });
   var prof = RC.engine.assocProfile(RC.case.get());
   document.getElementById('assocTable').innerHTML = prof.rows.map(function (r) {
-    return '<tr><th>' + RC.util.esc(r.stim) + '</th><td>' + (r.resp ? RC.util.esc(r.resp) : '<span class="faint">（未答）</span>') + '</td>' +
+    var stimTxt = r.stimCn === r.stimJp ? r.stimCn : (r.stimCn + '／' + r.stimJp);
+    return '<tr>' +
+      '<th>' + RC.util.esc(stimTxt) + '</th>' +
+      '<td>' + (r.resp ? RC.util.esc(r.resp) : '<span class="faint">（未答）</span>') + '</td>' +
       '<td class="mono">' + (r.ms / 1000).toFixed(1) + 's</td>' +
-      '<td>' + (r.flag ? '<span class="amber">' + RC.util.esc(r.flag) + '</span>' : '<span class="faint">―</span>') + '</td></tr>';
+      '<td>' + (r.note ? '<span class="amber">' + RC.util.esc(r.note) + '</span>' : '<span class="faint">―</span>') + '</td>' +
+    '</tr>';
   }).join('');
   document.getElementById('assocSumm').textContent = prof.summary;
   document.getElementById('assocBox').classList.add('hidden');
   document.getElementById('assocResult').classList.remove('hidden');
 }
+
+/* ============================================================
+   C · 句子完成测试（SCT · 6 句）
+   ============================================================ */
+var SCT_CN = [
+  ['今天如果不去想 _______，我大概会 _______。',
+   'もし今日 _______ を考えなければ、おそらく _______。'],
+  ['已经 _______ 这件事 _______ 了我很久。',
+   'もうずっと _______ ことが、私を _______ させている。'],
+  ['如果可以回到 _______，我会对 _______ 说 _______。',
+   'もし _______ に戻れるなら、_______ に _______ と言うだろう。'],
+  ['我反复做的那个梦，结尾总是 _______。',
+   '何度も見る夢の最後には、いつも _______。'],
+  ['没人知道的是，我 _______。',
+   '誰も知らないのは、私が _______。'],
+  ['再过十年，我会 _______。',
+   '十年後、私は _______。']
+];
+
+function renderSct() {
+  var html = '';
+  SCT_CN.forEach(function (pair, i) {
+    var cnq = pair[0], jpq = pair[1];
+    html += '<div class="sct-row">' +
+      '<div class="sct-q">' +
+        '<span class="i18n-cn">' + RC.util.esc(cnq) + '</span>' +
+        '<span class="i18n-jp">' + RC.util.esc(jpq) + '</span>' +
+      '</div>' +
+      '<textarea class="sct-a" data-i="' + i + '" rows="1" placeholder="—"></textarea>' +
+    '</div>';
+  });
+  document.getElementById('sctList').innerHTML = html;
+}
+renderSct();
+RC.i18n.onChange(renderSct);
+
+document.getElementById('btnSct').addEventListener('click', function () {
+  var ans = [];
+  document.querySelectorAll('#sctList .sct-a').forEach(function (ta) {
+    ans.push({
+      i: +ta.getAttribute('data-i'),
+      qCn: SCT_CN[+ta.getAttribute('data-i')][0],
+      qJp: SCT_CN[+ta.getAttribute('data-i')][1],
+      a: ta.value.trim()
+    });
+  });
+  var filled = ans.filter(function (x) { return x.a; }).length;
+  var msg = document.getElementById('sctMsg');
+  if (filled === 0) {
+    msg.innerHTML = '<span class="red">※ ' + RC.i18n.t('sctNone') + '</span>';
+    return;
+  }
+  RC.case.save({ sct: ans });
+  msg.innerHTML = '<span class="amber">※ ' + RC.i18n.t('sctSaved') + ' ' + filled + ' / ' + SCT_CN.length + '</span>';
+});
 </script>
 </body>
 </html>

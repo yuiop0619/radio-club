@@ -19,6 +19,14 @@
   var menuWrap = U.el('menuWrap'), formWrap = U.el('formWrap');
   var vsub = U.el('vsub');
 
+  /* 双语助手：就地取当前语言；缺日文时回退中文 */
+  function O(cn, jp) { return RC.i18n.of({ cn: cn, jp: (jp == null ? cn : jp) }); }
+  function detName() { return RC.i18n.t('detective'); }
+  var NAME_BT = { iwao: { cn: '岩夫', jp: 'いわお' }, lian: { cn: '涟', jp: 'れん' } };
+  var CAT_JP = { '人际关系': '人間関係', '工作': '仕事', '恋爱': '恋愛', '丧失': '喪失', '记忆': '記憶', '自我': '自己', '其他': 'その他' };
+  var FREQ_JP = { '每夜': '毎夜', '每周数次': '週に数回', '偶尔': 'たまに', '几乎不做': 'ほとんど見ない' };
+  function dispCat(v) { return RC.i18n.lang() === 'jp' ? (CAT_JP[v] || v) : v; }
+
   var MAXSTEP = 6;
   var step = 0;
   var state = 'walk';
@@ -70,7 +78,7 @@
     if (state !== 'chair') return;
     setState('sit');
     chair.classList.add('pulled');
-    vpChair.textContent = '……好，坐。';
+    vpChair.textContent = O('……好，坐。', '……よし、お掛け。');
     later(function () {
       cin.seated = true; saveCin();
       shPov.classList.add('on');
@@ -87,14 +95,14 @@
     saveCin();
     return cin.bt;
   }
-  function btName() { return cin.bt === 'lian' ? '涟' : '岩夫'; }
+  function btName() { var n = NAME_BT[cin.bt] || NAME_BT.iwao; return O(n.cn, n.jp); }
   function btOther() { return cin.bt === 'lian'; }
   function lookBt() {
     setState('lookbt');
     var b = pickBt();
     shBtImg.src = 'assets/img/bt-' + b + '-menu.jpg';
     shBt.classList.add('on');
-    sub(btName(), '……坐。别站着。菜单给你——今晚的都在这儿。', !btOther(), btOther());
+    sub(btName(), O('……坐。别站着。菜单给你——今晚的都在这儿。', '……座って。立ってないで。メニューをどうぞ——今夜のは全部ここに。'), !btOther(), btOther());
     later(function () {
       openMenu();
     }, 1600);
@@ -104,13 +112,13 @@
     buildMenu();
     menuWrap.classList.add('in');
     enableHand();
-    sub(btName(), '慢慢看。点完了叫我一声。', !btOther(), btOther());
+    sub(btName(), O('慢慢看。点完了叫我一声。', 'ゆっくり見て。決まったら声をかけて。'), !btOther(), btOther());
   }
   function closeMenu() {
     menuWrap.classList.remove('in');
     disableHand();
     setState('wait');
-    sub(btName(), '……好，记下了。稍等一会儿。', !btOther(), btOther());
+    sub(btName(), O('……好，记下了。稍等一会儿。', '……了解、控えたよ。少し待ってて。'), !btOther(), btOther());
     later(function () { if (cin.formDone) chat(); else lookDet(); }, 1700);
   }
 
@@ -118,7 +126,7 @@
   function lookDet() {
     setState('lookdet');
     shDet.classList.add('on');
-    sub('萨弗兰', '……轮到我了。别紧张，只是几张纸。你写，我等。', false, false);
+    sub(detName(), O('……轮到我了。别紧张，只是几张纸。你写，我等。', '……私の番。緊張しないで、ただの紙よ。あなたが書いて、私は待つ。'), false, false);
     later(function () {
       setState('form');
       buildForm();
@@ -128,8 +136,8 @@
   function closeForm() {
     formWrap.classList.remove('in');
     cin.formDone = true; saveCin();
-    var h = RC.case.get().handle || '客人';
-    sub('萨弗兰', '收到了，' + h + '。我先读，你别急。……读完了。', false, false);
+    var h = RC.case.get().handle || O('客人', 'お客さん');
+    sub(detName(), O('收到了，', '受け取った、') + h + O('。我先读，你别急。……读完了。', '。先に読むから、焦らないで。……読み終わった。'), false, false);
     later(chat, 1500);
   }
 
@@ -139,9 +147,9 @@
     shDet.classList.remove('on');
     figDet.classList.add('on');
     var c = RC.case.get();
-    sub('萨弗兰', '……嗯。你写的，和你点的，我对过了。' + (c.category ? '「' + c.category + '」这类事，急不得。' : ''), false, false);
+    sub(detName(), O('……嗯。你写的，和你点的，我对过了。', '……ええ。あなたが書いたものと、注文したもの、突き合わせた。') + (c.category ? O('「', '「') + dispCat(c.category) + O('」这类事，急不得。', '」こういう事は、急げない。') : ''), false, false);
     later(function () {
-      sub('萨弗兰', '先吃口热的。脑子吃饱了，话才说得清楚。', false, false);
+      sub(detName(), O('先吃口热的。脑子吃饱了，话才说得清楚。', '先に温かいものを。頭が満ちてこそ、言葉もはっきりする。'), false, false);
       later(serve, 1600);
     }, 2200);
   }
@@ -150,7 +158,7 @@
     if (!list.length) { finishIdle(); return; }
     setState('serve');
     figSrv.classList.add('on');
-    sub(btName(), '……久等了。放你手边，趁热。', !btOther(), btOther());
+    sub(btName(), O('……久等了。放你手边，趁热。', '……お待たせ。手の届くところに。熱いうちに。'), !btOther(), btOther());
     later(function () {
       var flat = [];
       list.forEach(function (x) { for (var i = 0; i < x.n; i++) flat.push(x.id); });
@@ -171,9 +179,9 @@
   function finishIdle() {
     setState('idle');
     if (RC.case.get().assoc.length >= 5) {
-      sub('萨弗兰', '分析做完了对吧。那下一步，鉴定书在等你。', false, false);
+      sub(detName(), O('分析做完了对吧。那下一步，鉴定书在等你。', '分析は終わったんでしょう。次の一手、鑑定書が待ってる。'), false, false);
     } else {
-      sub('萨弗兰', '吃吧。凉了就不可惜了——可惜的从来不是菜。', false, false);
+      sub(detName(), O('吃吧。凉了就不可惜了——可惜的从来不是菜。', '召し上がれ。冷めたら惜しくない——惜しいのは、いつだって料理じゃない。'), false, false);
     }
   }
 
@@ -189,8 +197,9 @@
   function renderDishes(animateLast) {
     var list = servedFlat();
     dishes.innerHTML = list.map(function (id, i) {
+      var dd = RC.bar.byId(id) || {};
       return '<span class="dish3d' + (animateLast && i === list.length - 1 ? ' drop' : '') + '">' +
-        '<img src="assets/img/item-' + id + '.jpg" alt="' + U.esc((RC.bar.byId(id) || {}).cn || '') + '"></span>';
+        '<img src="assets/img/item-' + id + '.jpg" alt="' + U.esc(O(dd.cn, dd.jp)) + '"></span>';
     }).join('');
   }
 
@@ -222,20 +231,20 @@
   function pmItem(d) {
     return '<div class="pm-item" data-id="' + d.id + '">' +
       '<div class="pm-pic"><img src="assets/img/item-' + d.id + '.jpg" alt=""></div>' +
-      '<div class="pm-main"><div class="pm-name">' + U.esc(d.cn) + '<span class="pm-jp">' + U.esc(d.jp) + '</span>' +
-      '<span class="pm-tag' + (d.alc ? ' alc' : '') + '">' + (d.alc ? '含酒精' : '无酒精') + '</span></div>' +
-      '<div class="pm-desc">' + U.esc(d.desc) + '</div></div>' +
-      '<div class="pm-right"><button type="button" class="pm-btn" data-pm="' + d.id + '">点</button>' +
+      '<div class="pm-main"><div class="pm-name">' + U.esc(O(d.cn, d.jp)) + '<span class="pm-jp">' + U.esc(O(d.jp, d.cn)) + '</span>' +
+      '<span class="pm-tag' + (d.alc ? ' alc' : '') + '">' + O(d.alc ? '含酒精' : '无酒精', d.alc ? 'アルコール' : 'ノンアル') + '</span></div>' +
+      '<div class="pm-desc">' + U.esc(O(d.desc, d.descJp)) + '</div></div>' +
+      '<div class="pm-right"><button type="button" class="pm-btn" data-pm="' + d.id + '">' + O('点', '注文') + '</button>' +
       '<span class="pm-qty" data-qty="' + d.id + '"></span></div>' +
-      '<span class="pm-stamp">已点</span></div>';
+      '<span class="pm-stamp">' + O('已点', '注文済') + '</span></div>';
   }
   function pmSec(t, arr) { return '<div class="pm-sec">' + t + '</div>' + arr.map(pmItem).join(''); }
   function buildMenu() {
     menuWrap.innerHTML = '<div class="paper-menu"><span class="paper-pin"></span>' +
-      '<div class="pm-head"><div class="pm-title">今 夜 菜 单</div><div class="pm-sub">RADIO CLUB ／ 价格：一个故事</div></div>' +
-      '<div class="pm-list">' + pmSec('饮 品', RC.bar.drinks) + pmSec('主 食 · 稍后上', RC.bar.foods) + '</div>' +
-      '<div class="pm-foot">※ 主食不立刻上。等她把该问的问完，会放到你手边。<br>' +
-      '<button type="button" class="btn mini" id="pmClose">点完了 · 合上菜单</button></div></div>';
+      '<div class="pm-head"><div class="pm-title">' + O('今 夜 菜 单', '今 夜 の メ ニ ュ ー') + '</div><div class="pm-sub">' + O('RADIO CLUB ／ 价格：一个故事', 'RADIO CLUB ／ 価格：ひとつの物語') + '</div></div>' +
+      '<div class="pm-list">' + pmSec(O('饮 品', 'ド リ ン ク'), RC.bar.drinks) + pmSec(O('主 食 · 稍后上', '食 事 · 後ほど'), RC.bar.foods) + '</div>' +
+      '<div class="pm-foot">' + O('※ 主食不立刻上。等她把该问的问完，会放到你手边。', '※ 食事はすぐには出ない。彼女が訊き終えたら、あなたの手の届くところへ。') + '<br>' +
+      '<button type="button" class="btn mini" id="pmClose">' + O('点完了 · 合上菜单', '決まった · メニューを閉じる') + '</button></div></div>';
     refreshQty();
   }
   function trayN(id) {
@@ -259,9 +268,10 @@
     if (it) { it.classList.add('ordered', 'stamped'); later(function () { it.classList.remove('stamped'); }, 600); }
     refreshQty();
     if (RC.scene.renderTray) RC.scene.renderTray();
+    var nm = O(d.cn, d.jp);
     sub(btName(), d.kind === 'food'
-      ? '……' + d.cn + '，记下了。这个不急——等会儿放你手边。'
-      : '……' + d.cn + '，好。', !btOther(), btOther());
+      ? '……' + nm + O('，记下了。这个不急——等会儿放你手边。', '、控えたよ。これは急がない——あとで手の届くところに。')
+      : '……' + nm + O('，好。', '、了解。'), !btOther(), btOther());
   }
 
   /* ---------- 纸咨询单（可填） ---------- */
@@ -269,23 +279,23 @@
     var c = RC.case.get();
     formWrap.innerHTML =
       '<form class="paper-form" id="cinForm" autocomplete="off"><span class="paper-pin"></span>' +
-      '<div class="pf-head"><div class="pf-title">咨 询 单</div><div class="pf-sub">RADIO CLUB ／ 梦侦探事务所 ／ 只收故事</div></div>' +
+      '<div class="pf-head"><div class="pf-title">' + O('咨 询 单', '相 談 票') + '</div><div class="pf-sub">' + O('RADIO CLUB ／ 梦侦探事务所 ／ 只收故事', 'RADIO CLUB ／ 夢探偵事務所 ／ 物語だけ') + '</div></div>' +
       '<div class="pf-body">' +
-      '<div class="pf-row"><label>怎么称呼你 *</label><input type="text" id="cfHandle" value="' + U.esc(c.handle) + '" placeholder="真名或昵称"></div>' +
-      '<div class="pf-row"><label>类别 *</label><div class="pf-chips" id="cfCat">' +
+      '<div class="pf-row"><label>' + O('怎么称呼你', 'どう呼べばいい') + ' *</label><input type="text" id="cfHandle" value="' + U.esc(c.handle) + '" placeholder="' + O('真名或昵称', '本名かニックネーム') + '"></div>' +
+      '<div class="pf-row"><label>' + RC.i18n.t('category') + ' *</label><div class="pf-chips" id="cfCat">' +
         ['人际关系', '工作', '恋爱', '丧失', '记忆', '自我', '其他'].map(function (v) {
-          return '<span class="pchip' + (c.category === v ? ' on' : '') + '" data-v="' + v + '">' + v + '</span>';
+          return '<span class="pchip' + (c.category === v ? ' on' : '') + '" data-v="' + v + '">' + O(v, CAT_JP[v]) + '</span>';
         }).join('') + '</div></div>' +
-      '<div class="pf-row"><label>把这件事讲给我听 *</label><textarea id="cfStory" placeholder="想到什么写什么，越乱越好。">' + U.esc(c.story) + '</textarea></div>' +
-      '<div class="pf-row"><label>最近反复做的梦</label><textarea id="cfDream" style="min-height:52px" placeholder="片段也可以。">' + U.esc(c.dream) + '</textarea></div>' +
-      '<div class="pf-row"><label>做梦频率</label><div class="pf-chips" id="cfFreq">' +
+      '<div class="pf-row"><label>' + RC.i18n.t('orderStory') + ' *</label><textarea id="cfStory" placeholder="' + O('想到什么写什么，越乱越好。', '思ったまま書いて。乱れていていい。') + '">' + U.esc(c.story) + '</textarea></div>' +
+      '<div class="pf-row"><label>' + RC.i18n.t('orderDream') + '</label><textarea id="cfDream" style="min-height:52px" placeholder="' + O('片段也可以。', '断片でもいい。') + '">' + U.esc(c.dream) + '</textarea></div>' +
+      '<div class="pf-row"><label>' + RC.i18n.t('orderFreq') + '</label><div class="pf-chips" id="cfFreq">' +
         ['每夜', '每周数次', '偶尔', '几乎不做'].map(function (v) {
-          return '<span class="pchip' + (c.dreamFreq === v ? ' on' : '') + '" data-v="' + v + '">' + v + '</span>';
+          return '<span class="pchip' + (c.dreamFreq === v ? ' on' : '') + '" data-v="' + v + '">' + O(v, FREQ_JP[v]) + '</span>';
         }).join('') + '</div></div>' +
-      '<div class="pf-row"><label>反复想起的一句话 / 画面</label><input type="text" id="cfRec" value="' + U.esc(c.recurring) + '"></div>' +
+      '<div class="pf-row"><label>' + O('反复想起的一句话 / 画面', '繰り返し浮かぶ一言 / 場面') + '</label><input type="text" id="cfRec" value="' + U.esc(c.recurring) + '"></div>' +
       '<div class="pf-msg" id="cfMsg"></div>' +
-      '<div class="pf-foot"><button type="submit" class="btn red mini">交给她</button>' +
-      '<button type="button" class="btn ghost mini" id="cfLater">先不填</button></div>' +
+      '<div class="pf-foot"><button type="submit" class="btn red mini">' + O('交给她', '彼女に渡す') + '</button>' +
+      '<button type="button" class="btn ghost mini" id="cfLater">' + O('先不填', 'あとで') + '</button></div>' +
       '</div></form>';
     // chips 单选
     ['cfCat', 'cfFreq'].forEach(function (rid) {
@@ -303,9 +313,9 @@
       var story = U.el('cfStory').value.trim();
       var catEl = menuSel('#cfCat .pchip.on');
       var freqEl = menuSel('#cfFreq .pchip.on');
-      if (!handle) { msg.innerHTML = '<span class="red">※ 总得让我知道怎么称呼你。</span>'; return; }
-      if (!catEl) { msg.innerHTML = '<span class="red">※ 选一个类别，哪怕选"其他"。</span>'; return; }
-      if (story.length < 8) { msg.innerHTML = '<span class="red">※ 再多写一点，一句话也行。</span>'; return; }
+      if (!handle) { msg.innerHTML = '<span class="red">※ ' + RC.i18n.t('needHandle') + '</span>'; return; }
+      if (!catEl) { msg.innerHTML = '<span class="red">※ ' + RC.i18n.t('needCat') + '</span>'; return; }
+      if (story.length < 8) { msg.innerHTML = '<span class="red">※ ' + RC.i18n.t('needStory') + '</span>'; return; }
       RC.case.save({
         handle: handle, category: catEl.getAttribute('data-v'), story: story,
         dream: U.el('cfDream').value.trim(),
@@ -318,7 +328,7 @@
     U.el('cfLater').addEventListener('click', function () {
       formWrap.classList.remove('in');
       cin.formDone = true; saveCin();
-      sub('萨弗兰', '……也好。不想写的部分，嘴里说给我听也一样。', false, false);
+      sub(detName(), O('……也好。不想写的部分，嘴里说给我听也一样。', '……それも良い。書きたくない部分は、口で言ってくれても同じ。'), false, false);
       later(chat, 1400);
     });
   }
@@ -353,6 +363,11 @@
     if (RC.bar.pending().length) later(serve, 1200);
   }
   boot();
+
+  /* 语言切换时，若菜单正开着则按新语言重建（咨询单含用户输入，不重建以免丢失） */
+  if (RC.i18n.onChange) RC.i18n.onChange(function () {
+    if (state === 'menu' && menuWrap.classList.contains('in')) buildMenu();
+  });
 
   RC.scene = RC.scene || {};
   RC.scene.order = order;

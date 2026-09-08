@@ -12,8 +12,13 @@
   <header class="site-head slim">
     <div class="slim-bar">
       <a class="logo-sm" href="index.html">RADIO <b>CLUB</b></a>
-      <span class="logo-sub-sm">网络上的酒吧／梦侦探事务所</span>
-      <span class="open-lamp-sm"><span class="lamp"></span>营业中</span>
+      <span class="logo-sub-sm">
+        <span class="i18n-cn">网络酒吧／梦侦探事务所</span>
+        <span class="i18n-jp">ネット上のバー／夢探偵事務所</span>
+      </span>
+      <span class="open-lamp-sm"><span class="lamp"></span>
+        <span class="i18n-cn">营业中</span><span class="i18n-jp">営業中</span>
+      </span>
     </div>
     <div id="navMount"></div>
   </header>
@@ -24,136 +29,245 @@
 
     <div id="emptyMount" class="hidden">
       <div class="panel"><div class="p-body center">
-        <p class="dim">吧台还没有收到你的委托。</p>
-        <a class="btn" href="order.html">去委托点单 →</a>
+        <p class="dim" data-i18n="emptyVerdict">吧台还没有收到你的委托。</p>
+        <a class="btn" href="order.html" data-i18n="toOrder">去点单 →</a>
       </div></div>
     </div>
 
     <div id="reportMount" class="hidden">
       <div class="panel">
-        <div class="p-head"><h2>鉴定书</h2><span class="p-en">VERDICT</span><span class="p-note" id="vCode"></span></div>
+        <div class="p-head">
+          <h2><span class="i18n-cn">鉴定书</span><span class="i18n-jp">鑑定書</span></h2>
+          <span class="p-en">VERDICT</span>
+          <span class="p-note" id="vCode"></span>
+        </div>
         <div class="p-body report" id="report"></div>
       </div>
       <div class="center mt">
-        <button type="button" class="btn ghost" onclick="window.print()">打印</button>
-        <a class="btn ghost" href="order.html">重写委托</a>
-        <a class="btn" href="index.html">回吧台</a>
+        <button type="button" class="btn ghost" id="btnPrint" data-i18n="printIt">打印</button>
+        <button type="button" class="btn ghost" id="btnShare">复制分享链接</button>
+        <a class="btn ghost" href="order.html" data-i18n="orderAgain">重写委托</a>
+        <a class="btn" href="index.html" data-i18n="backCounter">回吧台</a>
+      </div>
+      <div class="hint center" id="shareMsg"></div>
+      <div class="mt hidden" id="shareWrap">
+        <textarea id="shareBox" readonly style="min-height:64px;font-size:11px"></textarea>
+        <div class="hint">复制上面的链接发给别人，对方打开就能看到这份鉴定书（内容只存在链接里，不上传服务器）。</div>
       </div>
     </div>
 
   </div>
 
-  <footer class="site-foot">
-    <span class="f-links"><a href="order.html">委托点单</a> │ <a href="tarot.html">塔罗</a> │ <a href="psyche.html">精神分析</a></span>
-    <span class="copy">© 2006- RADIO CLUB ／ 网络上的酒吧</span>
-  </footer>
+<div id="footMount"></div>
 
 </div>
 
-<script src="assets/js/store.js"></script>
-<script src="assets/js/tarot-data.js"></script>
-<script src="assets/js/engine.js"></script>
-<script src="assets/js/ui.js"></script>
-<script src="assets/js/haunt.js"></script>
+<script src="assets/js/store.js?v=2"></script>
+<script src="assets/js/i18n.js?v=2"></script>
+<script src="assets/js/tarot-data.js?v=2"></script>
+<script src="assets/js/tarot-dim.js?v=2"></script>
+<script src="assets/js/engine.js?v=2"></script>
+<script src="assets/js/analyst.js?v=2"></script>
+<script src="assets/js/ui.js?v=2"></script>
+<script src="assets/js/haunt.js?v=2"></script>
 <script>
-RC.ui.chrome({ title: '鉴定书', path: 'verdict.html' });
+RC.ui.chrome({ title: RC.i18n.t('verdict'), path: 'verdict.html' });
 document.getElementById('navMount').innerHTML = RC.ui.nav('verdict.html');
+document.getElementById('footMount').innerHTML = RC.ui.siteFoot({ active: 'verdict.html' });
 
-var c = RC.case.get();
+document.getElementById('btnPrint').addEventListener('click', function () { window.print(); });
+
+/* ---------- 分享：把档案编码进 URL（不上传服务器） ---------- */
+function b64enc(s) {
+  var bytes = new TextEncoder().encode(s), bin = '';
+  for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64dec(b) {
+  var s = b.replace(/-/g, '+').replace(/_/g, '/');
+  while (s.length % 4) s += '=';
+  var bin = atob(s), bytes = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+function sharedCase() {
+  try {
+    var m = location.search.match(/[?&]c=([^&]+)/);
+    if (!m) return null;
+    var o = JSON.parse(b64dec(decodeURIComponent(m[1])));
+    return (o && typeof o === 'object') ? o : null;
+  } catch (e) { return null; }
+}
+var shared = sharedCase();
+var c = shared || RC.case.get();
 var esc = RC.util.esc;
 
-if (!RC.case.has()) {
+/* 分享按钮 */
+var btnShare = document.getElementById('btnShare');
+btnShare.addEventListener('click', function () {
+  var url = location.origin && location.origin !== 'null'
+    ? location.origin + location.pathname
+    : location.href.split('?')[0];
+  var link = url + '?c=' + encodeURIComponent(b64enc(JSON.stringify(c)));
+  var msg = document.getElementById('shareMsg');
+  var box = document.getElementById('shareBox');
+  var wrap = document.getElementById('shareWrap');
+  var fallback = function () {
+    wrap.classList.remove('hidden');
+    box.value = link;
+    box.select();
+    msg.innerHTML = '<span class="amber">※ 链接已生成，请手动复制上面的内容。</span>';
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(function () {
+      msg.innerHTML = '<span class="amber">※ 分享链接已复制。把它发给谁，谁就能看到这份鉴定书。</span>';
+    }, fallback);
+  } else { fallback(); }
+});
+
+if (!shared && !RC.case.has()) {
   document.getElementById('emptyMount').classList.remove('hidden');
-  RC.ui.dialog({ who: '萨弗兰', jp: '梦侦探', mount: document.getElementById('introMount'),
+  document.getElementById('btnShare').classList.add('hidden');
+  RC.ui.dialog({ who: { cn: '萨弗兰', jp: 'サフラン' }, jp: { cn: '梦侦探', jp: '夢探偵' },
+    mount: document.getElementById('introMount'),
     text: '还没有委托内容呢。先去把事写下来，我才能给你写这份东西。', speed: 26 });
 } else {
   var v = RC.engine.buildVerdict(c);
-  var visits = RC.store.get('visits', 0);
+  var visits = shared ? 1 : RC.store.get('visits', 0);
 
-  RC.ui.dialog({ who: '萨弗兰', jp: '梦侦探', mount: document.getElementById('introMount'),
+  RC.ui.dialog({ who: { cn: '萨弗兰', jp: 'サフラン' }, jp: { cn: '梦侦探', jp: '夢探偵' },
+    mount: document.getElementById('introMount'),
     text: '坐好，' + (c.handle || '客人') + '。这份我写完了，逐条念给你听。不同意的地方现在就反驳我——反驳也是诊断的一部分。',
     speed: 26, done: function () { document.getElementById('reportMount').classList.remove('hidden'); } });
 
-  document.getElementById('vCode').textContent = v.code + ' ／ ' + v.stamp;
+  document.getElementById('vCode').innerHTML = v.code + ' ／ ' + RC.ui.bi(v.stampCn, v.stampJp);
+
+  /* 章节计数器：让 · 序号自适应（有无生日、有无 SCT 都正确） */
+  var N = 1;
+  function sec(titleCn, titleJp) {
+    return '<h3>' + (N++) + '・' + RC.ui.bi(titleCn, titleJp) + '</h3>';
+  }
 
   var h = '';
-  h += '<table class="grid mb"><tr><th>称呼</th><td>' + esc(c.handle || '―') + '</td><th>类别</th><td>' + esc(c.category || '―') + '</td></tr>' +
-       '<tr><th>来店</th><td>第 ' + (visits) + ' 回</td><th>作成</th><td>' + new Date().toLocaleString('zh-CN') + '</td></tr></table>';
+  h += '<table class="grid mb"><tr><th data-i18n="callMe">称呼</th><td>' + esc(c.handle || '―') + '</td>' +
+       '<th data-i18n="category">类别</th><td>' + esc(c.category || '―') + '</td></tr>' +
+       '<tr><th data-i18n="visitCount">来店</th><td>第 ' + (visits) + ' 回</td>' +
+       '<th data-i18n="madeAt">作成</th><td>' + new Date().toLocaleString('zh-CN') + '</td></tr></table>';
 
-  // 1 事件重述
-  h += '<h3>一 · 事件重述</h3>';
+  h += sec('事件重述', '事件の再構成');
   h += '<p>你用这样的话开头：<span class="quote">「' + esc(v.quotes.story || '…') + '」</span></p>';
   if (v.quotes.dream) h += '<p>你的梦里反复出现：<span class="quote">「' + esc(v.quotes.dream) + '」</span></p>';
   if (v.quotes.rec) h += '<p>而白天缠着你的那句是：<span class="quote">「' + esc(v.quotes.rec) + '」</span></p>';
   if (v.absence) h += '<p class="dim">' + esc(v.absence) + '</p>';
   h += '<p class="dim">' + esc(v.cold[0]) + '</p>';
 
-  // 2 情感谱
-  h += '<h3>二 · 情感谱</h3><div class="bars">';
+  h += sec('情感谱', '感情スペクトル') + '<div class="bars">';
   v.spectrum.forEach(function (s) {
     var n = Math.round(s.v / 5);
     h += '<div class="bar"><span class="bl">' + esc(s.label) + '</span><span class="bt">' + '█'.repeat(n) + '</span><span class="bv">' + s.v + '</span></div>';
   });
   h += '</div><p class="hint">※ 数值由你的用词与反应推算，仅作参照。</p>';
 
-  // 3 墨迹
-  h += '<h3>三 · 罗夏墨迹</h3>';
-  h += '<table class="grid">' + v.inkblot.rows.map(function (r) {
-    return '<tr><th>FIG.' + r.i + '</th><td>' + (r.text ? esc(r.text) : '<span class="faint">（未答）</span>') + '</td><td>' + esc(r.catLabel) + '</td></tr>';
-  }).join('') + '</table>';
-  h += '<p class="mt dim">' + esc(v.inkblot.summary) + '</p>';
+  /* 三・解梦会诊：七大师记录 */
+  h += sec('解梦会诊', '夢診断セッション');
+  if (v.analyst.rows.length) {
+    h += '<table class="grid">' + v.analyst.rows.map(function (r) {
+      var name = '<span class="i18n-cn">' + esc(r.masterCn) + '</span><span class="i18n-jp">' + esc(r.masterJp) + '</span>';
+      var mot = r.motifs.length
+        ? r.motifs.map(function (k) { var l = RC.analyst.motifLabel(k); return '<span class="i18n-cn">' + l.cn + '</span><span class="i18n-jp">' + l.jp + '</span>'; }).join('、')
+        : '<span class="faint">—</span>';
+      var vd = '<span class="i18n-cn">' + esc(r.verdict.cn || '') + '</span><span class="i18n-jp">' + esc(r.verdict.jp || '') + '</span>';
+      return '<tr><th>' + name + '</th><td>' + mot + '</td><td>' + vd + '</td></tr>';
+    }).join('') + '</table>';
+    h += '<p class="mt dim">' + esc(v.analyst.summary) + '</p>';
+  } else {
+    h += '<p class="hint dim">※ ' + esc(v.analyst.summary) + '</p>';
+  }
 
-  // 4 联想
-  h += '<h3>四 · 词联想</h3>';
+  /* 四・词联想：双语刺激词 */
+  h += sec('词联想断层', '連想の断層');
   h += '<table class="grid">' + v.assoc.rows.map(function (r) {
-    return '<tr><th>' + esc(r.stim) + '</th><td>' + (r.resp ? esc(r.resp) : '<span class="faint">（未答）</span>') + '</td>' +
-      '<td class="mono">' + (r.ms / 1000).toFixed(1) + 's</td><td>' + (r.note ? '<span class="amber">' + esc(r.note) + '</span>' : '<span class="faint">―</span>') + '</td></tr>';
+    var stimTxt = (r.stimCn === r.stimJp || !r.stimJp)
+      ? esc(r.stimCn)
+      : '<span class="i18n-cn">' + esc(r.stimCn) + '</span><span class="i18n-jp">' + esc(r.stimJp) + '</span>';
+    return '<tr>' +
+      '<th>' + stimTxt + '</th>' +
+      '<td>' + (r.resp ? esc(r.resp) : '<span class="faint">（未答）</span>') + '</td>' +
+      '<td class="mono">' + (r.ms / 1000).toFixed(1) + 's</td>' +
+      '<td>' + (r.note ? '<span class="amber">' + esc(r.note) + '</span>' : '<span class="faint">―</span>') + '</td>' +
+    '</tr>';
   }).join('') + '</table>';
   h += '<p class="mt dim">' + esc(v.assoc.summary) + '</p>';
 
-  // 5 数秘
-  if (v.birth) {
-    h += '<h3>五 · 生日数秘</h3>';
-    h += '<p>生命数 <b class="amber">' + v.birth.lifePath + '</b> ／ ' + esc(v.birth.zodiac) +
-      ' ／ 本命牌「' + esc(v.birth.birthCardObj.cn) + '」——' + esc(v.birth.birthCardObj.up) + '</p>';
+  /* 新增 · SCT（可选：无则跳过） */
+  if (v.sct) {
+    h += sec('句子完成测试', '文完成テスト');
+    h += '<table class="grid">' + v.sct.rows.map(function (r) {
+      return '<tr>' +
+        '<th style="white-space:nowrap">句 ' + r.i + '</th>' +
+        '<td>' +
+          '<span class="i18n-cn"><span class="quote small">' + esc(r.qCn) + '</span></span>' +
+          '<span class="i18n-jp"><span class="quote small">' + esc(r.qJp) + '</span></span>' +
+          '<br>' +
+          (r.empty
+            ? '<span class="faint">（空白）</span>'
+            : '<span class="amber">' + esc(r.a) + '</span>') +
+        '</td>' +
+      '</tr>';
+    }).join('') + '</table>';
+    h += '<p class="mt dim">' + esc(v.sct.summary) + '</p>';
   }
 
-  // 6 塔罗
-  h += '<h3>' + (v.birth ? '六' : '五') + ' · 塔罗牌阵</h3>';
+  if (v.birth) {
+    h += sec('数秘', '数秘');
+    h += '<p>' + RC.i18n.t('lifePath') + ' <b class="amber">' + v.birth.lifePath + '</b> ／ ' + esc(v.birth.zodiac) +
+      ' ／ ' + RC.i18n.t('birthCard') + '「' + RC.ui.bi(v.birth.birthCardObj.cn, v.birth.birthCardObj.jp) + '」——' + esc(v.birth.birthCardObj.up) + '</p>';
+  }
+
+  /* 塔罗段：牌阵模板名 + 咨询问题 + 多维牌义 */
+  var spreadObj = RC.tarot.spreads[v.tarotSpread] || RC.tarot.spreads.pentagram;
+  h += sec('牌阵（' + RC.ui.bi(spreadObj.labelCn, spreadObj.labelJp) + '）',
+           RC.tarot.spreads[v.tarotSpread] ? spreadObj.labelJp : 'タロットの配置');
+  var qObj = RC.tarot.DOMAINS ? RC.tarot.DOMAINS.filter(function (x) { return x.k === v.tarotQuestion; })[0] : null;
+  if (qObj) h += '<p class="hint">' + esc(RC.i18n.of({ cn: '咨询问题：' + qObj.cn, jp: '相談ごと：' + qObj.jp })) + '</p>';
   if (v.tarot.length) {
     h += '<table class="grid">' + v.tarot.map(function (t) {
-      return '<tr><th>' + esc(t.pos.cn) + '</th><td>' + esc(t.card.cn) + ' · ' + (t.upright ? '正位' : '逆位') +
-        '<br><span class="dim">' + esc(t.meaning) + '</span></td></tr>';
+      var dm = (RC.tarot.dimOf && v.tarotQuestion) ? RC.tarot.dimOf(t.id, v.tarotQuestion) : null;
+      var er = RC.tarot.dimOf ? RC.tarot.dimOf(t.id, 'era') : null;
+      return '<tr><th>' + esc(t.pos.cn) + '</th><td>' + RC.ui.bi(t.card.cn, t.card.jp) + '（' + RC.i18n.t(t.upright ? 'upright' : 'reversed') +
+        '）<br><span class="dim small">' + esc(t.card.shortCn) + ' ／ ' + esc(t.card.shortJp) + '</span><br><span class="dim">' + esc(t.meaning) + '</span>' +
+        (dm ? '<br><span class="quote small amber">' + RC.ui.bi(dm.cn, dm.jp) + '</span>' : '') +
+        (er ? '<br><span class="dim small">〔2006〕' + RC.ui.bi(er.cn, er.jp) + '</span>' : '') +
+        '</td></tr>';
     }).join('') + '</table>';
   } else {
-    h += '<p class="dim">（未抽牌。以下结论仅基于文字与测试，置信度下调。）</p>';
+    h += '<p class="dim" data-i18n="noCard">（未抽牌。以下结论仅基于文字与测试，置信度下调。）</p>';
   }
 
-  // 7 假说
-  h += '<h3>' + (v.birth ? '七' : '六') + ' · 我的结论</h3>';
+  h += sec('我的结论', '仮説');
   if (v.hypotheses.length) {
     v.hypotheses.forEach(function (hy, i) {
-      h += '<p><b class="amber">假说' + (i + 1) + '：' + esc(hy.title) + '</b><br>' + esc(hy.body) + '</p>';
+      h += '<p><b class="amber">' + RC.i18n.t('hypothesis') + (i + 1) + '：' + RC.ui.bi(hy.titleCn, hy.titleJp) + '</b><br>' + esc(hy.body) + '</p>';
     });
   } else {
-    h += '<p class="dim">信息还不足以形成假说。再多告诉我一点。</p>';
+    h += '<p class="dim" data-i18n="noHypo">信息还不足以形成假说。再多告诉我一点。</p>';
   }
   h += '<p class="dim">' + esc(v.cold[1]) + '</p>';
 
-  // 8 处方
-  h += '<h3>' + (v.birth ? '八' : '七') + ' · 回去之后</h3><ol style="padding-left:20px">';
+  h += sec('回去之后', '処方') + '<ol style="padding-left:20px">';
   v.prescription.forEach(function (p) { h += '<li>' + esc(p) + '</li>'; });
   h += '</ol>';
 
-  // 9 未解决
-  h += '<h3>' + (v.birth ? '九' : '八') + ' · 我还想知道</h3><ul style="padding-left:20px">';
+  h += sec('我还想知道', '未解決') + '<ul style="padding-left:20px">';
   v.open.forEach(function (o) { h += '<li class="dim">' + esc(o) + '</li>'; });
   h += '</ul>';
 
-  h += '<div class="center mt"><span class="stamp">' + esc(v.stamp) + '</span></div>';
-  h += '<p class="hint center">梦侦探萨弗兰 ／ RADIO CLUB　――　本鉴定仅供娱乐与自我梳理，不作为医疗或心理诊断的依据。</p>';
+  h += '<div class="center mt"><span class="stamp">' + RC.ui.bi(v.stampCn, v.stampJp) + '</span></div>';
+  h += '<p class="hint center">' + RC.ui.bi('梦侦探萨弗兰', '夢探偵サフラン') + ' ／ RADIO CLUB　――　' +
+       RC.i18n.t('disclaimer') + '</p>';
 
   document.getElementById('report').innerHTML = h;
+  RC.i18n.apply(document);
 }
 </script>
 </body>

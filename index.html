@@ -4,26 +4,49 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RADIO CLUB</title>
+<meta name="description" content="RADIO CLUB —— 一间只存在于网络上的酒吧。梦侦探萨弗兰用塔罗与精神分析，替你把线头理清楚。致敬今敏《红辣椒》。">
 <link rel="stylesheet" href="assets/css/club.css">
 </head>
 <body data-amb-whisper>
 <div id="app">
 
-  <header class="site-head slim">
-    <div class="slim-bar">
-      <a class="logo-sm" href="index.html">RADIO <b>CLUB</b></a>
-      <span class="logo-sub-sm">网络上的酒吧／梦侦探事务所</span>
-      <span class="open-lamp-sm"><span class="lamp"></span>营业中</span>
+  <header class="site-head">
+    <div class="hero">
+      <img src="assets/img/bar-interior.jpg" alt="RADIO CLUB 店内">
+      <div class="hero-veil"></div>
+      <div class="hero-txt">
+        <div class="logo">RADIO <b>CLUB</b></div>
+        <div class="logo-sub">
+          <span class="i18n-cn">网络酒吧 ／ 梦侦探事务所 ／ EST. 2006</span>
+          <span class="i18n-jp">ネット上のバー ／ 夢探偵事務所 ／ EST. 2006</span>
+        </div>
+      </div>
+      <div class="open-lamp"><span class="lamp"></span>
+        <span class="i18n-cn">现在营业中</span><span class="i18n-jp">現在営業中</span><br>
+        <span class="faint small"><span class="i18n-cn">22:00 ～ 次日 5:00（不定期休息）</span><span class="i18n-jp">22:00 〜 翌 5:00（不定休）</span></span>
+      </div>
+
+      <!-- 皮影戏侦探（中国元素）：眼睛与头随鼠标转动、定时眨眼；点击进店入座 -->
+      <div class="hero-puppet" id="heroPuppet" role="button" tabindex="0">
+        <span class="hp-cap"><span class="i18n-cn">点我 · 进店坐下</span><span class="i18n-jp">タップ · 店へ入る</span></span>
+      </div>
     </div>
     <div id="navMount"></div>
   </header>
 
-  <!-- 第一人称进店镜头 -->
+  <div class="marquee"><span class="mq-in">
+    <span class="i18n-cn">欢迎光临……　欢迎光临……　今夜也谢谢你来……　请随便坐……　吧台里面的人，永远站在你这一边……　欢迎光临……</span>
+    <span class="i18n-jp">いらっしゃいませ……　いらっしゃいませ……　今夜もよく来てくれました……　お好きな席へどうぞ……　カウンターの内側は、いつでもあなたの味方です……　いらっしゃいませ……</span>
+  </span></div>
+
+  <div id="paradeMount"></div>
+
+  <!-- 第一人称进店镜头（点单动作） -->
   <div class="vp" id="vp">
     <div class="shot" id="shHall"><img src="assets/img/scene-hall.jpg" alt="RADIO CLUB 店内：两位酒保站在吧台后，侦探在另一张桌子边看书"></div>
     <div class="shot" id="shPov"><img src="assets/img/scene-seated.jpg" alt="吧台"></div>
-    <img class="vfig det" id="figDet" src="assets/img/fig-detective.png" alt="萨弗兰坐在吧台边">
-    <img class="vfig srv" id="figSrv" src="assets/img/fig-serve.png" alt="酒保端菜上桌">
+    <img class="vfig det" id="figDet" src="assets/img/puppet-det.png" alt="萨弗兰坐在吧台边">
+    <img class="vfig srv" id="figSrv" src="assets/img/puppet-lian.png" alt="酒保端菜上桌">
     <div class="shot look" id="shBt"><img id="shBtImg" alt="酒保递菜单"></div>
     <div class="shot look" id="shDet"><img src="assets/img/det-push-form.jpg" alt="侦探推来咨询单"></div>
     <div class="dishes3d" id="dishes"></div>
@@ -31,15 +54,15 @@
       <span class="c-back"></span><span class="c-seat"></span>
       <span class="c-leg l"></span><span class="c-leg r"></span>
     </div>
-    <div class="vprompt walk-hint" id="vpWalk">滑动鼠标，往前走一步<span class="arr">▼</span></div>
-    <div class="vprompt chair-hint" id="vpChair">拉开椅子，坐下</div>
+    <div class="vprompt walk-hint" id="vpWalk"><span class="i18n-cn">滑动鼠标，往前走一步</span><span class="i18n-jp">マウスを動かして、一歩前へ</span><span class="arr">▼</span></div>
+    <div class="vprompt chair-hint" id="vpChair"><span class="i18n-cn">拉开椅子，坐下</span><span class="i18n-jp">椅子を引いて、お掛けください</span></div>
     <div class="vfloat" id="menuWrap"></div>
     <div class="vfloat" id="formWrap"></div>
     <div class="vsub" id="vsub"></div>
     <div class="vtools">
-      <button type="button" class="btn ghost mini" id="btnSkip">直接入座</button>
-      <button type="button" class="btn mini" id="btnMenuOpen">看菜单</button>
-      <button type="button" class="btn ghost mini" id="btnReset">回到门口</button>
+      <button type="button" class="btn ghost mini" id="btnSkip"><span class="i18n-cn">直接入座</span><span class="i18n-jp">すぐ座る</span></button>
+      <button type="button" class="btn mini" id="btnMenuOpen"><span class="i18n-cn">看菜单</span><span class="i18n-jp">メニューを見る</span></button>
+      <button type="button" class="btn ghost mini" id="btnReset"><span class="i18n-cn">回到门口</span><span class="i18n-jp">入口に戻る</span></button>
     </div>
   </div>
 
@@ -48,34 +71,62 @@
     <div id="greetMount"></div>
 
     <div class="panel">
-      <div class="p-head"><h2>今晚营业须知</h2><span class="p-en">TONIGHT</span><span class="p-note">※ 给第一次来的客人</span></div>
+      <div class="p-head">
+        <h2><span class="i18n-cn">今夜营业指南</span><span class="i18n-jp">今夜の営業案内</span></h2>
+        <span class="p-en">TONIGHT</span>
+        <span class="p-note"><span class="i18n-cn">※ 致第一次来的客人</span><span class="i18n-jp">※ 初来店のお客様へ</span></span>
+      </div>
       <div class="p-body">
         <p>这里是 <b class="amber">RADIO CLUB</b>。一间只存在于网络上的酒吧。</p>
         <p class="dim">没有实体地址，白天也找不到入口。但只要你夜里带着某件"想不明白的事"打开这个网址，灯就是亮着的。</p>
         <p class="dim">本店不收现金。<b class="amber">只收故事。</b>你讲，我们听，然后替你把线头理清楚。</p>
         <hr class="rule">
-        <p>坐在吧台另一端的那位小姐是 <b class="amber">梦侦探 · 萨弗兰</b>。<br>
+        <p>坐在吧台另一端的那位小姐是 <b class="amber"><span class="i18n-cn">梦侦探·萨弗兰</span><span class="i18n-jp">夢探偵サフラン</span></b>。<br>
         她用 <b class="amber">塔罗牌</b> 和 <b class="amber">精神分析</b> 工作：前者负责把你没说出口的部分摆上桌，后者负责解释它为什么在那里。</p>
         <p class="faint small">她不说安慰的话，但每一句都负责。</p>
       </div>
     </div>
 
     <div class="panel">
-      <div class="p-head"><h2>你的吧台</h2><span class="p-en">YOUR COUNTER</span><span class="p-note">点过的都记在这里</span></div>
+      <div class="p-head">
+        <h2><span class="i18n-cn">你的吧台</span><span class="i18n-jp">あなたのカウンター</span></h2>
+        <span class="p-en">YOUR COUNTER</span>
+        <span class="p-note"><span class="i18n-cn">点过的都记在这里</span><span class="i18n-jp">ご注文はすべてここに</span></span>
+      </div>
       <div class="p-body">
         <div class="tray" id="trayBox" style="width:auto;margin:0"></div>
-        <p class="hint">※ 点下的都先记在单上。等你和侦探聊起来，酒保会一次端上来，放在你手边。</p>
+        <p class="hint"><span class="i18n-cn">※ 点下的都先记在单上。等你和侦探聊起来，酒保会一次端上来，放在你手边。</span><span class="i18n-jp">※ ご注文はまず伝票に。探偵と話がついたら、バーテンが一気にあなたの手の届くところへお持ちします。</span></p>
       </div>
     </div>
 
     <div class="panel">
-      <div class="p-head"><h2>服务菜单</h2><span class="p-en">MENU</span><span class="p-note">价格：一个故事</span></div>
+      <div class="p-head">
+        <h2><span class="i18n-cn">酒单</span><span class="i18n-jp">お品書き</span></h2>
+        <span class="p-en">MENU</span>
+        <span class="p-note"><span class="i18n-cn">价格以「故事」收取</span><span class="i18n-jp">価格は"故事"で承ります</span></span>
+      </div>
       <div class="p-body">
         <table class="menu">
-          <tr><td class="k">① 委托点单</td><td class="d">把你的事、你的梦、你反复想起的那句话，写下来交给吧台</td><td class="v"><a href="order.html">去点单 →</a></td></tr>
-          <tr><td class="k">② 塔罗</td><td class="d">五张：过去 · 现在 · 隐藏动机 · 障碍 · 结论</td><td class="v"><a href="tarot.html">去抽牌 →</a></td></tr>
-          <tr><td class="k">③ 精神分析</td><td class="d">罗夏墨迹五张 + 词联想测试（会记录你的反应时间）</td><td class="v"><a href="psyche.html">去分析 →</a></td></tr>
-          <tr><td class="k">④ 鉴定书</td><td class="d">以上三项齐备后，她会给你一份书面结论</td><td class="v"><a href="verdict.html">去领取 →</a></td></tr>
+          <tr>
+            <td class="k"><span class="i18n-cn">① 委托受理</span><span class="i18n-jp">① ご用件承り</span></td>
+            <td class="d">把你的事、你的梦、你反复想起的那句话，写下来交给吧台</td>
+            <td class="v"><a href="order.html" data-i18n="goOrder">去点单 →</a></td>
+          </tr>
+          <tr>
+            <td class="k"><span class="i18n-cn">② 塔罗</span><span class="i18n-jp">② タロット</span></td>
+            <td class="d">五枚：过去・现在・隐藏动机・障碍・结论</td>
+            <td class="v"><a href="tarot.html" data-i18n="goSpread">展开 →</a></td>
+          </tr>
+          <tr>
+            <td class="k"><span class="i18n-cn">③ 精神分析</span><span class="i18n-jp">③ 精神分析</span></td>
+            <td class="d">罗夏墨迹五张 + 词联想测试（会记录你的反应时间）</td>
+            <td class="v"><a href="psyche.html" data-i18n="goPsyche">受诊 →</a></td>
+          </tr>
+          <tr>
+            <td class="k"><span class="i18n-cn">④ 鉴定书</span><span class="i18n-jp">④ 鑑定書</span></td>
+            <td class="d">以上三项齐备后，她会给你一份书面结论</td>
+            <td class="v"><a href="verdict.html" data-i18n="goGet">领取 →</a></td>
+          </tr>
         </table>
         <p class="hint">※ 建议按 ①→②→③→④ 的顺序。跳过的部分她也会尽量补，但有你亲口说的版本会更准。</p>
       </div>
@@ -83,7 +134,10 @@
 
     <div class="row">
       <div class="panel">
-        <div class="p-head"><h2>本店约定</h2><span class="p-en">HOUSE RULES</span></div>
+        <div class="p-head">
+          <h2><span class="i18n-cn">本店的约定</span><span class="i18n-jp">本店の約束</span></h2>
+          <span class="p-en">HOUSE RULES</span>
+        </div>
         <div class="p-body">
           <table class="menu">
             <tr><td class="k">一</td><td class="d">先点单，再聊天。把你的事写下来，她会认真读完每一个字。</td></tr>
@@ -95,73 +149,75 @@
         </div>
       </div>
       <div class="panel">
-        <div class="p-head"><h2>今日电梯</h2><span class="p-en">ELEVATOR</span></div>
+        <div class="p-head">
+          <h2><span class="i18n-cn">今日的电梯</span><span class="i18n-jp">本日のエレベータ</span></h2>
+          <span class="p-en">ELEVATOR</span>
+        </div>
         <div class="p-body center">
-          <div style="font-size:11px" class="dim">现在所在</div>
+          <div style="font-size:11px" class="dim">
+            <span class="i18n-cn">当前楼层</span><span class="i18n-jp">現在地</span>
+          </div>
           <div class="elevator" id="rcElevator" style="font-size:34px">01F</div>
-          <div class="hint" id="rcElevCap">※ 数字慢慢往上爬，是这家店的毛病。</div>
+          <div class="rc-elev-floors" id="rcElevFloors"></div>
+          <div class="hint" id="rcElevCap">
+            <span class="i18n-cn">※ 数字升得慢，是这家店的毛病。</span>
+            <span class="i18n-jp">※ 表示がゆっくり上がるのは、この店の癖です。</span>
+          </div>
           <hr class="rule">
-          <div class="small dim">电梯只到 17 层。<br>再往上的楼层，今晚不开放。</div>
+          <div class="small dim">
+            <span class="i18n-cn">今日推荐</span><span class="i18n-jp">本日のおすすめ</span>
+          </div>
+          <table class="menu" style="margin-top:6px">
+            <tr>
+              <td class="k"><span class="i18n-cn">琥珀高球</span><span class="i18n-jp">琥珀ハイボール</span></td>
+              <td class="d"><span class="i18n-cn">冰与酒 1:2，适合先开口前喝。</span><span class="i18n-jp">氷と酒を 1:2。口を開く前に。</span></td>
+            </tr>
+            <tr>
+              <td class="k"><span class="i18n-cn">热牛奶</span><span class="i18n-jp">ホットミルク</span></td>
+              <td class="d"><span class="i18n-cn">不做梦的人也能喝。</span><span class="i18n-jp">夢を見なくても飲める。</span></td>
+            </tr>
+          </table>
         </div>
       </div>
     </div>
 
   </div>
 
-  <footer class="site-foot">
-    <span class="f-links"><a href="people.html">人物</a> │ <a href="bbs.html">留言板</a> │ <a href="link.html">链接</a></span>
-    <span class="badge88">RADIO CLUB<br>BEST VIEWED 1024×768</span>
-    <span class="copy">© 2006- RADIO CLUB ／ 网络上的酒吧<br>Since 2006.11.25</span>
-  </footer>
+  <div id="footMount"></div>
 
 </div>
 
-<script src="assets/js/store.js"></script>
-<script src="assets/js/tarot-data.js"></script>
-<script src="assets/js/engine.js"></script>
-<script src="assets/js/ui.js"></script>
-<script src="assets/js/haunt.js"></script>
-<script src="assets/js/scene.js"></script>
+<script src="assets/js/store.js?v=2"></script>
+<script src="assets/js/i18n.js?v=2"></script>
+<script src="assets/js/ui.js?v=2"></script>
+<script src="assets/js/puppet.js?v=2"></script>
+<script src="assets/js/haunt.js?v=2"></script>
+<script src="assets/js/scene.js?v=2"></script>
 <script>
-RC.ui.chrome({ title: '吧台', path: 'index.html' });
+RC.ui.chrome({ title: RC.i18n.t('counter'), path: 'index.html' });
 document.getElementById('navMount').innerHTML = RC.ui.nav('index.html');
-
-// 开场问候
-var mount = document.getElementById('greetMount');
-var visits = RC.store.get('visits', 0);
-var n = visits + 1;
-RC.ui.dialog({
-  who: '萨弗兰', jp: '梦侦探',
-  mount: mount,
-  text: n === 1
-    ? '晚上好，我是萨弗兰。坐吧，不用客气。先从菜单上点杯喝的，然后把你的事慢慢讲给我听——讲不清楚也没关系，讲不清楚的地方往往就是答案在的地方。'
-    : '又见面了，第 ' + n + ' 次。我记得每一位客人的次数，也记得他们上次讲到哪儿。……上次那件事，后来怎么样了？',
-  speed: 26
-});
+document.getElementById('footMount').innerHTML = RC.ui.siteFoot({ active: 'index.html' });
 
 /* ---------- 你的吧台（账单） ---------- */
 var trayBox = document.getElementById('trayBox');
-function trayN(id) {
-  var t = RC.bar.tray();
-  for (var i = 0; i < t.length; i++) if (t[i].id === id) return t[i].n;
-  return 0;
-}
 function renderTray() {
-  var t = RC.bar.tray(), total = RC.bar.count();
+  var t = RC.i18n.t, of = RC.i18n.of;
+  var tr = RC.bar.tray(), total = RC.bar.count();
   var served = RC.bar.served();
-  var items = t.length ? t.map(function (x) {
+  var items = tr.length ? tr.map(function (x) {
     var d = RC.bar.byId(x.id);
     var left = x.n - (served[x.id] || 0);
     var state = d.kind === 'food' && left > 0
-      ? '<span class="ti-by">厨房里 · 稍后上</span>'
-      : (d.kind === 'food' ? '<span class="ti-by">已上桌</span>' : '<span class="ti-by">' + RC.util.esc(d.by) + ' 调</span>');
-    return '<div class="tray-item"><span class="ti-n">×' + x.n + '</span><span>' + RC.util.esc(d.cn) + '</span>' +
-      state + '<span class="ti-x" data-rm="' + x.id + '">撤掉</span></div>';
-  }).join('') : '<div class="tray-empty">吧台还空着。坐下之后翻翻菜单，岩夫或涟会应你。</div>';
+      ? '<span class="ti-by">' + of({ cn: '厨房里 · 稍后上', jp: '厨房で · 後ほど' }) + '</span>'
+      : (d.kind === 'food' ? '<span class="ti-by">' + of({ cn: '已上桌', jp: 'お出し済み' }) + '</span>'
+         : '<span class="ti-by">' + RC.util.esc(d.by) + of({ cn: ' 调', jp: ' 担当' }) + '</span>');
+    return '<div class="tray-item"><span class="ti-n">×' + x.n + '</span><span>' + RC.util.esc(of({ cn: d.cn, jp: d.jp })) + '</span>' +
+      state + '<span class="ti-x" data-rm="' + x.id + '">' + of({ cn: '撤掉', jp: '取消' }) + '</span></div>';
+  }).join('') : '<div class="tray-empty">' + t('trayEmpty') + '</div>';
   trayBox.innerHTML =
-    '<div class="tray-head">你的吧台<span class="cnt">今晚共 ' + total + ' 件</span></div>' + items +
-    (t.length ? '<div class="tray-foot"><button type="button" class="btn ghost mini" id="trayClear">清空吧台</button>' +
-      '<a class="btn mini" href="order.html">就这些了 · 去讲我的事 →</a></div>' : '');
+    '<div class="tray-head">' + t('yourCounter') + '<span class="cnt">' + t('tonightTotal') + ' ' + total + ' ' + t('items') + '</span></div>' + items +
+    (tr.length ? '<div class="tray-foot"><button type="button" class="btn ghost mini" id="trayClear">' + of({ cn: '清空吧台', jp: 'カウンターを空に' }) + '</button>' +
+      '<a class="btn mini" href="order.html">' + of({ cn: '就这些了 · 去讲我的事 →', jp: 'これで全部 · 話を聞いてもらう →' }) + '</a></div>' : '');
 }
 trayBox.addEventListener('click', function (e) {
   var rm = e.target.closest('[data-rm]');
@@ -171,6 +227,7 @@ trayBox.addEventListener('click', function (e) {
 RC.scene = RC.scene || {};
 RC.scene.renderTray = renderTray;
 renderTray();
+if (RC.i18n.onChange) RC.i18n.onChange(renderTray);
 </script>
 </body>
 </html>

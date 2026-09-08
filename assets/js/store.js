@@ -49,7 +49,7 @@
       handle: '', age: '', gender: '', birth: '',
       category: '', story: '', dream: '', dreamFreq: '', paralysis: false,
       recurring: '',
-      inkblots: [],        // [{id, text}]
+      analystLog: [],      // [{m, dream, motifs, verdict:{cn,jp}, ts}]
       assoc: [],           // [{stim, resp, ms}]
       tarot: [],           // [{id, upright, pos}]
       createdAt: 0, updatedAt: 0
@@ -73,55 +73,97 @@
       return c;
     },
     reset: function () { store.del('case'); store.del('verdict'); },
-    has: function () { var c = Case.get(); return !!(c.story || c.tarot.length || c.inkblots.length); }
+    has: function () { var c = Case.get(); return !!(c.story || c.tarot.length || c.analystLog.length); }
   };
 
-  /* 来店计数 */
+  /* 来店计数
+     - total:     累计到访（持久）
+     - today:     今日到访（按本地日期切分）
+     - bump() 同会话内只 +1：靠 sessionStorage 标记去重，避免 8 页来回切每次都涨
+  */
   var Visits = {
     bump: function () {
+      try {
+        if (sessionStorage.getItem('rc_visit_session')) {
+          return this.count();
+        }
+        sessionStorage.setItem('rc_visit_session', '1');
+      } catch (e) { /* sessionStorage 不可用时退回每页 +1：保留旧行为 */ }
+
       var n = store.get('visits', 0) + 1;
       store.set('visits', n);
       store.set('lastVisit', Date.now());
+
+      /* 今日计数 */
+      var d = new Date();
+      var dayKey = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+      var t = store.get('visitsToday', null);
+      if (!t || t.day !== dayKey) {
+        store.set('visitsToday', { day: dayKey, n: 1 });
+      } else {
+        store.set('visitsToday', { day: dayKey, n: t.n + 1 });
+      }
       return n;
     },
-    count: function () { return store.get('visits', 0); }
+    count: function () { return store.get('visits', 0); },
+    today: function () { return (store.get('visitsToday', null) || {}).n || 0; }
   };
 
   /* ---------- 吧台：饮品单 + 主食单 + 托盘 ---------- */
   var DRINKS = [
     { id: 'highball', cn: '琥珀高球',   jp: 'ハイボール',          alc: true,  by: '岩夫', kind: 'drink',
       desc: '威士忌苏打。气泡打得很细，不呛口。',
-      line: '琥珀高球。气泡要打得细才不呛口。慢慢喝，我们有的是时间。' },
+      descJp: 'ウイスキーソーダ。泡は細かく、喉にこない。',
+      line: '琥珀高球。气泡要打得细才不呛口。慢慢喝，我们有的是时间。',
+      lineJp: 'ハイボール。泡を細かくすれば喉にこない。ゆっくり飲んで、時間はあるから。' },
     { id: 'milk',     cn: '热牛奶',     jp: 'ホットミルク',        alc: false, by: '涟', kind: 'drink',
       desc: '给不喝酒的客人。涟会多加一点蜂蜜。',
-      line: '……热牛奶。蜂蜜多放了一点。手先暖起来，话才好说。' },
+      descJp: 'お酒を飲まない方に。れんは蜂蜜を少し多めに入れる。',
+      line: '……热牛奶。蜂蜜多放了一点。手先暖起来，话才好说。',
+      lineJp: '……ホットミルク。蜂蜜を少し多めに。まず手を温めてから、話はゆっくり。' },
     { id: 'fizz',     cn: '藏红气泡',   jp: 'サフラン・フィズ',    alc: true,  by: '岩夫', kind: 'drink',
       desc: '本店招牌，以那位小姐命名。颜色像她的外套。',
-      line: '藏红气泡，本店招牌。颜色像那位小姐的外套——她本人对这个说法不予置评。' },
+      descJp: '当店の看板、あのお嬢さんの名を冠した一杯。色は彼女のコートのよう。',
+      line: '藏红气泡，本店招牌。颜色像那位小姐的外套——她本人对这个说法不予置评。',
+      lineJp: 'サフラン・フィズ、当店の看板。色はあのお嬢さんのコートのよう——本人はこの説にコメントを控えている。' },
     { id: 'coffee',   cn: '午夜咖啡',   jp: 'ミッドナイト・コーヒー', alc: false, by: '涟', kind: 'drink',
       desc: '无酒精，偏苦。适合清醒地把一件事讲完。',
-      line: '午夜咖啡，很苦。想清醒地把话讲完，点它没错。' },
+      descJp: 'ノンアルコール、やや苦め。正気で一つのことを語り切るのに合う。',
+      line: '午夜咖啡，很苦。想清醒地把话讲完，点它没错。',
+      lineJp: 'ミッドナイト・コーヒー、とても苦い。正気で話を終えたいなら、これを選んで間違いはない。' },
     { id: 'orange',   cn: '血橙苏打',   jp: 'ブラッドオレンジ',    alc: false, by: '涟', kind: 'drink',
       desc: '微酸带气。涟说适合“想说又说不出口”的时候。',
-      line: '血橙苏打，酸的。……有时候酸一点，话反而说得出口。' },
+      descJp: 'ほのかな酸味と炭酸。れん曰く「言いたいのに言えない」時に合う。',
+      line: '血橙苏打，酸的。……有时候酸一点，话反而说得出口。',
+      lineJp: 'ブラッドオレンジ、酸っぱい。……時々、少し酸っぱいほうが、かえって言葉を口にできる。' },
     { id: 'water',    cn: '一杯冷水',   jp: '冷水',                alc: false, by: '岩夫', kind: 'drink',
       desc: '也有人只想喝这个。我们不问原因。',
-      line: '冷水一杯。不问原因——这里没那种规矩。坐吧。' }
+      descJp: 'これだけが飲みたい人もいる。理由は訊かない。',
+      line: '冷水一杯。不问原因——这里没那种规矩。坐吧。',
+      lineJp: '冷水を一杯。理由は訊かない——ここにそういう決まりはない。座って。' }
   ];
   /* 主食：点下后不立刻上，等精神分析做完才和答案一起端上来 */
   var FOODS = [
     { id: 'ramen', cn: '深夜拉面', jp: '夜ラーメン', alc: false, by: '岩夫', kind: 'food',
       desc: '味噌汤底、叉烧两片、溏心蛋。打烊前吊的最后一锅汤。',
-      line: '深夜拉面。汤是白天吊的，面是现煮的——趁热。' },
+      descJp: '味噌スープ、チャーシュー二枚、半熟卵。閉店前に取った最後の一杯の出汁。',
+      line: '深夜拉面。汤是白天吊的，面是现煮的——趁热。',
+      lineJp: '夜ラーメン。スープは昼に取って、麺は今茹でた——熱いうちに。' },
     { id: 'steak', cn: '铁板牛排', jp: 'ステーキ',   alc: false, by: '岩夫', kind: 'food',
       desc: '厚切，五分熟，配蒜片与一点岩盐。',
-      line: '铁板牛排，五分熟。刀在右手边——慢慢切，没人催你。' },
+      descJp: '厚切り、ミディアム、ガーリックチップと少量の岩塩を添えて。',
+      line: '铁板牛排，五分熟。刀在右手边——慢慢切，没人催你。',
+      lineJp: 'ステーキ、ミディアム。ナイフは右手に——ゆっくり切って、誰も急かさない。' },
     { id: 'sandwich', cn: '玉子三明治', jp: '玉子サンド', alc: false, by: '涟', kind: 'food',
       desc: '厚蛋烧夹吐司，切掉硬边。涟的拿手。',
-      line: '玉子三明治，边切掉了。……不喜欢边的人，运气都不会太差。' },
+      descJp: '厚焼き玉子をトーストで挟み、硬い耳は落とした。れんの得意作。',
+      line: '玉子三明治，边切掉了。……不喜欢边的人，运气都不会太差。',
+      lineJp: '玉子サンド、耳は落とした。……耳が嫌いな人は、運が悪くないものだ。' },
     { id: 'onigiri', cn: '味噌烤饭团', jp: '焼きおにぎり', alc: false, by: '涟', kind: 'food',
       desc: '刷味噌烤到焦香。配茶、配沉默都可以。',
-      line: '味噌烤饭团，焦的那面朝上。留给你。' }
+      descJp: '味噌を塗って香ばしく焼いた。お茶にも、沈黙にも合う。',
+      line: '味噌烤饭团，焦的那面朝上。留给你。',
+      lineJp: '焼きおにぎり、焦げた面を上にして。あなたに取っておいた。' }
   ];
   var ALL = DRINKS.concat(FOODS);
   var Bar = {
@@ -161,7 +203,8 @@
     pendingFood: function () {
       return Bar.pending().filter(function (x) { return Bar.isFood(x.id); });
     },
-    checkoutLine: '好，今晚这些记在账上——账就是你的故事。什么时候想讲了，去吧台另一端找她。'
+    checkoutLine: '好，今晚这些记在账上——账就是你的故事。什么时候想讲了，去吧台另一端找她。',
+    checkoutLineJp: 'よし、今夜の分は帳面に付けておく——帳面というのは、あなたの物語だ。話したくなったら、カウンターの向こうの彼女のところへ。'
   };
 
   /* 工具 */

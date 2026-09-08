@@ -1,0 +1,280 @@
+/* ============================================================
+   i18n.js — 中／日双语层
+   默认中文（cn），可一键切回日文（jp），选择记入 localStorage。
+   - 静态文案：HTML 里用 <span class="i18n-cn">／<span class="i18n-jp"> 并列，靠 body[data-lang] 显隐
+   - 动态文案：JS 里用 RC.i18n.t(key) 或 RC.i18n.of({cn,jp})
+   ============================================================ */
+(function () {
+  var KEY = 'lang';
+  var DEFAULT = 'cn';
+  var listeners = [];
+
+  var DICT = {
+    cn: {
+      /* 导航 */
+      counter: '吧台', people: '人物', order: '委托', tarot: '塔罗',
+      psyche: '精神分析', verdict: '鉴定', bbs: '树洞', link: '链接',
+      /* 通用 */
+      visitors: '来客数',
+      langName: '中文', langSwitch: 'JP',
+      langTip: '切换为日文版（原作致敬）',
+      /* 角色 */
+      detective: '萨弗兰', detectiveRole: '梦侦探',
+      master: '店主', masterRole: '店主',
+      /* 塔罗 */
+      deal: '洗牌并抽牌', flipAll: '全部翻开',
+      dealHint: '点「洗牌并抽牌」，然后一张张点开。慢慢来，翻牌的速度也是信息。',
+      dealHintAfter: '一张张点开。或者点「全部翻开」。',
+      upright: '正位', reversed: '逆位',
+      toPsyche: '去做分析 →', toVerdict: '领取鉴定书 →',
+      reading: '读牌', spread: '塔罗展开',
+      pickSpread: '选阵型',
+      dailyCard: '每日一牌', timeLine: '时间线', pentagram: '五张解读',
+      dealDaily: '抽今日牌', dealTimeline: '抽时间线',
+      spreadHintDaily: '今天只要看一张。它不是你想要的答案，是你已经知道的那一句。',
+      spreadHintTimeline: '三张。过去、现在、未来。别解释，先翻。',
+      spreadHintPentagram: '五张：过去・现在・隐藏动机・障碍・结论。慢慢来。',
+      /* 精神分析 */
+      inkTitle: '罗夏测试', recordInk: '记录墨迹反应',
+      assocTitle: '词语联想测试', startTest: '开始测试', submit: '提交',
+      stimWord: '刺激词',
+      /* 新增：句子完成测试（SCT） */
+      sctTitle: '句子完成测试', sctSub: '句子没有对错；写下脑子里冒出来的第一个答案',
+      sctSave: '记录并提交', sctSaved: '已记录。',
+      sctNone: '一句都没写。空白本身也是回答，但写一句试试。',
+      inkMeta: '看完这张的第一反应（舒服 / 不舒服 / 抓不住）',
+      inkMetaPh: '一个字就够',
+      /* 委托 */
+      submitOrder: '交给吧台', rewrite: '重写',
+      orderAgain: '重写委托', printIt: '打印', backCounter: '回吧台',
+      orderStory: '把这件事讲给我听', orderDream: '最近反复做的梦', orderFreq: '做梦的频率',
+      orderRecur: '最近反复想起的一句话或一个画面',
+      dreamPh: '片段也可以。记不清就写记不清。',
+      needHandle: '总得让我知道怎么称呼你。', needCat: '选一个类别，哪怕选"其他"。', needStory: '再多写一点，一句话也行。',
+      trayEmpty: '吧台还空着。坐下之后翻翻菜单，岩夫会应你。',
+      yourCounter: '你的吧台', tonightTotal: '今晚共', items: '件',
+      /* 鉴定书 */
+      verdictTitle: '鉴定书', callMe: '称呼', category: '类别',
+      visitCount: '来店', madeAt: '作成',
+      sRecon: '事件重述', sSpec: '情感谱', sInk: '罗夏墨迹',
+      sAssoc: '词联想断层', sNum: '数秘', sTarot: '牌阵',
+      sHypo: '我的结论', sCure: '回去之后', sOpen: '我还想知道',
+      hypothesis: '假说', noCard: '（未抽牌。以下结论仅基于文字与测试，置信度下调。）',
+      noHypo: '信息还不足以形成假说。再多告诉我一点。',
+      lifePath: '生命数', birthCard: '本命牌',
+      disclaimer: '本鉴定仅供娱乐与自我梳理，不构成医疗或心理诊断。',
+      emptyVerdict: '吧台还没有收到你的委托。',
+      toOrder: '去点单 →', noAnswer: '（未答）',
+      shareLink: '复制分享链接',
+      shareDone: '分享链接已复制。把它发给谁，谁就能看到这份鉴定书。',
+      shareManual: '链接已生成，请手动复制上面的内容。',
+      /* 留言板 */
+      writeIt: '写上去', namePh: '可以匿名', bodyPh: '今夜的感想、牢骚，或只是打个招呼',
+      anon: '匿名', posted: '写好了。岩夫在点头。', atLeastOne: '至少写一个字。',
+      /* 树洞 */
+      holeSub: '写在里面的话，只有夜里来的人看得到',
+      holeRule: '不用留名字。写完投进去，会有人回你。',
+      yourCode: '你的代号', writeNote: '写一张纸条',
+      sigPh: '署名（可留空）', bodyPh2: '今夜想说、又说不出口的那句',
+      drop: '投进树洞', dropped: '投进去了。有人在听。',
+      tooLong: '纸条最多 140 字，写不下就分两次。',
+      cooling: '慢一点。先喝口水。', cooldownHit: '连着写太多，洞口会堵。歇一会儿。',
+      moodLabel: '现在的心情',
+      mTired: '疲惫', mAngry: '生气', mMiss: '想念', mAwake: '睡不着', mLost: '迷路', mCalm: '还好',
+      filterAll: '全部', reply: '回复', replyPh: '回一句给他／她', send: '送出',
+      light: '点亮一盏灯', lit: '已点亮', lightUnit: '盏',
+      takeBack: '收回', takenBack: '收回了。就当没写过。',
+      fold: '折叠', unfold: '展开', report: '举报', reported: '已收到。岩夫会看一眼。',
+      listening: '洞口有人在听……', myNote: '你的纸条', fromOther: '别的夜',
+      empty: '树洞还是空的。第一句，你来写。',
+      shareNote: '把这张纸条带走', shareNoteDone: '链接已复制。谁打开，谁就能回你。',
+      cloudOn: '已连上别的夜', cloudOff: '今夜，只有你一个人',
+      cloudLoading: '正在听别的夜……', stranger: '一个陌生人',
+      /* 首页 */
+      openNow: '现在营业中', hours: '22:00 ～ 次日 5:00（不定期休息）',
+      tonight: '今夜营业指南', menu: '酒单',
+      menuPrice: '价格以「故事」收取',
+      orderItem: '委托受理', tarotItem: '塔罗', psycheItem: '精神分析', verdictItem: '鉴定书',
+      goOrder: '去点单 →', goSpread: '展开 →', goPsyche: '受诊 →', goGet: '领取 →',
+      houseRules: '本店的约定', elevator: '今日的电梯',
+      elevCap: '数字升得慢，是这家店的毛病。',
+      elevDone: '17 层以上，今晚不开放。别担心，只是不开放。',
+      todayRec: '今日推荐', bar: '吧台',
+      amberHighball: '琥珀高球', hotMilk: '热牛奶',
+      netBar: '网络酒吧', dreamAgency: '梦侦探事务所',
+      /* 彩蛋 */
+      cardHint: '红辣椒的名片', cardUrl: 'www.radio-club.ne.jp',
+      parade: '今夜的游行正在经过……　家电、玩偶、人偶、自由女神，全都往同一个方向去……',
+      holeTxt: '别往下看', mirrorFig: '镜子里的人比你慢半拍'
+    },
+    jp: {
+      /* 导航 */
+      /* 导航 */
+      counter: 'カウンター', people: '登場人物', order: 'ご注文', tarot: 'タロット',
+      psyche: '精神分析', verdict: '鑑定', bbs: '木の穴', link: 'LINK',
+      visitors: '来店者数',
+      langName: '日本語', langSwitch: 'CN',
+      langTip: '中文版に切り替える',
+      detective: 'サフラン', detectiveRole: '夢探偵',
+      master: 'マスター', masterRole: '店主',
+      deal: 'シャッフルして配る', flipAll: '全部めくる',
+      dealHint: '「シャッフルして配る」を押してから、一枚ずつめくってください。急がなくていい。めくる速さも情報です。',
+      dealHintAfter: '一枚ずつめくってください。または「全部めくる」。',
+      upright: '正位置', reversed: '逆位置',
+      toPsyche: '精神分析へ', toVerdict: '鑑定書を受取る',
+      reading: '読牌', spread: 'タロット展開',
+      pickSpread: '展開を選ぶ',
+      dailyCard: '今日の一枚', timeLine: 'タイムライン', pentagram: '五枚解読',
+      dealDaily: '今日の一枚を引く', dealTimeline: 'タイムラインを引く',
+      spreadHintDaily: '今日は一枚だけでいい。それが欲しい答えではなく、もう知っている一言だから。',
+      spreadHintTimeline: '三枚。過去・現在・未来。解釈は後、先にめくって。',
+      spreadHintPentagram: '五枚：過去・現在・隠れた動機・障害・結論。焦らずに。',
+      inkTitle: 'ロールシャッハ・テスト', recordInk: '墨跡の反応を記録',
+      assocTitle: '単語連想テスト', startTest: 'テスト開始', submit: '回答',
+      stimWord: '刺激語',
+      submitOrder: 'バーテンダーへ渡す', rewrite: '書き直す',
+      /* 文完成テスト */
+      sctTitle: '文完成テスト', sctSub: '正答はない。頭に浮かんだ一語をそのまま',
+      sctSave: '記録して提出', sctSaved: '記録した。',
+      sctNone: '一文も書かれていない。空白も答えだが、まず一句。',
+      inkMeta: 'この図を見た第一印象（心地よい／不快／掴めない）',
+      inkMetaPh: '一語で十分',
+      orderAgain: 'ご用件を書き直す', printIt: '印刷', backCounter: 'カウンターへ',
+      orderStory: 'そのことを話して', orderDream: '最近繰り返し見る夢', orderFreq: '夢を見る頻度',
+      orderRecur: '最近繰り返し頭に浮かぶ一言か一つの場面',
+      dreamPh: '断片でもいい。覚えていなければ、覚えていないと書いて。',
+      needHandle: '呼び方を教えて。', needCat: 'カテゴリを選んで。"その他"でもいい。', needStory: 'もう少し書いて。一文でも。',
+      trayEmpty: 'カウンターはまだ空っぽ。座ってメニューを開くと岩夫が応える。',
+      yourCounter: '君のカウンター', tonightTotal: '今夜の合計', items: '点',
+      verdictTitle: '鑑定書', callMe: '呼び名', category: 'カテゴリ',
+      visitCount: '来店', madeAt: '作成',
+      sRecon: '事件の再構成', sSpec: '感情スペクトル', sInk: '表象分析',
+      sAssoc: '連想の断層', sNum: '数秘', sTarot: 'タロットの配置',
+      sHypo: '仮説', sCure: '処方', sOpen: '未解決',
+      hypothesis: '仮説', noCard: '（未抽牌。以下的結論は文章とテストのみに基づく。信頼度は下げてある。）',
+      noHypo: '情報が足りない。仮説は立てない。もう少し聞かせて。',
+      lifePath: '生命数', birthCard: '本命牌',
+      disclaimer: '本鑑定は娯楽であり、医療・診断の代替ではありません。',
+      emptyVerdict: 'まだご用件が届いていない。',
+      toOrder: 'ご注文へ', noAnswer: '（未答）',
+      writeIt: '書き込む', namePh: '名無しでも可', bodyPh: '今夜の感想、愚痴、挨拶だけでも',
+      anon: '名無し', posted: '書いたよ。岩夫が頷いてる。', atLeastOne: '一字だけでも書いて。',
+      shareLink: '共有リンクをコピー',
+      shareDone: 'リンクをコピーした。誰かに送れば、その人がこの鑑定書を見られる。',
+      shareManual: 'リンクを生成した。上の内容を手動でコピーして。',
+      /* 木の穴（树洞） */
+      holeSub: 'ここに書いたことは、夜に来る人にしか見えない',
+      holeRule: '名前は要らない。書き終わったら穴へ。誰かが返す。',
+      yourCode: 'あなたの呼び名', writeNote: '紙を書く',
+      sigPh: '名前（空欄で可）', bodyPh2: '今夜、どうしても言えなかった一言',
+      drop: '穴へ投げる', dropped: '入った。誰かが聞いている。',
+      tooLong: '紙は140字まで。収まらないなら、二度に分けて。',
+      cooling: '少し待って。まず一口。', cooldownHit: '続けて書きすぎ。穴が詰まる。少し休んで。',
+      moodLabel: '今の気持ち',
+      mTired: '疲れ', mAngry: '怒り', mMiss: '会いたい', mAwake: '眠れない', mLost: '迷い', mCalm: 'まあまあ',
+      filterAll: 'すべて', reply: '返信', replyPh: '一言、返してあげて', send: '送る',
+      light: '灯をともす', lit: '点灯済み', lightUnit: '灯',
+      takeBack: '取り消す', takenBack: '取り消した。書かなかったことに。',
+      fold: 'たたむ', unfold: '広げる', report: '通報', reported: '受け付けた。岩夫が見る。',
+      listening: '穴の奥で誰かが聞いている……', myNote: 'あなたの紙', fromOther: '別の夜',
+      empty: '穴はまだ空っぽ。最初の一言は、あなたから。',
+      shareNote: 'この紙を持ち出す', shareNoteDone: 'リンクをコピーした。開いた人が返せる。',
+      cloudOn: '別の夜と繋がっている', cloudOff: '今夜は、ひとりだけ',
+      cloudLoading: '別の夜を聞いている……', stranger: '名も無い誰か',
+      openNow: '現在営業中', hours: '22:00 〜 翌 5:00（不定休）',
+      tonight: '今夜の営業案内', menu: 'お品書き',
+      menuPrice: '価格は"故事"で承ります',
+      orderItem: 'ご用件承り', tarotItem: 'タロット', psycheItem: '精神分析', verdictItem: '鑑定書',
+      goOrder: 'ご注文', goSpread: '展開', goPsyche: '受診', goGet: '受取',
+      houseRules: '本店の約束', elevator: '本日のエレベータ',
+      elevCap: '表示がゆっくり上がるのは、この店の癖です。',
+      elevDone: '17 階より上は、今夜は開かない。心配しないで、開かないだけだ。',
+      todayRec: '本日のおすすめ', bar: 'カウンター',
+      amberHighball: '琥珀ハイボール', hotMilk: 'ホットミルク',
+      netBar: 'ネット上のバー', dreamAgency: '夢探偵事務所',
+      cardHint: 'パプリカの名刺', cardUrl: 'www.radio-club.ne.jp',
+      parade: '今夜のパレードが通っている……　家電、ぬいぐるみ、日本人形、自由の女神、みんな同じ方向へ歩いている……',
+      holeTxt: '覗き込まないで', mirrorFig: '鏡の中の人は半拍遅れている'
+    }
+  };
+
+  var cur = null;
+  try { cur = RC.store.get(KEY, DEFAULT); } catch (e) { cur = DEFAULT; }
+  if (cur !== 'cn' && cur !== 'jp') cur = DEFAULT;
+
+  function t(key) {
+    var d = DICT[cur] || DICT[DEFAULT];
+    var v = d[key];
+    if (v == null) v = (DICT[DEFAULT] || {})[key];
+    return v == null ? key : v;
+  }
+
+  /* 取 {cn, jp} 对象的当前语言字段 */
+  function of(obj) {
+    if (!obj) return '';
+    if (typeof obj === 'string') return obj;
+    var v = cur === 'jp' ? obj.jp : obj.cn;
+    return v == null ? (obj.cn == null ? obj.jp : obj.cn) : v;
+  }
+
+  /* 渲染并列双语：默认只输出当前语言（供 JS 拼接） */
+  function pair(cn, jp) { return cur === 'jp' ? jp : cn; }
+
+  function applyTo(root) {
+    var scope = root || document;
+    if (document.body) document.body.setAttribute('data-lang', cur);
+    if (document.documentElement) document.documentElement.setAttribute('lang', cur === 'jp' ? 'ja' : 'zh-CN');
+    var els = scope.querySelectorAll('[data-i18n]');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      var key = el.getAttribute('data-i18n');
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        var ph = el.getAttribute('data-i18n-ph');
+        if (ph) el.placeholder = t(ph);
+      } else {
+        el.textContent = t(key);
+      }
+    }
+    var phs = scope.querySelectorAll('[data-i18n-ph]');
+    for (var j = 0; j < phs.length; j++) phs[j].placeholder = t(phs[j].getAttribute('data-i18n-ph'));
+  }
+
+  function set(lang) {
+    if (lang !== 'cn' && lang !== 'jp') return;
+    cur = lang;
+    try { RC.store.set(KEY, lang); } catch (e) {}
+    applyTo(document);
+    var btns = document.querySelectorAll('.lang-toggle');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].textContent = t('langSwitch');
+      btns[i].setAttribute('title', t('langTip'));
+      btns[i].setAttribute('aria-label', t('langTip'));
+    }
+    for (var k = 0; k < listeners.length; k++) {
+      try { listeners[k](lang); } catch (e) {}
+    }
+  }
+
+  function toggle() { set(cur === 'cn' ? 'jp' : 'cn'); }
+
+  function onChange(fn) { if (typeof fn === 'function') listeners.push(fn); }
+
+  window.RC = window.RC || {};
+  RC.i18n = {
+    lang: function () { return cur; },
+    t: t, of: of, pair: pair, set: set, toggle: toggle,
+    onChange: onChange, apply: applyTo, DICT: DICT
+  };
+
+  /* 统一委托语言切换按钮（siteFoot 返回的 .lang-toggle 也能响应） */
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('.lang-toggle');
+    if (b) { e.preventDefault(); toggle(); }
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { applyTo(document); });
+  } else {
+    applyTo(document);
+  }
+})();

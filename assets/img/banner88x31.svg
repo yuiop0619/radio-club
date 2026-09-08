@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="88" height="31" viewBox="0 0 88 31">
+  <rect width="88" height="31" fill="#000080" stroke="#fff" stroke-width="1"/>
+  <rect x="2" y="2" width="84" height="27" fill="#1084d0"/>
+  <text x="44" y="14" font-family="Arial,sans-serif" font-size="9" font-weight="bold" fill="#ffd700" text-anchor="middle">RADIO</text>
+  <text x="44" y="24" font-family="Arial,sans-serif" font-size="9" font-weight="bold" fill="#fff" text-anchor="middle">CLUB</text>
+</svg>

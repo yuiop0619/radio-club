@@ -28,7 +28,7 @@
 
   function spectrum(c) {
     var text = [c.story, c.dream, c.recurring,
-      (c.inkblots || []).map(function (i) { return i.text; }).join(' '),
+      (c.analystLog || []).map(function (l) { return l.dream; }).join(' '),
       (c.assoc || []).map(function (a) { return a.resp; }).join(' ')
     ].join(' \n ');
     return EMOTIONS.map(function (e) {
@@ -44,70 +44,106 @@
     });
   }
 
-  /* ---------- 罗夏墨迹分类 ---------- */
-  var BLOT_CATS = [
-    { k: 'mask', label: '面具／假面', jp: '仮面', w: ['面具', '假面', '口罩', '脸谱'] },
-    { k: 'inse', label: '昆虫', jp: '昆虫', w: ['虫', '蜘蛛', '蜈蚣', '蟑螂', '蚁', '甲虫'] },
-    { k: 'anat', label: '解剖／血', jp: '解剖', w: ['血', '内脏', '肺', '骨', '肉', '伤口', '器官', '骨盆', '肋骨'] },
-    { k: 'pers', label: '人物', jp: '人物', w: ['人', '男人', '女人', '脸', '面孔', '孩子', '母亲', '妈妈', '父亲', '爸爸', '背影', '手', '眼睛', '两个人'] },
-    { k: 'anim', label: '动物', jp: '動物', w: ['动物', '狗', '猫', '鸟', '蝴蝶', '蛾', '兔', '鱼', '蝙蝠', '兽'] },
-    { k: 'plan', label: '植物', jp: '植物', w: ['花', '树', '叶', '草', '根', '藤'] },
-    { k: 'mech', label: '机械', jp: '機械', w: ['机器', '齿轮', '引擎', '零件', '金属', '电路', '机器人'] },
-    { k: 'arch', label: '建筑', jp: '建築', w: ['房子', '门', '窗', '桥', '塔', '走廊', '楼梯', '房间'] },
-    { k: 'none', label: '未见／回避', jp: '不明', w: ['看不出', '不知道', '没有', '空白', '什么都', '就是墨', '污渍', '墨迹'] }
-  ];
-  function classifyBlot(text) {
-    var t = String(text || '').trim();
-    if (!t) return BLOT_CATS[BLOT_CATS.length - 1];
-    for (var i = 0; i < BLOT_CATS.length; i++) {
-      var c = BLOT_CATS[i];
-      for (var j = 0; j < c.w.length; j++) if (t.indexOf(c.w[j]) >= 0) return c;
-    }
-    return { k: 'abst', label: '抽象／形状', jp: '抽象' };
-  }
-  function inkblotProfile(c) {
-    var rows = (c.inkblots || []).map(function (b, i) {
-      var cat = classifyBlot(b.text);
-      return { i: i + 1, text: b.text, cat: cat.k, catLabel: cat.label, jp: cat.jp };
+  /* ---------- 解梦会诊：七大师记录汇总 ---------- */
+  function analystProfile(c) {
+    var A = RC.analyst;
+    var rows = (c.analystLog || []).map(function (l, i) {
+      var m = A ? A.byId(l.m) : null;
+      return {
+        i: i + 1, masterId: l.m,
+        masterCn: m ? m.cn : l.m, masterJp: m ? m.jp : l.m,
+        schoolCn: m ? m.school.cn : '', schoolJp: m ? m.school.jp : '',
+        motifs: l.motifs || [], dream: l.dream || '', verdict: l.verdict || {}
+      };
     });
     var counts = {};
-    rows.forEach(function (r) { counts[r.cat] = (counts[r.cat] || 0) + 1; });
-    var dom = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })[0] || 'abst';
-    var summary = {
-      mask: '你在五张墨迹里看见了面具。墨迹本身没有面具——是你把"给别人看的脸"带了进来。',
-      inse: '昆虫反应偏多。你把模糊的威胁读成了会爬、会繁殖的东西：它小，但不止一只。',
-      anat: '出现了血与内脏的反应。你的注意力落在"身体内部被打开"这件事上，这通常和一次没有被处理的伤害有关。',
-      pers: '人物反应占优。即使面对完全无意义的墨点，你最先找到的仍然是"人"——你对他人的动向保持着过高的警觉。',
-      anim: '动物反应偏多。你倾向于把未知读成活的、会动的东西，而不是静止的。',
-      plan: '植物反应偏多。你在模糊里寻找生长与根，这是一种偏向修复的阅读方式。',
-      mech: '机械反应偏多。你把感受翻译成了结构与零件——用"它是怎么运转的"来回避"它让我感觉如何"。',
-      arch: '建筑反应偏多。你关心门、窗与走廊：入口和出口。你一直在找离开或进入的路。',
-      none: '你多次回答"看不出"。面对模糊时你选择关闭阅读——这是一种保护，也是一种回避。',
-      abst: '你的反应偏向抽象与形状。你把情绪放在了距离之外，用"形式"代替"感受"。'
-    };
-    return { rows: rows, counts: counts, dom: dom, summary: summary[dom] || summary.abst };
+    rows.forEach(function (r) { r.motifs.forEach(function (k) { counts[k] = (counts[k] || 0) + 1; }); });
+    var summary;
+    if (!rows.length) {
+      summary = '（本次未进行解梦会诊。）';
+    } else {
+      var masters = rows.map(function (r) { return r.masterCn; });
+      var uniq = masters.filter(function (v, i) { return masters.indexOf(v) === i; });
+      var topMotif = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })[0];
+      var tm = topMotif && A ? A.motifLabel(topMotif) : null;
+      summary = '你先后请 ' + uniq.length + ' 位大师会诊：' + uniq.join('、') + '。' +
+        (tm ? '反复浮现的意象是「' + tm.cn + '」——不同学派都停在了它上面。' : '');
+    }
+    return { rows: rows, counts: counts, summary: summary };
   }
 
-  /* ---------- 词联想：复合（complex）检测 ---------- */
+  /* ---------- 词联想：复合（complex）检测 — 适配 stim 为 {cn, jp} 或 字符串 ---------- */
   function assocProfile(c) {
     var rows = (c.assoc || []).map(function (a) {
       var flag = null, note = '';
       var resp = String(a.resp || '').trim();
       var ms = a.ms || 0;
+      /* stim 兼容：旧数据为字符串，新数据为 {cn, jp} */
+      var stimCn = (typeof a.stim === 'object' && a.stim) ? (a.stim.cn || '') : String(a.stim || '');
+      var stimJp = (typeof a.stim === 'object' && a.stim) ? (a.stim.jp || '') : String(a.stim || '');
       if (!resp || resp === '...' || resp === '…') { flag = 'refuse'; note = '拒答：这个词被你跳过了。跳过本身就是一种回答。'; }
-      else if (resp.indexOf(a.stim) >= 0) { flag = 'persev'; note = '反復：你的回答里含着刺激词本身。思维在这个词上原地打转。'; }
+      else if (resp.indexOf(stimCn) >= 0 && stimCn) { flag = 'persev'; note = '反復：你的回答里含着刺激词本身。思维在这个词上原地打转。'; }
       else if (ms > 5000) { flag = 'complex+'; note = '强复合：反应潜伏期 ' + (ms / 1000).toFixed(1) + ' 秒。这个词碰到了不该碰的地方。'; }
       else if (ms > 2500) { flag = 'complex'; note = '复合：反应潜伏期 ' + (ms / 1000).toFixed(1) + ' 秒，明显长于你的基线。这里有情绪电阻。'; }
       else if (ms < 900) { flag = 'flight'; note = '过速：几乎是条件反射。太快有时不是流畅，而是抢先堵住答案。'; }
-      return { stim: a.stim, resp: resp, ms: ms, flag: flag, note: note };
+      return { stimCn: stimCn, stimJp: stimJp, stim: stimCn, resp: resp, ms: ms, flag: flag, note: note };
     });
     var flagged = rows.filter(function (r) { return r.flag && r.flag !== 'flight'; });
     var summary = flagged.length
       ? '在 ' + rows.length + ' 个刺激词中，有 ' + flagged.length + ' 个引发了反应延迟或拒答：' +
-        flagged.map(function (f) { return '「' + f.stim + '」'; }).join('、') +
+        flagged.map(function (f) { return '「' + (f.stimCn || f.stimJp) + '」'; }).join('、') +
         '。荣格会把这些点称为"复合"——情绪在那里结成了硬块，绕开了你的意识。'
       : '你的反应潜伏期整体平稳，没有明显的复合点。要么你真的通透，要么你把电阻藏得很深。我倾向于后者。';
     return { rows: rows, flagged: flagged, summary: summary };
+  }
+
+  /* ---------- 句子完成测试（SCT）：空白、首字、词频 ---------- */
+  function sentenceProfile(c) {
+    var list = c.sct || [];
+    if (!list.length) return null;
+    var rows = list.map(function (x) {
+      return { i: x.i, qCn: x.qCn || '', qJp: x.qJp || '', a: x.a || '', empty: !x.a };
+    });
+    var blanks = rows.filter(function (r) { return r.empty; }).length;
+
+    /* 句首 / 首个名词短语 —— 取答案前半句前 6 个字 */
+    var OPENERS = [];
+    rows.forEach(function (r) {
+      if (r.empty) return;
+      var a = String(r.a).replace(/^[\s,，.。、:：;；]+/, '');
+      var head = a.slice(0, 6);
+      if (head) OPENERS.push(head);
+    });
+    var openerCounts = {};
+    OPENERS.forEach(function (h) { openerCounts[h] = (openerCounts[h] || 0) + 1; });
+    var repeatOpeners = Object.keys(openerCounts).filter(function (k) { return openerCounts[k] >= 2; });
+
+    /* 高频词：剔除停用词，取 top 5 */
+    var STOP = new Set([
+      '我','你','他','她','它','们','的','了','着','和','与','或','也','就','都','还','在','是','有','没',
+      '会','能','可','要','不','也','但','而','又','一','一个','一','因为','所以','如果','会','已','已经','大概',
+      'the','a','an','and','or','of','to','in','on','is','are','was','were','be'
+    ]);
+    var FREQ = {};
+    rows.forEach(function (r) {
+      if (r.empty) return;
+      String(r.a).split(/[\s,，.。、:：;；「」()（）!?！？]+/).forEach(function (w) {
+        w = w.trim();
+        if (!w || w.length < 2 || STOP.has(w)) return;
+        FREQ[w] = (FREQ[w] || 0) + 1;
+      });
+    });
+    var topWords = Object.keys(FREQ).sort(function (a, b) { return FREQ[b] - FREQ[a]; }).slice(0, 5)
+      .map(function (w) { return { w: w, n: FREQ[w] }; });
+
+    /* 综合 */
+    var summary = '';
+    if (blanks > 0) summary += '你留下了 ' + blanks + ' 句空白。写不出的句子也是答案——它通常在保护你还没准备好触碰的东西。';
+    if (repeatOpeners.length) summary += ' 你的句子常常以「' + repeatOpeners.slice(0, 2).join('」「') + '」开头——这是你的常用开场姿势。';
+    else summary += ' 你的句子开头并不重复——不同的起点，意味着你愿意换一种方式进入事情。';
+    if (topWords.length) summary += ' 高频词 TOP5：' + topWords.map(function (x) { return x.w + ' ×' + x.n; }).join(' ／ ');
+    summary += ' 把这些词连起来再读一遍，你能听到自己的语气。';
+    return { rows: rows, blanks: blanks, repeatOpeners: repeatOpeners, topWords: topWords, summary: summary };
   }
 
   /* ---------- 生日数秘 ---------- */
@@ -129,47 +165,44 @@
   }
 
   /* ---------- 假说库 ---------- */
-  function hypotheses(c, sp, blot, assoc) {
+  function hypotheses(c, sp, an, assoc) {
     var S = {}; sp.forEach(function (e) { S[e.k] = e; });
     var q = {
       story: U.quoteFrom(c.story), dream: U.quoteFrom(c.dream), rec: U.quoteFrom(c.recurring, 18)
     };
     var H = [];
-    var push = function (id, score, title, jp, body) { if (score > 0) H.push({ id: id, score: score, title: title, jp: jp, body: body }); };
+    /* push(id, score, 中文标题, 日文标题, 正文) —— 正文必须落在第 5 个参数上 */
+    var push = function (id, score, titleCn, titleJp, body) {
+      if (score > 0) H.push({ id: id, score: score, titleCn: titleCn, titleJp: titleJp, body: body });
+    };
 
-    push('persona', (blot.counts.mask ? 40 : 0) + (S.shm.v > 30 ? 25 : 0) + (c.category === '工作' || c.category === '自我' ? 15 : 0) + (S.dis.hits ? 20 : 0),
-      '面具的过度使用',
+    push('persona', (an.counts.mirror ? 40 : 0) + (S.shm.v > 30 ? 25 : 0) + (c.category === '工作' || c.category === '自我' ? 15 : 0) + (S.dis.hits ? 20 : 0),
+      '面具的过度使用', 'ペルソナの過剰適用',
       '你戴着的脸已经长在了脸上。问题不在于扮演，而在于你已经想不起卸下来之后那张脸的表情。' +
       (q.story ? '你说「' + q.story + '」——注意，你在描述自己时用的全是角色和职责，没有一处是"我想要"。' : '') +
-      (blot.counts.mask ? '墨迹测试里你看见了面具，这不是巧合。' : ''),
-      null);
+      (an.counts.mirror ? '你在梦里反复照见镜与影，这不是巧合。' : ''));
 
     push('shadow', (S.ang.hits ? 30 : 0) + (S.esc.v > 30 ? 20 : 0) + (assoc.flagged.length ? 10 : 0),
-      '被压进地下室的愤怒',
+      '被压进地下室的愤怒', '抑圧された影',
       '你的叙述里愤怒的浓度和你句子的克制程度不成比例。你把"我不允许自己生气"执行得太彻底，于是它改道了——变成失眠、变成反复的念头、变成梦里那只追你的东西。' +
-      (q.rec ? '你反复想起的那句「' + q.rec + '」，就是它敲门的方式。' : ''),
-      null);
+      (q.rec ? '你反复想起的那句「' + q.rec + '」，就是它敲门的方式。' : ''));
 
     push('grief', (S.los.v > 30 ? 40 : 0) + ((c.dream || '').match(/死|去世|走|棺|葬|告别/) ? 20 : 0),
-      '一场没有办完的告别',
+      '一场没有办完的告别', '未完了の喪失',
       '有一件事你还没有允许自己哀悼。你可能觉得"已经过去了"，但哀悼不是时间问题，是工序问题——跳过的那一步会一直在原地等你。' +
-      (q.dream ? '你的梦里写着「' + q.dream + '」。梦不处理事件，梦处理没说完的话。' : ''),
-      null);
+      (q.dream ? '你的梦里写着「' + q.dream + '」。梦不处理事件，梦处理没说完的话。' : ''));
 
     push('dissoc', (S.dis.v > 30 ? 40 : 0) + (c.paralysis ? 20 : 0) + (c.dreamFreq === '每夜' ? 15 : 0),
-      '把“我”切成两半来减震',
-      '当冲击超过承受上限时，心智会做的第一件事不是解决，而是"让承受的人不是我"。你描述的陌生感、断片感、镜子里的错位感，都是这个减震器在工作。它保护过你，但它现在不肯关了。',
-      null);
+      '把「我」切成两半来减震', '解離的防衛',
+      '当冲击超过承受上限时，心智会做的第一件事不是解决，而是"让承受的人不是我"。你描述的陌生感、断片感、镜子里的错位感，都是这个减震器在工作。它保护过你，但它现在不肯关了。');
 
     push('repeat', (c.recurring && c.recurring.length > 3 ? 30 : 0) + ((c.dream || '').length > 10 ? 15 : 0),
-      '同一幕戏的第 n 次重演',
-      '你在重复一个没有被理解的场景。重复不是记忆太好，而是理解没到位——心智会一直重放，直到有人（通常是你自己）看懂那一帧到底发生了什么。',
-      null);
+      '同一幕戏的第 n 次重演', '反復強迫',
+      '你在重复一个没有被理解的场景。重复不是记忆太好，而是理解没到位——心智会一直重放，直到有人（通常是你自己）看懂那一帧到底发生了什么。');
 
     push('judge', (S.gui.v > 30 ? 40 : 0),
-      '你替别人继续审判自己',
-      '最初指责你的那个声音已经不在场了，但你把它录了下来，并且每天自己播放。你现在的痛苦里，有一半是替一个早已离场的人执行的刑罚。',
-      null);
+      '你替别人继续审判自己', '内面化された裁判官',
+      '最初指责你的那个声音已经不在场了，但你把它录了下来，并且每天自己播放。你现在的痛苦里，有一半是替一个早已离场的人执行的刑罚。');
 
     H.sort(function (a, b) { return b.score - a.score; });
     return H.slice(0, 2);
@@ -220,10 +253,10 @@
   /* ---------- 组装鉴定书 ---------- */
   function buildVerdict(c) {
     var sp = spectrum(c);
-    var blot = inkblotProfile(c);
+    var an = analystProfile(c);
     var assoc = assocProfile(c);
     var birth = birthReading(c);
-    var H = hypotheses(c, sp, blot, assoc);
+    var H = hypotheses(c, sp, an, assoc);
     var tarotRows = (c.tarot || []).map(function (t) {
       var card = RC.tarot.byId(t.id);
       var pos = RC.tarot.positions[t.pos];
@@ -233,11 +266,13 @@
       };
     });
     var code = 'RC-' + new Date().getFullYear() + '-' + U.pad(U.hash(JSON.stringify(c.story || '')).toString(36).slice(0, 4).toUpperCase(), 4);
-    var stamp = H.length && H[0].score >= 60 ? '假说成立' : (H.length ? '需观察' : '资料不足');
+    var stampCn = H.length && H[0].score >= 60 ? '假说成立' : (H.length ? '待观察' : '资料不足');
+    var stampJp = H.length && H[0].score >= 60 ? '仮説成立' : (H.length ? '要観察' : '資料不足');
     return {
-      code: code, stamp: stamp,
-      spectrum: sp, inkblot: blot, assoc: assoc, birth: birth,
+      code: code, stamp: stampCn, stampCn: stampCn, stampJp: stampJp,
+      spectrum: sp, analyst: an, assoc: assoc, birth: birth,
       hypotheses: H, tarot: tarotRows,
+      tarotSpread: c.tarotSpread, tarotQuestion: c.tarotQuestion,
       prescription: prescription(H.map(function (h) { return h.id; })),
       cold: coldReads(c), absence: absence(sp),
       quotes: { story: U.quoteFrom(c.story, 40), dream: U.quoteFrom(c.dream, 40), rec: U.quoteFrom(c.recurring, 24) },
@@ -250,7 +285,7 @@
 
   window.RC = window.RC || {};
   RC.engine = {
-    spectrum: spectrum, inkblotProfile: inkblotProfile, assocProfile: assocProfile,
+    spectrum: spectrum, analystProfile: analystProfile, assocProfile: assocProfile,
     birthReading: birthReading, hypotheses: hypotheses, buildVerdict: buildVerdict, coldReads: coldReads
   };
 })();

@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RADIO CLUB｜2006 同人版 时间胶囊</title>
+<meta name="description" content="RADIO CLUB 同人站的 2006 年版封存。按《红辣椒》（パプリカ，2006）的情节推进分为 5 章节：网站开张、17 楼开放、梦境大游行、敦子的陷阱、结末。原样保留当年的 Win9x 假浏览器外壳，双线 GIF，与「BEST VIEWED 1024×768」徽章。">
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="assets/css/club.css">
+<style>
+/* 2006 同人版：刻意保留当年的笨拙 */
+body{
+  background:teal url("assets/img/bg2006.svg") repeat;
+  font-family:"MS PGothic","MS Gothic","Hiragino Kaku Gothic ProN",sans-serif;
+  color:#000;
+  padding:24px 0;
+}
+.t2006{ width:760px;max-width:96vw;margin:0 auto; }
+.win{
+  background:#d4d0c8;border:2px solid #fff;outline:2px solid #808080;
+  box-shadow:1px 1px 0 #000;
+}
+.win-title{
+  background:linear-gradient(90deg,#000080,#1084d0);
+  color:#fff;font-weight:bold;font-size:13px;padding:3px 6px;
+  display:flex;align-items:center;gap:6px;
+}
+.win-title .dot{width:14px;height:14px;background:#c0c0c0;border:1px solid #fff;outline:1px solid #808080;display:inline-block;}
+.win-title .name{flex:1;display:flex;align-items:center;gap:6px;}
+.win-title .name .lang2006{
+  background:#c0c0c0;color:#000;border:1px solid #fff;outline:1px solid #808080;
+  font-size:11px;padding:0 6px;font-family:inherit;font-weight:normal;cursor:pointer;
+  letter-spacing:.05em;
+}
+.win-title .name .lang2006:hover{ background:#fff; }
+.win-title .btns{display:flex;gap:2px;}
+.win-title .btns span{
+  display:inline-block;width:18px;height:16px;background:#c0c0c0;color:#000;
+  border:1px solid #fff;outline:1px solid #808080;font-size:11px;
+  text-align:center;line-height:14px;font-weight:normal;
+}
+.win-menu{
+  background:#d4d0c8;border-bottom:1px solid #808080;font-size:12px;
+  padding:2px 4px;display:flex;gap:8px;
+}
+.win-menu u{text-decoration:underline;}
+.win-bar{
+  background:#d4d0c8;border-bottom:1px solid #808080;
+  padding:3px 6px;display:flex;align-items:center;gap:5px;font-size:12px;
+}
+.win-bar input{
+  flex:1;background:#fff;border:1px solid #808080;outline:1px solid #fff;
+  font-family:"MS PGothic",monospace;font-size:12px;padding:1px 4px;
+}
+.win-bar button{
+  background:#d4d0c8;border:1px solid #fff;outline:1px solid #808080;
+  font-size:12px;padding:0 12px;font-family:inherit;
+}
+.win-status{
+  background:#d4d0c8;border-top:1px solid #808080;
+  padding:2px 6px;font-size:11px;display:flex;gap:14px;
+}
+.win-status .right{margin-left:auto;border:1px solid #808080;border-top:0;border-right:0;padding:0 6px;background:#d4d0c8;min-width:120px;}
+.win-body{background:#fff;color:#000;padding:18px 22px;}
+.win-body h1{
+  font-size:18px;letter-spacing:.18em;color:#000080;
+  border-bottom:2px solid #000080;padding-bottom:4px;margin-bottom:10px;
+}
+.win-body h2{
+  font-size:14px;color:#000080;border-left:3px solid #000080;padding-left:6px;
+  margin:14px 0 6px;
+}
+.win-body p{font-size:12px;line-height:1.85;margin:6px 0;}
+.win-body hr{border:0;border-top:1px dotted #808080;margin:12px 0;}
+.win-body a{color:#0000ee;}
+.win-body a:visited{color:#800080;}
+.blink-red{color:#c00;font-weight:bold;animation:blink 1s steps(2) infinite;}
+@keyframes blink{to{visibility:hidden;}}
+.guest-book{border:1px solid #808080;background:#f4f0e6;padding:8px 10px;font-size:11px;}
+.guest-book .row{border-bottom:1px dotted #808080;padding:5px 0;}
+.guest-book .row:nth-child(odd){background:#ece8d6;}
+.cout{
+  margin:6px 0 4px;font-size:14px;
+  font-family:"MS PGothic",monospace;color:#006400;
+}
+.badge-old{
+  display:inline-block;width:88px;height:31px;border:1px solid #000;
+  background:linear-gradient(135deg,#f0e0a0,#d8c870);
+  font-size:9px;color:#3a2c10;display:inline-flex;align-items:center;justify-content:center;
+  text-align:center;letter-spacing:.05em;font-family:Arial,sans-serif;
+}
+.webring{font-size:11px;color:#333;border:1px dashed #808080;padding:6px 10px;margin:10px 0;}
+.opt{
+  display:inline-block;padding:1px 8px;border:1px solid #000080;color:#000080;
+  font-size:11px;background:#fff;text-decoration:none;margin-right:6px;
+}
+.opt:visited{color:#800080;}
+
+/* chapter switcher */
+.win-ch{ display:none; }
+.win-ch.on{ display:block; }
+.ch-bar{
+  margin:8px auto;max-width:760px;width:96vw;
+  background:#d4d0c8;border:2px solid #fff;outline:2px solid #808080;
+  padding:4px 10px;font-size:12px;color:#000;
+  display:flex;align-items:center;gap:12px;justify-content:space-between;
+}
+.ch-bar .here{ color:#c00;font-weight:bold; }
+.ch-bar a{ color:#0000ee;text-decoration:underline;cursor:pointer;user-select:none; }
+.ch-bar a:visited{ color:#800080; }
+.ch-bar a.disabled{ color:#888;text-decoration:none;cursor:not-allowed;pointer-events:none; }
+.ch-bar .ch-loc{ font-family:"MS PGothic",monospace;font-size:11px;color:#333; }
+
+/* 章节致敬插图 */
+.ch-fig{ margin:10px auto 4px; text-align:center; }
+.ch-fig img{ max-width:100%; border:1px solid #808080; outline:1px solid #fff; box-shadow:2px 2px 0 #808080; }
+.ch-fig figcaption{ font-size:11px; color:#333; margin-top:4px; font-family:"MS PGothic",monospace; }
+
+/* foot */
+.foot-2006{
+  background:#d4d0c8;border-top:1px solid #808080;padding:6px 10px;
+  font-size:11px;color:#333;display:flex;gap:10px;flex-wrap:wrap;
+}
+.foot-2006 .badge{margin-left:auto;}
+.dyn-link{ color:#0000ee;text-decoration:underline;cursor:pointer; }
+.dyn-link.disabled{ color:#888;text-decoration:none;cursor:not-allowed;pointer-events:none; }
+</style>
+</head>
+<body>
+
+<div class="ch-bar">
+  <span>
+    <a id="chPrev" class="dyn-link">← <span class="i18n-cn">上一章</span><span class="i18n-jp">前章</span></a>
+    ┃ <span class="here">第 <span id="chNow">1</span> / 5 章</span>
+    <span class="i18n-cn" style="color:#888"> · </span><span class="i18n-jp" style="color:#888"> · </span>
+    <span id="chTitle" class="here" style="color:#000080"></span>
+    ┃
+    <a id="chNext" class="dyn-link"><span class="i18n-cn">下一章</span><span class="i18n-jp">次章</span> →</a>
+  </span>
+  <span class="ch-loc" id="chLoc">about2006.html?ch=1</span>
+</div>
+
+<div id="allChapters"></div>
+
+<div class="ch-bar">
+  <span>
+    <a class="opt" href="index.html">HOME</a>
+    <a class="opt" href="link.html">LINK</a>
+    <a class="opt" href="#top">↑PAGE TOP</a>
+  </span>
+  <span style="font-family:'MS PGothic',monospace;font-size:11px;color:#006400;">
+    <span class="i18n-cn">已封存于本站</span><span class="i18n-jp">本サイトに封じ込め</span> ／ Since 2006.11.25
+  </span>
+</div>
+
+<p class="center" style="margin-top:10px;font-size:11px;color:#888;font-family:'MS PGothic',monospace;">
+  ━━ <span class="i18n-cn">这一页把 2006 年原作网页原貌封存在站点里的「时间胶囊」。共 5 章，对应《红辣椒》5 个情节节拍。</span><span class="i18n-jp">このページは2006年の原作 Web を「時のカプセル」に封じたもの。全 5 章、『パプリカ』の5つの節目に対応。</span> ━━
+</p>
+
+<script src="assets/js/store.js?v=2"></script>
+<script src="assets/js/i18n.js?v=2"></script>
+<script>
+/* ============================================================
+   2006 同人版 时间胶囊 · 5 章内容
+   按《红辣椒》(パプリカ, 2006) 5 个节拍：
+     1 サイト OPEN   → 粉川常客 / 敦子 / 时田登场，梦境装置 DC-Mini 公开
+     2 17F 開放      → DC-Mini 失窃，敦子在梦境中被困，电梯突破安全限制
+     3 夢のパレード  → 梦境入侵现实，家电・玩偶・自由女神走上街头
+     4 敦子の罠      → 理事长夺取 DC-Mini，敦子解离人格暴露
+     5 結末          → 梦境与现实重叠，粉川找回勇气，敦子被解离救出
+   ============================================================ */
+var CHAPTERS = [
+  {
+    id: 1,
+    jp: 'サイト OPEN',     cn: '网站开张',     en: 'CHAPTER 1',
+    winName: 'RADIO CLUB — サイト OPEN ？',
+    heading: ['━ RADIO CLUB ／ 第 1 章 サイト OPEN ／ ― サフラン在籍','━ RADIO CLUB ／ 第 1 章 网站开张 ／ 萨弗兰在籍'],
+    sub:     ['只存在于网络上的酒吧 ／ 夢探偵事務所','只存在于网络上的酒吧 ／ 梦侦探事务所'],
+    img: 'assets/img/about2006-ch1.png',
+    imgCap: ['カウンターの端、夢へ潜る装置 DC-Mini と、湯気の立つホットミルク。開店初夜の一枚。','吧台一角：潜入梦境的装置 DC-Mini，与一杯冒热气的热牛奶。开张首夜的一张。'],
+    whatsnew: [
+      ['2006.11.25 ┃ サイト OPEN。迷探偵サフラン（月丘女子大卒）在籍。', '2006.11.25 ┃ 网站开张。梦侦探萨弗兰（月丘女子大卒）在籍。'],
+      ['2006.11.30 ┃ 本日のエレベータ、17F まで開通。', '2006.11.30 ┃ 今日的电梯，已开放到 17F。'],
+      ['2006.12.04 ┃ <span class="blink-red">注意</span>：深夜0時以降、店主が勝手に<span style="background:#ff0;">勝手に応対</span>いたします。', '2006.12.04 ┃ <span class="blink-red">注意</span>：深夜 0 时以后，店主会<span style="background:#ff0;">擅自</span>应対。'],
+      ['2007.01.01 ┃ 新年のあいさつ。あけましておめでとうございます。今年もよろしく。', '2007.01.01 ┃ 新年致辞。今年也请多多关照。']
+    ],
+    master1:  ['はじめまして。店主の<span style="color:#006400;">岩夫</span>です。この店は「只存在于网络上的酒吧」。看板娘は夢探偵サフラン。', '大家好。我是店主<span style="color:#006400;">岩夫</span>。本店是「只存在于网络上的酒吧」。看板娘是梦侦探萨弗兰。'],
+    master2:  ['迷いごと、眠れない夜、誰にも言えないこと ── ありましたら、まず一杯。ホットミルクもあります。', '有烦恼、睡不着的夜、没人能讲的事 ── 请先来一杯。热牛奶也有。'],
+    master3:  ['※当店は占いの店ではありません。タロットと精神分析は「道具」であり、結果には責任を持ちません。', '※本店不是占卜店。塔罗和精神分析是「道具」，结果不承担责任。'],
+    guests: [
+      ['<b style="color:#006400;">[名無し]</b> ┃ 2006.11.30 02:14 ┃<br>昨日から来てる。三杯目。今夜は眠れない。', '<b style="color:#006400;">[匿名]</b> ┃ 2006.11.30 02:14 ┃<br>昨天就来。三杯。今晚睡不着。'],
+      ['<b style="color:#006400;">[オレンジ]</b> ┃ 2006.12.01 23:48 ┃<br>ホットミルク頼みました。おいしかったです。<br>サフランさん、<span style="background:#ff0;">ありがとう</span>ございます。', '<b style="color:#006400;">[橙]</b> ┃ 2006.12.01 23:48 ┃<br>点了热牛奶。好喝。<br>萨弗兰小姐，<span style="background:#ff0;">谢谢</span>。'],
+      ['<b style="color:#006400;">[迷子の犬]</b> ┃ 2006.12.05 03:22 ┃<br>17F までのぼりました。何がなんだか。<br><span class="blink-red">※管理人のコメント：もう閉店ですが？</span>', '<b style="color:#006400;">[迷路的狗]</b> ┃ 2006.12.05 03:22 ┃<br>上了 17F。脑子一片混乱。<br><span class="blink-red">※管理人的评论：已经打烊了啊？</span>']
+    ]
+  },
+
+  {
+    id: 2,
+    jp: '17F 開放',        cn: '17 楼开放',    en: 'CHAPTER 2',
+    winName: 'RADIO CLUB — エレベータ警告 ？',
+    heading: ['━ RADIO CLUB ／ 第 2 章 17F 開放 ／ ― DC-Mini 失踪','━ RADIO CLUB ／ 第 2 章 17 楼开放 ／ DC-Mini 失踪'],
+    sub: ['敦子が夢の中へ連れ込まれた夜','敦子被拖入梦境的夜晚'],
+    img: 'assets/img/about2006-ch2.png',
+    imgCap: ['安全リミッタを突き抜けたエレベータ。扉の向こう、夢の渦の中に立つ影 ── 敦子。','突破安全限制的电梯。门的那一侧，站在梦境漩涡里的身影 ── 敦子。'],
+    lede: [
+      '<b>敦子所長</b> 主导开发的 <span style="background:#ff0;">梦境装置 DC-Mini</span> 被盗。自那以后，店里就怪事频发。今夜的故事是：敦子在梦境里 — 失踪了。',
+      '<b>敦子所长</b> 主导开发的 <span style="background:#ff0;">梦境装置 DC-Mini</span> 被盗。从此店里怪事不断。今夜的故事是：敦子在梦境里 ── 失踪了。'
+    ],
+    whatsnew: [
+      ['2006.12.12 ┃ DC-Mini 第一号機、研究所から消える。', '2006.12.12 ┃ DC-Mini 第一号机，在研究所被盗。'],
+      ['2006.12.13 ┃ 敦子所長、行方不明。', '2006.12.13 ┃ 敦子所长，下落不明。'],
+      ['2006.12.14 ┃ <span class="blink-red">本日のエレベータ、安全リミッタを突き抜ける。</span>17F 以上のランプ、点灯。', '2006.12.14 ┃ <span class="blink-red">今日的电梯，已突破安全限制。</span>17F 以上的灯，全亮。'],
+      ['2006.12.15 ┃ 入店者数が急增。彼らは眠ったまま来たのか？', '2006.12.15 ┃ 入店人数激增。他们是睡着了走进来的吗？']
+    ],
+    guests: [
+      ['<b style="color:#006400;">[眠れない人]</b> ┃ 2006.12.13 23:58 ┃<br>三晩目の不眠。ホットミルクを所望。<br><span class="blink-red">※管理人：他になさそうですか？</span>', '<b style="color:#006400;">[失眠的人]</b> ┃ 2006.12.13 23:58 ┃<br>第三个失眠夜。要热牛奶。<br><span class="blink-red">※管理人：要别的吗？</span>'],
+      ['<b style="color:#006400;">[夢の中の私]</b> ┃ 2006.12.14 01:22 ┃<br>夢を見ました。夢の中で私は別人でした。', '<b style="color:#006400;">[梦里的我]</b> ┃ 2006.12.14 01:22 ┃<br>我做了一个梦。梦里我是另一个人。'],
+      ['<b style="color:#006400;">[眠ったまま来た人]</b> ┃ 2006.12.15 03:18 ┃<br>エレベータの階数表示、あり得ない数字を指してた。<br>※管理人：安全リミッタ、利いてない。', '<b style="color:#006400;">[睡着进来的人]</b> ┃ 2006.12.15 03:18 ┃<br>电梯的楼层显示，出现不可能的数字。<br>※管理人：安全限制没起作用。']
+    ],
+    coda: ['→ 次の章：夢のパレード','→ 下一章：梦境大游行']
+  },
+
+  {
+    id: 3,
+    jp: '夢のパレード',     cn: '梦境大游行',   en: 'CHAPTER 3',
+    winName: 'RADIO CLUB — 遊行 ？',
+    heading: ['━ RADIO CLUB ／ 第 3 章 夢のパレード ／ ― 現実と夢が混ざる夜','━ RADIO CLUB ／ 第 3 章 梦境大游行 ／ 梦境和现实混在一起'],
+    sub: ['家電、ぬいぐるみ、日本人形、自由の女神 ── 全員同じ方角へ歩いている','家电、玩偶、人偶、自由女神 ── 全都往同一个方向走'],
+    img: 'assets/img/about2006-ch3.png',
+    imgCap: ['夢のパレード。家電も、ぬいぐるみも、自由の女神も ── みんな同じ方角へ。','梦境大游行。家电、玩偶、自由女神 ── 全都往同一个方向去。'],
+    lede: [
+      'あの遊行が始まった。家電、ぬいぐるみ、人形、自由の女神 ── <span style="background:#ff0;">全部が同じ方角へ</span>。今 敏 は 18 分でこれを描いた。あなたはそれが近所を通り過ぎるのを見た。',
+      '游行开始了。家电、玩偶、人偶、自由女神 ── <span style="background:#ff0;">全部都往同一个方向</span>。今敏用 18 分钟画出了这一段。你看见它从你身边经过。'
+    ],
+    whatsnew: [
+      ['2006.12.16 ┃ 本店の天井、<span class="blink-red">破れる</span>。いや、これは劇場の天井か。', '2006.12.16 ┃ 本站天花板，<span class="blink-red">破了</span>。不，这是剧场的天花板吧。'],
+      ['2006.12.17 ┃ 遊行、十字路を通過。本店の正面入口、夢に向かう客が踏み込む。', '2006.12.17 ┃ 游行经过十字路口。本店正门，被前往梦中的客人踏进了。'],
+      ['2006.12.18 ┃ 入店者、<span class="blink-red">注文を取らない</span>。全員、寝てる。', '2006.12.18 ┃ 入店的客人，<span class="blink-red">没有点单</span>。全都在睡。'],
+      ['2006.12.19 ┃ 鏡の中の人、私たちより半拍遅い。　※お願い：下を覗かないで。', '2006.12.19 ┃ 镜子里的人比我们慢半拍。　※拜托：不要往下看。']
+    ],
+    guests: [
+      ['<b style="color:#006400;">[雷竜]</b> ┃ 2006.12.17 02:14 ┃<br>カウンターにチーズケーキが。<br>注文してない。誰が置いた？', '<b style="color:#006400;">[雷龙]</b> ┃ 2006.12.17 02:14 ┃<br>柜台上多了芝士蛋糕。<br>我没点。是谁放的？'],
+      ['<b style="color:#006400;">[礼服の猫]</b> ┃ 2006.12.18 23:55 ┃<br>エレベーターに影。扉を叩いても返事がない。<br>※管理人：声を掛けないように。', '<b style="color:#006400;">[礼服的猫]</b> ┃ 2006.12.18 23:55 ┃<br>电梯里有影子。敲门也不应。<br>※管理人：不要主动搭话。'],
+      ['<b style="color:#006400;">[乾いた絵]</b> ┃ 2006.12.19 03:08 ┃<br>壁に月丘の女子が浮かんで見えた。<br>寝落ちしてしまった。', '<b style="color:#006400;">[干燥的画]</b> ┃ 2006.12.19 03:08 ┃<br>墙上浮现了一个月丘的女子。<br>我睡着了。']
+    ],
+    coda: ['→ 次の章：敦子の罠','→ 下一章：敦子的陷阱']
+  },
+
+  {
+    id: 4,
+    jp: '敦子の罠',        cn: '敦子的陷阱',   en: 'CHAPTER 4',
+    winName: 'RADIO CLUB — 安全装置 解除 ？',
+    heading: ['━ RADIO CLUB ／ 第 4 章 敦子の罠 ／ ― 影武者、現る','━ RADIO CLUB ／ 第 4 章 敦子的陷阱 ／ 影武者出现'],
+    sub: ['理事長、DC-Mini を掌握 ／ 敦子、解離する','理事长掌握 DC-Mini ／ 敦子解离'],
+    img: 'assets/img/about2006-ch4.png',
+    imgCap: ['割れた鏡に映る二つの顔。笑う方と、泣く方。敦子は夢の中で二人に裂かれた。','碎镜里映出的两张脸。一张在笑，一张在哭。敦子在梦里被分成了两半。'],
+    lede: [
+      '敦子は夢の中で <span style="background:#ff0;">二人に割かれた</span>。一方は理事長、もう一方は影武者。ドリームとリアルの境を <b>意図的に</b> 溶かすこと ── それが彼女の狙いだった。',
+      '敦子在梦境里 <span style="background:#ff0;">被分成了两半</span>。一半是理事长，一半是影武者。<b>刻意</b>把梦境和现实的边界 ── 溶在一起。这就是她的计划。'
+    ],
+    whatsnew: [
+      ['2006.12.20 ┃ DC-Mini、<span class="blink-red">理事長の手に渡る</span>。敦子と装置は同時に消える。', '2006.12.20 ┃ DC-Mini 被 <span class="blink-red">理事长夺走</span>。敦子和装置同时消失。'],
+      ['2006.12.21 ┃ 夢の世界、<span class="blink-red">裂け始める</span>。現実の十字路で、夢の影が見える。', '2006.12.21 ┃ 梦境世界，<span class="blink-red">开始撕裂</span>。在现实的十字路口，能看见梦中的影子。'],
+      ['2006.12.22 ┃ 粉川、現実側の重圧に屈する。映画監督を降りた男、高所恐怖症。', '2006.12.22 ┃ 粉川，屈于现实侧的压力。退出了电影导演的男人，恐高。'],
+      ['2006.12.23 ┃ 敦子の <span class="blink-red">二つの顔</span>、同時に見た。一方は笑い、一方は泣いている。', '2006.12.23 ┃ 敦子的 <span class="blink-red">两张脸</span>，同时看见。一张在笑，一张在哭。']
+    ],
+    guests: [
+      ['<b style="color:#006400;">[舞台監督]</b> ┃ 2006.12.20 02:34 ┃<br>敦子を二人見た。ホテルと劇場に一人ずつ。　※管理人：はっきり区別できません。', '<b style="color:#006400;">[舞台监督]</b> ┃ 2006.12.20 02:34 ┃<br>我看见两个敦子。一个在酒店，一个在剧场。　※管理人：分不清。'],
+      ['<b style="color:#006400;">[粉川の話]</b> ┃ 2006.12.22 01:17 ┃<br>十年前に撮った映画。あの時、飛び降りられなかった。今も飛べない。', '<b style="color:#006400;">[粉川的故事]</b> ┃ 2006.12.22 01:17 ┃<br>十年前拍的电影。当时我没敢跳。现在也跳不了。'],
+      ['<b style="color:#006400;">[礼服の猫]</b> ┃ 2006.12.23 03:48 ┃<br>扉の向こうに、もう一枚扉。三枚開けても、まだ先がある。', '<b style="color:#006400;">[礼服的猫]</b> ┃ 2006.12.23 03:48 ┃<br>门的背后有另一扇门。开三层，也还没到底。']
+    ],
+    coda: ['→ 次の章：結末','→ 下一章：结末']
+  },
+
+  {
+    id: 5,
+    jp: '結末',            cn: '结末',         en: 'CHAPTER 5 · FINAL',
+    winName: 'RADIO CLUB — 夢の終わり ？',
+    heading: ['━ RADIO CLUB ／ 第 5 章 結末 ／ ― 現実と夢、重なって','━ RADIO CLUB ／ 第 5 章 结末 ／ 梦境和现实重叠'],
+    sub: ['粉川は跳べた ／ 敦子は引き戻された','粉川跳下了 ／ 敦子被拉回来'],
+    img: 'assets/img/about2006-ch5.png',
+    imgCap: ['フィルムの海と蝶。スクリーンの光へ駆け出す影 ── 夢と現実が重なる、最後の夜。','胶片的海洋与蝴蝶。朝银幕的光奔去的身影 ── 梦与现实重叠的，最后一夜。'],
+    lede: [
+      'ドリームとリアルが完全に重なる。粉川は十年前の映画の現場で、自分を取り戻し、<span style="background:#ff0;">飛び降りた</span>。理事長と敦子は ── <b>同時に解離</b> される。',
+      '梦境和现实完全重叠。粉川在十年前那个电影的现场找回了自己，<span style="background:#ff0;">跳了下去</span>。理事长和敦子 ── 被<b>同时解离</b>。'
+    ],
+    whatsnew: [
+      ['2006.12.24 ┃ 遊行、まだ続く。でも、路上に人が立ち止まり始めた。', '2006.12.24 ┃ 游行还在继续。但路上有人停下来。'],
+      ['2006.12.25 ┃ 敦子、夢の底で <span class="blink-red">解離される</span>。外側から。長年そばにいた者によって。', '2006.12.25 ┃ 敦子被 <span class="blink-red">解离</span> ── 从梦境底层。由外部，由那个长年陪在她身边的人。'],
+      ['2006.12.26 ┃ エレベータ、復旧。粉川、カウンターでホットミルクを頼む。敦子、隣の椅子で居眠り。', '2006.12.26 ┃ 电梯恢复。粉川在吧台点了热牛奶。敦子在旁边的椅子上睡着了。'],
+      ['2007.01.01 ┃ 新年。今年もよろしく。', '2007.01.01 ┃ 新年。今年也请多多关照。']
+    ],
+    guests: [
+      ['<b style="color:#006400;">[同じ人]</b> ┃ 2006.12.25 02:14 ┃<br>目が覚めたら、自分のベッドにいた。いつ帰ってきたか覚えてない。', '<b style="color:#006400;">[同一个人]</b> ┃ 2006.12.25 02:14 ┃<br>醒来的时候，已经在自己的床上了。什么时候回来的不记得了。'],
+      ['<b style="color:#006400;">[粉川]</b> ┃ 2006.12.26 23:48 ┃<br>ホットミルク、ありがとう。あの映画、もう撮らなくていいみたいだ。<br>※管理人：美味しかったですか？', '<b style="color:#006400;">[粉川]</b> ┃ 2006.12.26 23:48 ┃<br>热牛奶，谢谢。看起来我已经不必拍那部电影了。<br>※管理人：好喝吗？'],
+      ['<b style="color:#006400;">[敦子]</b> ┃ 2006.12.27 01:08 ┃<br>よく眠った。鏡の中の人も、ずっと眠ってた。起こさないで。', '<b style="color:#006400;">[敦子]</b> ┃ 2006.12.27 01:08 ┃<br>睡得很久。镜子里的人也睡得很久。不要叫我。']
+    ],
+    webring: true
+  }
+];
+
+/* ---------- 渲染单章的 win ---------- */
+function renderChapter(c, idx, total) {
+  var H = RC.i18n.lang() === 'jp' ? 1 : 0;   /* 1=jp：供内联三元与 c.jp/c.cn 使用 */
+  /* 章节正文数据数组约定为 [日文, 中文]，下标与 H 相反 */
+  function pick(arr) { var i = 1 - H; return arr[i] != null ? arr[i] : arr[0]; }
+  var prev = idx > 1 ? '<a class="dyn-link goPrev">' + (H === 1 ? '← 前章' : '← 上一章') + '</a>' : '<a class="dyn-link disabled">← ' + (H === 1 ? '前章' : '上一章') + '</a>';
+  var next = idx < total ? '<a class="dyn-link goNext">' + (H === 1 ? '次章 →' : '下一章 →') + '</a>' : '<a class="dyn-link disabled">' + (H === 1 ? '次章 →' : '下一章 →') + '</a>';
+  var navLine = '<p style="text-align:center;font-size:12px;margin:8px 0 4px;">' + prev +
+    ' ┃ <span class="here" style="color:#000080;">第 ' + idx + ' / ' + total + ' 章</span> ┃ ' + next + '</p>';
+
+  var sub = c.sub ? '<p class="center"><b>' + pick(c.sub) + '</b></p>' : '';
+  var lede = c.lede ? '<p>' + pick(c.lede) + '</p>' : '';
+
+  var whatsnewHtml = '<ul style="padding-left:22px;font-size:12px;">' +
+    c.whatsnew.map(function (row) { return '<li>' + pick(row) + '</li>'; }).join('') + '</ul>';
+
+  var masterBlock = '';
+  if (c.master1) {
+    masterBlock = '<h2>' + (H === 1 ? '管理人より' : '管理人的话') + '</h2>' +
+      '<p>' + pick(c.master1) + '</p>' +
+      '<p>' + pick(c.master2) + '</p>' +
+      '<p>' + pick(c.master3) + '</p>';
+  }
+
+  var guestsHtml = c.guests.map(function (row) { return '<div class="row">' + pick(row) + '</div>'; }).join('');
+  var webring = c.webring
+    ? '<hr><h2>' + (H === 1 ? '参加中のリンク集' : '参与中的链接集') + '</h2>' +
+      '<div class="webring">← <a class="dyn-link goPrev">' + (H === 1 ? '前' : '前') + '</a> ┃ ' +
+      '<a href="#">' + (H === 1 ? 'Personal Homepage WebRing' : 'Personal Homepage WebRing') + '</a> ┃ ' +
+      '<a href="#">' + (H === 1 ? '深夜サイト同盟' : '深夜网站同盟') + '</a> ┃ ' +
+      '<a href="#">' + (H === 1 ? '同人 Web デザイン集会' : '同人 Web 设计集会') + '</a> ┃ ' +
+      '<a class="dyn-link goNext">' + (H === 1 ? '次' : '次') + '</a> →</div>'
+    : '';
+
+  var coda = c.coda ? '<p style="text-align:right;font-size:12px;"><b>' + pick(c.coda) + '</b></p>' : '';
+
+  return '<div class="win" role="complementary" aria-label="RADIO CLUB 2006 ' + c.en + '">' +
+    '<div class="win-title">' +
+      '<span class="dot"></span>' +
+      '<span class="name">' + c.winName +
+        '<button type="button" class="lang2006" id="langBtn_' + c.id + '" title="切换为日文版（原作致敬）｜日本語版に切替">中 ／ JP</button>' +
+      '</span>' +
+      '<span class="btns"><span>_</span><span>□</span><span>×</span></span>' +
+    '</div>' +
+    '<div class="win-menu">' +
+      '<a href="#" style="color:inherit;"><span><u>フ</u>ァイル(F)</span></a>' +
+      '<a href="#" style="color:inherit;"><span><u>編</u>集(E)</span></a>' +
+      '<a href="#" style="color:inherit;"><span><u>表</u>示(V)</span></a>' +
+      '<a href="#" style="color:inherit;"><span><u>お</u>気に入り(A)</span></a>' +
+      '<a href="#" style="color:inherit;"><span><u>ツ</u>ール(T)</span></a>' +
+      '<a href="#" style="color:inherit;"><span><u>ヘ</u>ルプ(H)</span></a>' +
+    '</div>' +
+    '<div class="win-bar">' +
+      '<span style="color:#333;">アドレス(D):</span>' +
+      '<input class="addr2006" value="http://www.radio-club.ne.jp/?ch=' + c.id + '" readonly>' +
+      '<button onclick="return false;">→ ' + (H === 1 ? '移動' : '移动') + '</button>' +
+    '</div>' +
+
+    '<div class="win-body">' +
+      '<h1>' + pick(c.heading) + '</h1>' +
+      sub + lede +
+
+      (c.img ? '<figure class="ch-fig"><img src="' + c.img + '" alt="' + pick(c.imgCap) + '">' +
+        '<figcaption>' + pick(c.imgCap) + '</figcaption></figure>' : '') +
+
+      '<p style="text-align:center;">' +
+        '<img alt="[welcome]" src="assets/img/welcome-2006.svg" width="200" height="40" onerror="this.style.display=\'none\'">' +
+      '</p>' +
+
+      navLine +
+
+      '<div class="center cout">来店カウンタ ━━ [<span style="color:#c00;font-weight:bold;">' +
+        String(8421 + c.id * 113).padStart(8, '0') +
+        '</span>] ━━ ' + (H === 1 ? '番目の常連さんへ。' : '位常客，这里请。') +
+      '</div>' +
+
+      '<h2>What\'s New</h2>' + whatsnewHtml +
+
+      '<h2>' + (H === 1 ? 'リンクバナー' : '链接横幅') + '</h2>' +
+      '<p style="text-align:center;">' +
+        '<a href="#"><img alt="[in]" src="assets/img/banner88x31.svg" width="88" height="31" onerror="this.outerHTML=\'<span class=&quot;badge-old&quot;>88×31<br>BANNER</span>\'"></a>' +
+        '<a href="#"><img alt="[88x31]" src="assets/img/banner88x31-2.svg" width="88" height="31" onerror="this.outerHTML=\'<span class=&quot;badge-old&quot;>88×31<br>BANNER</span>\'"></a>' +
+      '</p>' +
+
+      masterBlock +
+
+      '<hr>' +
+      '<h2>≪ ' + (H === 1 ? '最近の常連さんの声' : '最近的常客的声音') + ' ≫</h2>' +
+      '<div class="guest-book">' + guestsHtml + '</div>' +
+
+      webring +
+
+      coda +
+
+      navLine +
+
+      '<p style="text-align:right;font-size:11px;">' +
+        '<a href="index.html">→ ' + (H === 1 ? '今の RADIO CLUB（2026 同人版）' : '现在的 RADIO CLUB（2026 同人版）') + '</a>' +
+      '</p>' +
+    '</div>' +
+
+    '<div class="win-status">' +
+      '<span>' + (H === 1 ? '完了' : '完了') + '</span>' +
+      '<span class="right">' + (H === 1 ? 'インターネット' : '互联网') + '</span>' +
+    '</div>' +
+
+    '<div class="foot-2006">' +
+      '<span><a href="index.html">HOME</a> │ <a href="link.html">LINK</a> │ <a href="#top">↑PAGE TOP</a></span>' +
+      '<span class="badge"><span class="badge-old">RADIO CLUB<br>BEST VIEWED 1024×768</span></span>' +
+    '</div>' +
+
+  '</div>';
+}
+
+var currentCh = 1;
+function apply() {
+  var H = RC.i18n.lang() === 'jp' ? 1 : 0;
+  var root = document.getElementById('allChapters');
+  root.innerHTML = CHAPTERS.map(function (c, i) {
+    return '<div class="win-ch" data-ch="' + c.id + '" id="ch-' + c.id + '">' +
+      renderChapter(c, c.id, CHAPTERS.length) + '</div>';
+  }).join('');
+  // 绑定每章内导航
+  root.querySelectorAll('.goPrev').forEach(function (el) {
+    el.addEventListener('click', function (e) { e.preventDefault(); go(currentCh - 1); });
+  });
+  root.querySelectorAll('.goNext').forEach(function (e2) {
+    e2.addEventListener('click', function (e) { e.preventDefault(); go(currentCh + 1); });
+  });
+  // 绑定每章 lang 按钮
+  root.querySelectorAll('[id^="langBtn_"]').forEach(function (b) {
+    b.addEventListener('click', function () { RC.i18n.toggle(); });
+  });
+  show(currentCh);
+  document.getElementById('chNow').textContent = currentCh;
+  // 顶导标题
+  var c = CHAPTERS[currentCh - 1];
+  document.getElementById('chTitle').innerHTML = (H === 1 ? c.jp : c.cn);
+  document.getElementById('chLoc').textContent = 'about2006.html?ch=' + currentCh;
+  // 顶导 上下章 disabled 状态
+  var prev = document.getElementById('chPrev');
+  var next = document.getElementById('chNext');
+  prev.classList.toggle('disabled', currentCh <= 1);
+  next.classList.toggle('disabled', currentCh >= CHAPTERS.length);
+  document.documentElement.scrollTop = 0;
+  // 切换 → 重新应用 i18n（按钮文字也跟着切）
+  if (window.RC && RC.i18n && RC.i18n.apply) RC.i18n.apply(document);
+}
+
+function show(n) {
+  currentCh = Math.max(1, Math.min(CHAPTERS.length, n));
+  var blocks = document.querySelectorAll('.win-ch');
+  for (var i = 0; i < blocks.length; i++) blocks[i].classList.remove('on');
+  var cur = document.getElementById('ch-' + currentCh);
+  if (cur) cur.classList.add('on');
+}
+function go(n) {
+  if (n < 1 || n > CHAPTERS.length) return;
+  apply();   // 重渲染（语言相关的字串都要切）
+  currentCh = n;
+  show(n);
+  if (history.replaceState) history.replaceState(null, '', '?ch=' + n);
+  document.getElementById('chNow').textContent = n;
+  var c = CHAPTERS[n - 1];
+  var H = RC.i18n.lang() === 'jp' ? 1 : 0;
+  document.getElementById('chTitle').innerHTML = (H === 1 ? c.jp : c.cn);
+  document.getElementById('chLoc').textContent = 'about2006.html?ch=' + n;
+  var prev = document.getElementById('chPrev');
+  var next = document.getElementById('chNext');
+  prev.classList.toggle('disabled', n <= 1);
+  next.classList.toggle('disabled', n >= CHAPTERS.length);
+  document.documentElement.scrollTop = 0;
+}
+
+function getQueryCh() {
+  var m = location.search.match(/[?&]ch=(\d+)/);
+  if (!m) return 1;
+  var n = parseInt(m[1], 10);
+  if (n < 1 || n > CHAPTERS.length) return 1;
+  return n;
+}
+
+document.getElementById('chPrev').addEventListener('click', function (e) {
+  e.preventDefault(); if (currentCh > 1) go(currentCh - 1);
+});
+document.getElementById('chNext').addEventListener('click', function (e) {
+  e.preventDefault(); if (currentCh < CHAPTERS.length) go(currentCh + 1);
+});
+
+currentCh = getQueryCh();
+apply();
+RC.i18n.onChange(apply);
+</script>
+</body>
+</html>
