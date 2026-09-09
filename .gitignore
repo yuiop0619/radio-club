@@ -25,3 +25,6 @@ dist/
 .env
 .env.*
 !.env.example
+
+# 本地备份（静态 .site 包裹前的原始 HTML）
+.backup-preflash/

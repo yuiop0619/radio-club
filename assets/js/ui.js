@@ -27,19 +27,29 @@
     { href: 'tarot.html',   jp: 'タロット',   cn: '塔罗',   en: 'TAROT' },
     { href: 'psyche.html',  jp: '精神分析',   cn: '精神分析', en: 'PSYCHE' },
     { href: 'verdict.html', jp: '鑑定',       cn: '鉴定',   en: 'VERDICT' },
+    { href: 'dreams.html',  jp: '夢の記録',   cn: '梦境',   en: 'DREAMS' },
+    { href: 'masters.html', jp: 'ギャラリー', cn: '画廊',   en: 'GALLERY' },
     { href: 'bbs.html',     jp: '木の穴',      cn: '树洞',   en: 'BBS' },
     { href: 'link.html',    jp: 'LINK',       cn: '链接',   en: 'LINK' }
   ];
 
-  /* ---------- 站点外壳：去掉 2006 假浏览器外壳，改为网页原生 max-width 容器 ---------- */
+  /* ---------- 站点外壳：网页原生 max-width 容器（幂等） ----------
+     现代做法是在 HTML 里静态写好 <div class="site">，首帧即 920px，
+     避免 JS 执行前 #app 占满整屏造成的“大屏一闪”。
+     此函数保留作为兜底：若页面已静态包裹，则只补 data-page，不二次包裹。 */
   function chrome(meta) {
-    var app = U.el('app');
-    if (!app) return;
     document.title = 'RADIO CLUB｜' + (meta && meta.title ? meta.title : '');
     document.body.setAttribute('data-page', (meta && meta.path) || '');
+    var pageKey = (meta && meta.path || '').replace(/\.html$/, '');
+    var app = U.el('app');
+    if (!app) return;
+    var existing = app.closest ? app.closest('.site') : null;
+    if (existing) {
+      if (pageKey) existing.setAttribute('data-page', pageKey);
+      return;
+    }
     var wrap = document.createElement('div');
     wrap.className = 'site';
-    var pageKey = (meta && meta.path || '').replace(/\.html$/, '');
     if (pageKey) wrap.setAttribute('data-page', pageKey);
     if (app.parentNode) app.parentNode.insertBefore(wrap, app);
     wrap.appendChild(app);

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="content">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RADIO CLUB｜这层楼不存在</title>
+<link rel="stylesheet" href="assets/css/club.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RADIO CLUB">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="这层楼不存在 · RADIO CLUB">
+<meta property="og:description" content="电梯停在了一个不存在的楼层。门开着，外面是黑的。">
+<meta property="og:url" content="https://leterhong.github.io/radio-club/404.html">
+<meta property="og:image" content="https://leterhong.github.io/radio-club/assets/img/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  .err-wrap{min-height:62vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 22px 60px;}
+  .err-elev{font-family:var(--font-mono, monospace);font-size:88px;letter-spacing:6px;color:var(--cold-hi,#7fd0e8);line-height:1;margin:14px 0 6px;text-shadow:0 0 18px rgba(80,160,190,.35);}
+  .err-code{font-family:var(--font-mono, monospace);font-size:13px;color:var(--text-dim,#9a8f7e);letter-spacing:3px;}
+  .err-title{margin:26px 0 10px;font-size:20px;letter-spacing:2px;}
+  .err-sub{max-width:440px;color:var(--text-dim,#9a8f7e);font-size:13px;line-height:1.9;margin:0 0 30px;}
+  .err-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+  .err-flicker{animation:errFlick .42s steps(2,end) 5;}
+  @keyframes errFlick{0%{opacity:1;transform:translateY(0)}25%{opacity:.25;transform:translateY(-3px)}50%{opacity:.9;transform:translateY(2px)}100%{opacity:1;transform:translateY(0)}}
+  @media (prefers-reduced-motion: reduce){.err-flicker{animation:none;}}
+  .err-lamp{font-size:12px;color:var(--amber,#e8a33d);letter-spacing:3px;margin-bottom:4px;}
+</style>
+</head>
+<body>
+<div class="site">
+  <header class="site-head slim">
+    <div class="slim-bar">
+      <a class="logo-sm" href="index.html">RADIO <b>CLUB</b></a>
+      <span class="logo-sub-sm">
+        <span class="i18n-cn">网络酒吧／梦侦探事务所</span>
+        <span class="i18n-jp">ネット上のバー／夢探偵事務所</span>
+      </span>
+      <span class="open-lamp-sm" style="margin-left:auto"><span class="lamp"></span>
+        <span class="i18n-cn">营业中</span><span class="i18n-jp">営業中</span>
+      </span>
+    </div>
+  </header>
+
+  <main class="err-wrap">
+    <div class="err-lamp">▮ エレベーター　／　ELEVATOR</div>
+    <div class="err-elev err-flicker" id="errFloor">??F</div>
+    <div class="err-code">ERROR&nbsp;&nbsp;FLOOR&nbsp;&nbsp;NOT&nbsp;&nbsp;FOUND</div>
+
+    <h1 class="err-title">
+      <span class="i18n-cn">这一层不在店里</span><span class="i18n-jp">この階は店にない</span>
+    </h1>
+    <p class="err-sub">
+      <span class="i18n-cn">电梯停在了一个不存在的楼层。门开着，外面是黑的。<br>本店的电梯只到 17 层——上面的楼层今晚不开放。你大概是按错了按钮，或者，被梦带偏了。</span>
+      <span class="i18n-jp">エレベーターは存在しない階で止まった。扉は開いているが、外は暗い。<br>うちのエレベーターは17階までだ。上の階は今夜開いていない。ボタンを押し間違えたか、夢に流されたか。</span>
+    </p>
+
+    <div class="err-btns">
+      <a class="btn red" href="index.html">
+        <span class="i18n-cn">回吧台</span><span class="i18n-jp">カウンターへ</span>
+      </a>
+      <a class="btn ghost" href="about2006.html?ch=2">
+        <span class="i18n-cn">去 17 层看看</span><span class="i18n-jp">17階へ</span>
+      </a>
+      <a class="btn ghost" href="tarot.html">
+        <span class="i18n-cn">抽张牌定方向</span><span class="i18n-jp">タロットを引く</span>
+      </a>
+    </div>
+  </main>
+
+  <footer class="site-foot">
+    <div class="sf-row sf-base">
+      <span class="sf-since">© 2006- RADIO CLUB ／ <span class="i18n-cn">网络酒吧</span><span class="i18n-jp">ネット上のバー</span></span>
+      <span class="sf-since">Since 2006.11.25</span>
+      <a class="badge88" href="about2006.html">2006 ↗</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var el=document.getElementById('errFloor');
+  if(!el)return;
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent='--F';return;}
+  var seq=['23F','19F','??F','404','--F','??F'],i=0;
+  var t=setInterval(function(){el.textContent=seq[i++%seq.length];},340);
+  setTimeout(function(){clearInterval(t);el.textContent='--F';},2600);
+})();
+</script>
+</body>
+</html>
