@@ -2,14 +2,16 @@
   'use strict';
   var config=window.RC_CLOUD_CONFIG||{},app,uid='',running=null;
   var api={ready:false};
-  function call(data){return app.callFunction({name:config.functionName||'treehole',data:data}).then(function(r){var result=r.result;if(typeof result==='string')result=JSON.parse(result);if(!result||!result.ok)throw Error(result&&result.error||'SERVICE_UNAVAILABLE');return result.data;});}
+  function local(path,data){return fetch('/api/'+path,{method:'POST',headers:{'Content-Type':'application/json','X-Radio-Client':'1'},body:JSON.stringify(data),credentials:'same-origin'}).then(function(r){return r.json();}).then(function(r){if(!r.ok)throw Error(r.error||'SERVICE_UNAVAILABLE');return r.data;});}
+  function call(data){if(config.transport==='local')return local('rpc',data);return app.callFunction({name:config.functionName||'treehole',data:data}).then(function(r){var result=r.result;if(typeof result==='string')result=JSON.parse(result);if(!result||!result.ok)throw Error(result&&result.error||'SERVICE_UNAVAILABLE');return result.data;});}
   function sdk(){
     if(window.cloudbase)return Promise.resolve();
     return new Promise(function(resolve,reject){var s=document.createElement('script');s.src='https://static.cloudbase.net/cloudbase-js-sdk/2.7.1/cloudbase.full.js';s.onload=resolve;s.onerror=function(){s.remove();reject(Error('SDK_UNAVAILABLE'));};document.head.appendChild(s);});
   }
   api.connect=function(){
-    if(!config.enabled||!config.env)return Promise.reject(Error('公开树洞尚未配置 / Public service not configured'));
+    if(!config.enabled||(!config.env&&config.transport!=='local'))return Promise.reject(Error('公开树洞尚未配置 / Public service not configured'));
     if(api.ready)return Promise.resolve();
+    if(config.transport==='local')return local('session',{}).then(function(){return call({action:'hello'});}).then(function(r){uid=r.uid;api.ready=true;});
     return sdk().then(async function(){app=window.cloudbase.init({env:config.env});var auth=app.auth({persistence:'local'});if(auth.getLoginState && await auth.getLoginState())return;return auth.signInAnonymously?auth.signInAnonymously():auth.anonymousAuthProvider().signIn();})
       .then(function(){return call({action:'hello'});}).then(function(r){if(r.protocol!==1||!r.uid)throw Error('INCOMPATIBLE_SERVICE');uid=r.uid;api.ready=true;});
   };
@@ -42,5 +44,6 @@
   };
   api.pending=function(){return queue().length;};
   api.cancelPending=function(){if(running)throw Error('操作正在发送，请等待完成 / Wait for the active request');return RC.store.set('hole_queue',[]);};
+  api.request=function(data){if(!api.ready)return Promise.reject(Error('NOT_CONNECTED'));return call(data);};
   RC.cloud=api;
 })();

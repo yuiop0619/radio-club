@@ -1,2 +1,2 @@
-/* Set enabled only after deploying cloudfunctions/treehole and denying direct database access. */
-window.RC_CLOUD_CONFIG = {enabled:false,env:'',functionName:'treehole'};
+/* Local transport uses this site's Node server. CloudBase deployment requires explicit env/rules configuration. Connection is always opt-in. */
+window.RC_CLOUD_CONFIG = {enabled:true,transport:'local',env:'',functionName:'treehole'};

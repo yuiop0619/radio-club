@@ -42,30 +42,7 @@
 
   <div id="paradeMount"></div>
 
-  <!-- 第一人称进店镜头（点单动作） -->
-  <div class="vp" id="vp">
-    <div class="shot" id="shHall"><img src="assets/img/scene-hall.jpg" alt="RADIO CLUB 店内：两位酒保站在吧台后，侦探在另一张桌子边看书"></div>
-    <div class="shot" id="shPov"><img src="assets/img/scene-seated.jpg" alt="吧台"></div>
-    <img class="vfig det" id="figDet" src="assets/img/puppet-det-768.webp" alt="萨弗兰坐在吧台边">
-    <img class="vfig srv" id="figSrv" src="assets/img/puppet-lian-768.webp" alt="酒保端菜上桌">
-    <div class="shot look" id="shBt"><img id="shBtImg" alt="酒保递菜单"></div>
-    <div class="shot look" id="shDet"><img src="assets/img/det-push-form.jpg" alt="侦探推来咨询单"></div>
-    <div class="dishes3d" id="dishes"></div>
-    <div class="chair" id="chair" title="拉开椅子">
-      <span class="c-back"></span><span class="c-seat"></span>
-      <span class="c-leg l"></span><span class="c-leg r"></span>
-    </div>
-    <div class="vprompt walk-hint" id="vpWalk"><span class="i18n-cn">滑动鼠标，往前走一步</span><span class="i18n-jp">マウスを動かして、一歩前へ</span><span class="arr">▼</span></div>
-    <div class="vprompt chair-hint" id="vpChair"><span class="i18n-cn">拉开椅子，坐下</span><span class="i18n-jp">椅子を引いて、お掛けください</span></div>
-    <div class="vfloat" id="menuWrap"></div>
-    <div class="vfloat" id="formWrap"></div>
-    <div class="vsub" id="vsub"></div>
-    <div class="vtools">
-      <button type="button" class="btn ghost mini" id="btnSkip"><span class="i18n-cn">直接入座</span><span class="i18n-jp">すぐ座る</span></button>
-      <button type="button" class="btn mini" id="btnMenuOpen"><span class="i18n-cn">看菜单</span><span class="i18n-jp">メニューを見る</span></button>
-      <button type="button" class="btn ghost mini" id="btnReset"><span class="i18n-cn">回到门口</span><span class="i18n-jp">入口に戻る</span></button>
-    </div>
-  </div>
+  <div id="bar-app"></div>
 
   <div class="wrap">
 
@@ -120,7 +97,7 @@
           </tr>
           <tr>
             <td class="k"><span class="i18n-cn">③ 精神分析</span><span class="i18n-jp">③ 精神分析</span></td>
-            <td class="d">罗夏墨迹五张 + 词联想测试（会记录你的反应时间）</td>
+            <td class="d">梦境探索 + 词联想 + 句子完成测试（会记录你的反应时间）</td>
             <td class="v"><a href="psyche.html" data-i18n="goPsyche">受诊 →</a></td>
           </tr>
           <tr>
@@ -195,7 +172,7 @@
 <script src="assets/js/ui.js?v=3"></script>
 <script src="assets/js/puppet.js?v=3"></script>
 <script src="assets/js/haunt.js?v=3"></script>
-<script src="assets/js/scene.js?v=3"></script>
-<script src="assets/js/index-page.js?v=3"></script>
+
+<script type="module" src="/src/main.ts"></script>
 </body>
 </html>

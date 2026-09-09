@@ -78,6 +78,7 @@
         '<span class="sf-since">© 2006- RADIO CLUB ／ <span class="i18n-cn">网络酒吧</span><span class="i18n-jp">ネット上のバー</span></span>' +
         '<span class="sf-since">Since 2006.11.25</span>' +
         '<a class="badge88" href="about2006.html" title="看看 2006 年同人版">2006 ↗</a>' +
+        '<a href="account.html">' + bi('保存与同步','保存と同期') + '</a>' +
         '<span class="sf-lang">' + langBtn + '</span>' +
       '</div>' +
     '</footer>';

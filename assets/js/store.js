@@ -171,7 +171,14 @@
     foods: FOODS,
     byId: function (id) { for (var i = 0; i < ALL.length; i++) if (ALL[i].id === id) return ALL[i]; return null; },
     isFood: function (id) { var d = Bar.byId(id); return !!(d && d.kind === 'food'); },
-    tray: function () { return store.get('tray', []); },          // [{id, n}]
+    tray: function () {
+      var modern=store.get('counter_v2',null);
+      if(modern&&modern.version===2&&Array.isArray(modern.tickets)){
+        var totals={};modern.tickets.slice(-20).forEach(function(t){if(!t||!t.items)return;ALL.forEach(function(d){var n=t.items[d.id];if(Number.isInteger(n)&&n>0)totals[d.id]=(totals[d.id]||0)+Math.min(n,6);});});
+        return Object.keys(totals).map(function(id){return {id:id,n:totals[id]};});
+      }
+      var old=store.get('tray',[]);return Array.isArray(old)?old.filter(function(x){return x&&Bar.byId(x.id)&&Number.isInteger(x.n)&&x.n>0;}).slice(0,10):[];
+    },
     add: function (id) {
       var t = Bar.tray(), hit = false;
       for (var i = 0; i < t.length; i++) if (t[i].id === id) { t[i].n++; hit = true; }
@@ -183,7 +190,11 @@
     clear: function () { store.del('tray'); store.del('served'); return []; },
     count: function () { return Bar.tray().reduce(function (a, x) { return a + x.n; }, 0); },
     /* 已送上桌的数量 {id:n} */
-    served: function () { return store.get('served', {}); },
+    served: function () {
+      var modern=store.get('counter_v2',null);
+      if(modern&&modern.version===2&&Array.isArray(modern.tickets)){var totals={};modern.tickets.slice(-20).forEach(function(t){if(!t||!t.served||!t.items)return;ALL.forEach(function(d){var n=t.served[d.id];if(Number.isInteger(n)&&n>0)totals[d.id]=(totals[d.id]||0)+Math.min(n,t.items[d.id]||0,6);});});return totals;}
+      return store.get('served', {});
+    },
     markServed: function (ids) {
       var s = Bar.served();
       (ids || []).forEach(function (id) { s[id] = (s[id] || 0) + 1; });

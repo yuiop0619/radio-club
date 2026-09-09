@@ -1,11 +1,11 @@
 # 公开树洞部署
 
-前端默认 `enabled:false`，不连接旧版可直接写入的数据库。这个开关不是后台已经部署的证明。先部署本目录说明的服务，再显式开放公开功能。
+新版默认使用同站 Node 服务（`transport:'local'`），本文件仅用于可选 CloudBase 部署。完成配置后将 transport 改为 `cloudbase` 并重新构建。配置开关不是后台已部署的证明。
 
 ## 资源和权限
 
 1. 在自己的 CloudBase 环境开启匿名登录，配置站点安全域名。保留同一浏览器已有登录态；作者身份来自 SDK 的已认证调用上下文，绝不接收客户端传入的 owner/uid 作为授权。
-2. 创建文档集合 `rc_notes`、`rc_operations`、`rc_limits`、`rc_reports`。为四个集合设置客户端不可读、不可写；规则参考 `cloudfunctions/treehole/database.rules.json`。只有云函数的服务端身份访问这些集合。配置文件不会自动上传规则，必须在控制台应用并核对。
+2. 创建文档集合 `rc_notes`、`rc_operations`、`rc_limits`、`rc_reports`、`rc_profiles`、`rc_content`。为所有集合设置客户端不可读、不可写；规则参考 `cloudfunctions/treehole/database.rules.json`。只有云函数的服务端身份访问这些集合。配置文件不会自动上传规则，必须在控制台应用并核对。
 3. `rc_notes` 增加 `updatedAt` 降序索引，用于轮询查询。`rc_reports` 仅对管理员开放，用于查询 `pending` 举报、人工处理并更新状态。
 4. 在 `cloudfunctions/treehole` 执行 `npm ci --omit=dev`，将该目录上传为 Node.js 20+ 云函数 `treehole`，入口 `index.main`。配置函数调用权限，只允许已认证用户调用，不开放未经认证的 HTTP 入口。函数环境由 SDK 当前环境常量确定。
 5. 实施下方双用户验收后，编辑 `assets/js/cloud-config.js` 为 `{enabled:true,env:'自己的环境 ID',functionName:'treehole'}`，部署静态文件。环境 ID 是配置，不要在该文件中放密钥。

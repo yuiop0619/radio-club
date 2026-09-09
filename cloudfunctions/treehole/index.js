@@ -1,6 +1,6 @@
 'use strict';
 const cloudbase=require('@cloudbase/node-sdk');
-const {service}=require('./service');
+const {application}=require('./application');
 const app=cloudbase.init({env:cloudbase.SYMBOL_CURRENT_ENV});
 const db=app.database();
 const repo={
@@ -12,7 +12,7 @@ const repo={
   set:(tx,collection,id,value)=>(tx||db).collection(collection).doc(id).set(value),
   async list(collection,limit){const res=await db.collection(collection).orderBy('updatedAt','desc').limit(limit).get();return res.data||[];}
 };
-const handle=service(repo);
+const handle=application(repo,{isAdmin:uid=>(process.env.RC_ADMIN_UIDS||'').split(',').includes(uid)});
 exports.main=async event=>{
   try{return {ok:true,data:await handle(event,app.auth().getUserInfo().uid)};}
   catch(e){return {ok:false,error:/^[A-Z_]+$/.test(e.message)?e.message:'SERVICE_UNAVAILABLE'};}

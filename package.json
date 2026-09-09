@@ -1,14 +1,33 @@
 {
-  "name":"radio-club",
-  "version":"1.0.0",
-  "private":true,
-  "description":"Offline-first RADIO CLUB fan site; development dependencies only",
-  "scripts":{
-    "start":"node tools/server.cjs",
-    "test":"node --test tests/*.test.cjs",
-    "test:browser":"node tests/browser.cjs",
-    "images":"node tools/optimize-images.cjs"
+  "name": "radio-club",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive RADIO CLUB: Vue, TypeScript and offline-first Node backend",
+  "scripts": {
+    "start": "node tools/server.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "test:browser": "node tests/browser.cjs",
+    "test:upgrade": "node tests/upgrade-browser.cjs",
+    "images": "node tools/optimize-images.cjs",
+    "build": "vue-tsc --noEmit && vite build",
+    "dev": "vite",
+    "typecheck": "vue-tsc --noEmit",
+    "prestart": "npm run build"
   },
-  "engines":{"node":">=20"},
-  "devDependencies":{"playwright":"1.62.1","sharp":"0.35.4"}
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "playwright": "1.62.1",
+    "sharp": "0.35.4",
+    "typescript": "5.9.3",
+    "vite": "^8.2.2",
+    "vue-tsc": "^3.3.11"
+  },
+  "dependencies": {
+    "pinia": "^4.0.3",
+    "vue": "^3.5.42"
+  }
 }
