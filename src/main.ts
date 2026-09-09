@@ -2,6 +2,18 @@ import {createApp} from 'vue';
 import {createPinia} from 'pinia';
 import {rc} from './legacy';
 import {loadContent} from './content';
+
+// `crypto.randomUUID()` 仅在安全上下文（HTTPS / localhost）下存在；
+// IP 直访（http://101.42.158.132:8080）会报 "is not a function"。
+// 用 getRandomValues 拼一个 v4 兜底，覆盖所有上下文。
+if(typeof window!=='undefined' && window.crypto && typeof window.crypto.randomUUID!=='function'){
+  Object.defineProperty(window.crypto,'randomUUID',{configurable:true,writable:true,value:function(){
+    const c=window.crypto as Crypto;const b=new Uint8Array(16);c.getRandomValues(b);
+    b[6]=(b[6]&0x0f)|0x40;b[8]=(b[8]&0x3f)|0x80;
+    const h=Array.from(b,x=>x.toString(16).padStart(2,'0')).join('');
+    return h.slice(0,8)+'-'+h.slice(8,12)+'-'+h.slice(12,16)+'-'+h.slice(16,20)+'-'+h.slice(20);
+  }});
+}
 if(document.getElementById('bar-app')) {
   rc.ui.chrome({title:rc.i18n.t('counter'),path:'index.html'});
   document.getElementById('navMount')!.innerHTML=rc.ui.nav('index.html');
