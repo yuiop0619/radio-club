@@ -12,8 +12,9 @@
     目标机 ubuntu 用户需有免密 sudo（当前 101.42.158.132 已具备）
 
 部署目标：
-    静态站点 -> /var/www/radio-club   （nginx 80，default_server）
+    静态站点 -> /var/www/radio-club   （nginx 8080 default_server；80 是领导的统一制品管理更新平台，别动）
     后端 API -> /opt/rc-api           （systemd rc-api，127.0.0.1:8091）
+    访问地址 -> http://101.42.158.132:8080/
 """
 import os, sys, time, subprocess, tarfile, tempfile
 
@@ -103,11 +104,11 @@ def main():
 
     print('\n验证：')
     for p in ['/', '/tarot.html', '/masters.html', '/dreams.html', '/api/health', '/nope']:
-        out, err, rc = run("curl -s -o /dev/null -w '%%{http_code}' --max-time 8 http://127.0.0.1%s" % p)
+        out, err, rc = run("curl -s -o /dev/null -w '%%{http_code}' --max-time 8 http://127.0.0.1:8080%s" % p)
         print('   %-16s -> %s' % (p, out))
 
     c.close()
-    print('\n部署完成：http://%s/' % HOST)
+    print('\n部署完成：http://%s:8080/' % HOST)
 
 
 if __name__ == '__main__':
