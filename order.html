@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RADIO CLUB｜委托</title>
 <link rel="stylesheet" href="assets/css/club.css">
@@ -27,6 +28,9 @@
 
     <div id="introMount"></div>
 
+    <p class="hint">编辑保留当前测试；新委托归档当前记录（最多保留五份）并开始新测试。 / 新規依頼は新しいテストを開始します。</p>
+    <label for="caseMode">处理方式 / モード</label><select id="caseMode"><option value="edit">编辑当前委托 / 編集</option><option value="new">新建委托 / 新規</option></select>
+    <label for="caseHistory">恢复历史委托 / 履歴</label><select id="caseHistory"><option value="">选择记录 / 選択</option></select><button type="button" id="restoreCase" class="btn ghost">恢复 / 復元</button>
     <form id="orderForm" autocomplete="off">
       <div class="panel">
         <div class="p-head">
@@ -38,69 +42,69 @@
 
           <div class="row">
             <div class="field">
-              <label class="f">怎么称呼你 <span class="req">*</span></label>
-              <input type="text" id="fHandle" placeholder="真名或昵称都行">
+              <label class="f" for="fHandle">怎么称呼你 <span class="req">*</span></label>
+              <input type="text" id="fHandle" maxlength="60" placeholder="真名或昵称都行">
             </div>
             <div class="field">
-              <label class="f">年龄段</label>
+              <label class="f" for="fAge">年龄段</label>
               <select id="fAge">
                 <option value="">（不说也行）</option>
                 <option>十几岁</option><option>二十几岁</option><option>三十几岁</option><option>四十几岁</option><option>五十岁以上</option>
               </select>
             </div>
             <div class="field">
-              <label class="f">生日</label>
+              <label class="f" for="fBirth">生日</label>
               <input type="date" id="fBirth">
               <div class="hint">用于数秘与本命牌，可留空</div>
             </div>
           </div>
 
           <div class="field">
-            <label class="f">这件事属于哪一类 <span class="req">*</span></label>
-            <div class="radio-row" id="catRow">
-              <span class="chip" data-v="人际关系">人际关系</span>
-              <span class="chip" data-v="工作">工作</span>
-              <span class="chip" data-v="恋爱">恋爱</span>
-              <span class="chip" data-v="丧失">丧失／离别</span>
-              <span class="chip" data-v="记忆">记忆／遗忘</span>
-              <span class="chip" data-v="自我">自我／身份</span>
-              <span class="chip" data-v="其他">其他</span>
+            <span class="f" id="categoryLabel">这件事属于哪一类 <span class="req">*</span></span>
+            <div class="radio-row" id="catRow" role="group" aria-labelledby="categoryLabel">
+              <button type="button" class="chip" data-v="人际关系">人际关系</button>
+              <button type="button" class="chip" data-v="工作">工作</button>
+              <button type="button" class="chip" data-v="恋爱">恋爱</button>
+              <button type="button" class="chip" data-v="丧失">丧失／离别</button>
+              <button type="button" class="chip" data-v="记忆">记忆／遗忘</button>
+              <button type="button" class="chip" data-v="自我">自我／身份</button>
+              <button type="button" class="chip" data-v="其他">其他</button>
             </div>
           </div>
 
           <div class="field">
-            <label class="f">把这件事讲给我听 <span class="req">*</span></label>
-            <textarea id="fStory" placeholder="想到什么写什么，不用组织语言。越乱越好，乱的地方就是线头。"></textarea>
+            <label class="f" for="fStory">把这件事讲给我听 <span class="req">*</span></label>
+            <textarea id="fStory" maxlength="4000" placeholder="想到什么写什么，不用组织语言。越乱越好，乱的地方就是线头。"></textarea>
             <div class="hint" id="storyHint">至少写一句话。她真的会逐字读。</div>
           </div>
 
           <div class="field">
-            <label class="f">最近反复做的梦</label>
-            <textarea id="fDream" style="min-height:64px" placeholder="片段也可以。记不清就写记不清。"></textarea>
+            <label class="f" for="fDream">最近反复做的梦</label>
+            <textarea id="fDream" maxlength="4000" style="min-height:64px" placeholder="片段也可以。记不清就写记不清。"></textarea>
           </div>
 
           <div class="row">
             <div class="field">
-              <label class="f">做梦的频率</label>
-              <div class="radio-row" id="freqRow">
-                <span class="chip" data-v="每夜">每夜</span>
-                <span class="chip" data-v="每周数次">每周数次</span>
-                <span class="chip" data-v="偶尔">偶尔</span>
-                <span class="chip" data-v="几乎不做">几乎不做</span>
+              <span class="f" id="frequencyLabel">做梦的频率</span>
+              <div class="radio-row" id="freqRow" role="group" aria-labelledby="frequencyLabel">
+                <button type="button" class="chip" data-v="每夜">每夜</button>
+                <button type="button" class="chip" data-v="每周数次">每周数次</button>
+                <button type="button" class="chip" data-v="偶尔">偶尔</button>
+                <button type="button" class="chip" data-v="几乎不做">几乎不做</button>
               </div>
             </div>
             <div class="field">
-              <label class="f">是否有过"醒着但动不了"的经历</label>
-              <div class="radio-row" id="parRow">
-                <span class="chip" data-v="1">有过</span>
-                <span class="chip" data-v="0">没有</span>
+              <span class="f" id="paralysisLabel">是否有过"醒着但动不了"的经历</span>
+              <div class="radio-row" id="parRow" role="group" aria-labelledby="paralysisLabel">
+                <button type="button" class="chip" data-v="1">有过</button>
+                <button type="button" class="chip" data-v="0">没有</button>
               </div>
             </div>
           </div>
 
           <div class="field">
-            <label class="f">最近反复想起的一句话或一个画面</label>
-            <input type="text" id="fRecurring" placeholder="例如：某人说过的某句话 / 某个走廊 / 某扇关不上的门">
+            <label class="f" for="fRecurring">最近反复想起的一句话或一个画面</label>
+            <input type="text" id="fRecurring" maxlength="500" placeholder="例如：某人说过的某句话 / 某个走廊 / 某扇关不上的门">
           </div>
 
           <div class="center mt">
@@ -121,92 +125,12 @@
 
 </div>
 
-<script src="assets/js/store.js?v=2"></script>
-<script src="assets/js/i18n.js?v=2"></script>
-<script src="assets/js/ui.js?v=2"></script>
-<script src="assets/js/haunt.js?v=2"></script>
-<script>
-RC.ui.chrome({ title: RC.i18n.t('order'), path: 'order.html' });
-document.getElementById('navMount').innerHTML = RC.ui.nav('order.html');
-document.getElementById('footMount').innerHTML = RC.ui.siteFoot({ active: 'order.html' });
-
-RC.ui.dialog({
-  who: { cn: '萨弗兰', jp: 'サフラン' },
-  jp: { cn: '梦侦探', jp: '夢探偵' },
-  mount: document.getElementById('introMount'),
-  text: '点单不用写得漂亮。你负责把事实倒出来，我负责把它们摆整齐。写不下去的地方就空着——空着本身也是信息。',
-  speed: 26
-});
-
-function bindChips(rowId, target) {
-  var row = document.getElementById(rowId);
-  var state = { v: '' };
-  row.addEventListener('click', function (e) {
-    var c = e.target.closest('.chip'); if (!c) return;
-    row.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); });
-    c.classList.add('on');
-    state.v = c.getAttribute('data-v');
-    target.set(state.v);
-  });
-  return state;
-}
-var sel = { category: '', dreamFreq: '', paralysis: '' };
-bindChips('catRow', { set: function (v) { sel.category = v; } });
-bindChips('freqRow', { set: function (v) { sel.dreamFreq = v; } });
-bindChips('parRow', { set: function (v) { sel.paralysis = v === '1'; } });
-
-var c0 = RC.case.get();
-if (c0.handle) document.getElementById('fHandle').value = c0.handle;
-if (c0.age) document.getElementById('fAge').value = c0.age;
-if (c0.birth) document.getElementById('fBirth').value = c0.birth;
-if (c0.story) document.getElementById('fStory').value = c0.story;
-if (c0.dream) document.getElementById('fDream').value = c0.dream;
-if (c0.recurring) document.getElementById('fRecurring').value = c0.recurring;
-
-document.getElementById('btnClear').addEventListener('click', function () {
-  document.getElementById('orderForm').reset();
-  document.querySelectorAll('.chip.on').forEach(function (x) { x.classList.remove('on'); });
-  sel.category = sel.dreamFreq = ''; sel.paralysis = '';
-  document.getElementById('formMsg').textContent = '';
-});
-
-document.getElementById('orderForm').addEventListener('submit', function (e) {
-  e.preventDefault();
-  var msg = document.getElementById('formMsg');
-  var handle = document.getElementById('fHandle').value.trim();
-  var story = document.getElementById('fStory').value.trim();
-  if (!handle) { msg.innerHTML = '<span class="red">※ 总得让我知道怎么称呼你。</span>'; return; }
-  if (!sel.category) { msg.innerHTML = '<span class="red">※ 选一个类别，哪怕选"其他"。</span>'; return; }
-  if (story.length < 8) { msg.innerHTML = '<span class="red">※ 再多写一点。一句话也行，但得是一句完整的话。</span>'; return; }
-
-  RC.case.save({
-    handle: handle,
-    age: document.getElementById('fAge').value,
-    birth: document.getElementById('fBirth').value,
-    category: sel.category,
-    story: story,
-    dream: document.getElementById('fDream').value.trim(),
-    dreamFreq: sel.dreamFreq,
-    paralysis: !!sel.paralysis,
-    recurring: document.getElementById('fRecurring').value.trim()
-  });
-
-  document.getElementById('orderForm').classList.add('hidden');
-  var done = document.getElementById('doneMount');
-  done.classList.remove('hidden');
-  RC.ui.dialog({
-    who: { cn: '萨弗兰', jp: 'サフラン' },
-    jp: { cn: '梦侦探', jp: '夢探偵' },
-    mount: done,
-    text: '收到了，' + handle + '。我先读完，你别急。……读完了。下一步，去抽牌。牌会替你说那些你还没准备好亲口说的部分。',
-    speed: 26,
-    done: function () {
-      done.insertAdjacentHTML('beforeend',
-        '<div class="center mt"><a class="btn" href="tarot.html">去抽牌 →</a> ' +
-        '<a class="btn ghost" href="psyche.html">先做分析 →</a></div>');
-    }
-  });
-});
-</script>
+<script src="assets/js/store.js?v=3"></script>
+<script src="assets/js/model.js?v=3"></script>
+<script src="assets/js/share.js?v=3"></script>
+<script src="assets/js/i18n.js?v=3"></script>
+<script src="assets/js/ui.js?v=3"></script>
+<script src="assets/js/haunt.js?v=3"></script>
+<script src="assets/js/order-page.js?v=3"></script>
 </body>
 </html>

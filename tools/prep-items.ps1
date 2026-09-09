@@ -1,8 +1,9 @@
+param([Parameter(Mandatory=$true)][string]$SourceDirectory)
 # prep-items.ps1 — 压缩新镜头图 / 菜品图到 assets/img
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 $root = Split-Path -Parent $PSScriptRoot
-$vibe = "$env:USERPROFILE\.qoder-cn\vibe_images"
+$vibe = $SourceDirectory
 $out  = "$root\assets\img"
 
 function Save-Jpeg([string]$src, [string]$dst, [int]$w, [long]$q) {

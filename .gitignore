@@ -17,3 +17,5 @@ __pycache__/
 
 # Node
 node_modules/
+# Generated verification artifacts
+tests/artifacts/

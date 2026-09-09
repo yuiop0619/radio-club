@@ -1,7 +1,8 @@
+param([Parameter(Mandatory=$true)][string]$SourceDirectory)
 # 将美术素材压缩为网页尺寸 JPEG，降低页面加载体积
 Add-Type -AssemblyName System.Drawing
-$img = 'c:\Users\coco\WorkBuddy\radio-club\assets\img'
-$srcDir = 'C:\Users\coco\.qoder-cn\vibe_images'
+$img = Join-Path (Split-Path -Parent $PSScriptRoot) 'assets/img'
+$srcDir = $SourceDirectory
 $jobs = @(
   @{ src = "$srcDir\bartenders-friendly_1788765833.png"; out = 'bartenders'; scale = 0.80 },
   @{ src = "$srcDir\detective-calm_1788765829.png";       out = 'detective';  scale = 0.85 }

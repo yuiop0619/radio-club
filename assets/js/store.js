@@ -14,9 +14,17 @@
     try { var o = JSON.parse(window.name || '{}'); return (o && o[NAME_KEY]) || {}; } catch (e) { return {}; }
   }
   function nameWrite(obj) {
-    try { var o = JSON.parse(window.name || '{}'); o[NAME_KEY] = obj; window.name = JSON.stringify(o); } catch (e) {}
+    var o; try { o = JSON.parse(window.name || '{}'); } catch (e) { o = {}; }
+    if (!o || typeof o !== 'object' || Array.isArray(o)) o = {};
+    o[NAME_KEY] = obj; window.name = JSON.stringify(o);
   }
 
+  function failed() {
+    var el=document.getElementById('storageError');
+    if(!el && document.body){el=document.createElement('p');el.id='storageError';el.className='storage-error';el.setAttribute('role','alert');document.body.prepend(el);}
+    if(el) el.textContent='保存失败：浏览器存储不可用或已满。请保留当前输入后重试。 / 保存できません。入力を残して再試行してください。';
+    return false;
+  }
   var store = {
     available: ok,
     get: function (k, def) {
@@ -33,47 +41,38 @@
       try {
         if (ok) { localStorage.setItem('rc_' + k, JSON.stringify(v)); }
         else { var bag = nameRead(); bag[k] = v; nameWrite(bag); }
-      } catch (e) { /* 静默 */ }
+        return true;
+      } catch (e) { return failed(); }
     },
     del: function (k) {
       try {
         if (ok) localStorage.removeItem('rc_' + k);
         else { var bag = nameRead(); delete bag[k]; nameWrite(bag); }
-      } catch (e) {}
+        return true;
+      } catch (e) { return failed(); }
     }
   };
 
   /* 事件档案（委托内容） */
-  var blankCase = function () {
-    return {
-      handle: '', age: '', gender: '', birth: '',
-      category: '', story: '', dream: '', dreamFreq: '', paralysis: false,
-      recurring: '',
-      analystLog: [],      // [{m, dream, motifs, verdict:{cn,jp}, ts}]
-      assoc: [],           // [{stim, resp, ms}]
-      tarot: [],           // [{id, upright, pos}]
-      createdAt: 0, updatedAt: 0
-    };
-  };
-
   var Case = {
-    get: function () {
-      var c = store.get('case', null);
-      var b = blankCase();
-      if (!c) return b;
-      for (var k in b) if (c[k] === undefined) c[k] = b[k];
-      return c;
-    },
+    get: function () { return RC.model.normalize(store.get('case', null)); },
     save: function (patch) {
-      var c = Case.get();
-      for (var k in patch) c[k] = patch[k];
-      c.updatedAt = Date.now();
-      if (!c.createdAt) c.createdAt = c.updatedAt;
-      store.set('case', c);
-      return c;
+      var c=RC.model.normalize(Object.assign({},Case.get(),patch));
+      c.updatedAt=Date.now();if(!c.createdAt)c.createdAt=c.updatedAt;if(!c.caseId)c.caseId=RC.model.id();
+      return store.set('case',c) ? c : null;
     },
-    reset: function () { store.del('case'); store.del('verdict'); },
-    has: function () { var c = Case.get(); return !!(c.story || c.tarot.length || c.analystLog.length); }
+    start: function(patch) {
+      var old=Case.get();
+      if(Case.has()) {
+        var history=store.get('caseHistory',[]);if(!Array.isArray(history))history=[];
+        history=history.slice(-4).concat([old]);
+        if(!store.set('caseHistory',history)) return null;
+      }
+      var c=RC.model.normalize(patch);c.caseId=RC.model.id();c.createdAt=c.updatedAt=Date.now();
+      return store.set('case',c)?c:null;
+    },
+    reset: function () { return store.del('case') && store.del('verdict'); },
+    has: function () { var c=Case.get();return !!(c.story||c.tarot.length||c.analystLog.length||c.assoc.length||c.sct.some(function(s){return s.a;})); }
   };
 
   /* 来店计数

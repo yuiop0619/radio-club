@@ -1,3 +1,4 @@
+param([Parameter(Mandatory=$true)][string]$SourceDirectory)
 # prep-scene.ps1 — 场景素材处理
 #  1) 背景图（scene-hall / scene-seated）: PNG -> 缩放 -> JPEG(q84)
 #  2) 人物立绘（fig-detective-bar / fig-bartender-serve）: 黑底抠透明(max-channel key) -> 缩放 -> PNG
@@ -6,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 
 $root = Split-Path -Parent $PSScriptRoot
-$vibe = "$env:USERPROFILE\.qoder-cn\vibe_images"
+$vibe = $SourceDirectory
 $out  = "$root\assets\img"
 
 function Save-Jpeg([System.Drawing.Image]$img, [string]$path, [int]$w, [long]$q) {

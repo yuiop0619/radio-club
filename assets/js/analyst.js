@@ -35,7 +35,7 @@
   }
   function motifLabel(k) {
     for (var i = 0; i < MOTIFS.length; i++) if (MOTIFS[i].k === k) return { cn: MOTIFS[i].cn, jp: MOTIFS[i].jp };
-    return { cn: k, jp: k };
+    return { cn: '未知意象', jp: '不明なイメージ' };
   }
 
   /* ---------- 七大师 ---------- */
@@ -196,7 +196,7 @@
     for (var i = 0; i < MASTERS.length; i++) {
       var m = MASTERS[i];
       html += '<button type="button" class="mcard" data-m="' + m.id + '">' +
-        '<span class="shadow-screen"><img src="' + m.img + '" alt="' + m.cn + '皮影"></span>' +
+        '<span class="shadow-screen">' + RC.ui.portrait(m.img,m.cn+'皮影') + '</span>' +
         '<span class="mname"><span class="i18n-cn">' + m.cn + '</span><span class="i18n-jp">' + m.jp + '</span></span>' +
         '<span class="mschool"><span class="i18n-cn">' + m.school.cn + '</span><span class="i18n-jp">' + m.school.jp + '</span></span>' +
         '</button>';
@@ -249,7 +249,7 @@
     }
     els.send.addEventListener('click', send);
     els.input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); send(); }
     });
     els.card.addEventListener('click', function () {
       if (!cur || !cur.dream) { if (els.msg) els.msg.innerHTML = '<span class="red">※ ' + I.of({ cn: '先讲一个梦，再领卡。', jp: 'まず夢を一つ、それからカードを。' }) + '</span>'; return; }
@@ -258,11 +258,11 @@
       var c = RC.case.get();
       var log = (c.analystLog || []).slice();
       log.push(entry);
-      RC.case.save({ analystLog: log });
+      if (!RC.case.save({ analystLog: log })) return;
       /* 成就卡 */
       els.cardBox.innerHTML =
         '<div class="acard">' +
-        '<div class="ac-head"><span class="shadow-screen"><img src="' + cur.m.img + '" alt=""></span>' +
+        '<div class="ac-head"><span class="shadow-screen">' + RC.ui.portrait(cur.m.img,'') + '</span>' +
         '<div><div class="ac-title"><span class="i18n-cn">' + cur.m.card.cn + '</span><span class="i18n-jp">' + cur.m.card.jp + '</span></div>' +
         '<div class="ac-name"><span class="i18n-cn">' + cur.m.cn + '</span><span class="i18n-jp">' + cur.m.jp + '</span></div></div></div>' +
         '<div class="ac-body">' + esc(v.cn) + '</div>' +

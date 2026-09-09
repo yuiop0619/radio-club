@@ -1,0 +1,1 @@
+{"name":"radio-club-treehole","private":true,"version":"1.0.0","main":"index.js","engines":{"node":">=18"},"dependencies":{"@cloudbase/node-sdk":"3.18.3"}}

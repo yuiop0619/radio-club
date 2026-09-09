@@ -14,13 +14,6 @@
   var COOL = 3000;             /* 3 秒冷却 */
   var BURST = 5;               /* 连发上限 */
 
-  var CFG = {
-    cloud: true,
-    env: 'cloud1-6gfe7sn8a5e1cc25',
-    coll: 'treehole',
-    poll: 9000
-  };
-
   /* ---------------- 身份 ---------------- */
   function myId() {
     var id = RC.store.get(ID_KEY, null);
@@ -81,13 +74,13 @@
   /* ---------------- 存储与迁移 ---------------- */
   function load() {
     var d = RC.store.get(KEY, null);
-    if (!d || !d.notes || !d.notes.length) {
+    if (!d || !Array.isArray(d.notes)) {
       d = { v: 2, notes: seedNotes().concat(migrateOld()) };
       RC.store.set(KEY, d);
     }
     return d;
   }
-  function save(d) { RC.store.set(KEY, d); }
+  function save(d) { return RC.store.set(KEY, d); }
   function migrateOld() {
     var old = RC.store.get('bbs', null);
     if (!old || !old.length) return [];
@@ -263,84 +256,41 @@
     };
   }
 
-  /* ---------------- 云端（双轨，失败静默降级） ---------------- */
-  var cloud = {
-    ready: false, db: null, tried: false,
-    init: function (cb) {
-      if (cloud.ready) { cb(true); return; }
-      if (cloud.tried) { cb(false); return; }
-      cloud.tried = true;
-      if (!CFG.cloud || typeof window.cloudbase === 'undefined') { cb(false); return; }
-      try {
-        var app = window.cloudbase.init({ env: CFG.env });
-        var auth = app.auth({ persistence: 'local' });
-        var p;
-        /* 新版 SDK：auth.signInAnonymously() ／ 旧版：anonymousAuthProvider() */
-        if (auth && typeof auth.signInAnonymously === 'function') {
-          p = auth.signInAnonymously();
-        } else if (auth && typeof auth.anonymousAuthProvider === 'function') {
-          p = auth.anonymousAuthProvider().signIn();
-        } else { cb(false); return; }
-        p.then(function () { cloud.db = app.database(); cloud.ready = true; cb(true); })
-          .catch(function () { cb(false); });
-      } catch (e) { cb(false); }
-    },
-    pull: function (cb) {
-      if (!cloud.ready) { cb(null); return; }
-      try {
-        cloud.db.collection(CFG.coll).orderBy('ts', 'desc').limit(80).get().then(function (res) {
-          cb(res && res.data ? res.data : null);
-        }).catch(function () { cb(null); });
-      } catch (e) { cb(null); }
-    },
-    push: function (note) {
-      if (!cloud.ready) return;
-      try {
-        var doc = cloudDoc(note);
-        cloud.db.collection(CFG.coll).where({ id: note.id }).get().then(function (res) {
-          if (res && res.data && res.data.length) {
-            return cloud.db.collection(CFG.coll).doc(res.data[0]._id).update(doc);
-          }
-          return cloud.db.collection(CFG.coll).add(doc);
-        }).catch(function () {});
-      } catch (e) {}
-    }
-  };
-  function cloudDoc(n) {
-    return {
-      id: n.id, codeCn: n.code.cn, codeJp: n.code.jp, sig: n.sig || '',
-      who: n.who || 'guest', bodyCn: n.body.cn, bodyJp: n.body.jp || n.body.cn,
-      mood: n.mood || 'calm', ts: n.ts, lights: n.lights || 0,
-      replies: JSON.stringify(n.replies || [])
-    };
+  /* Public operations are explicit; imported/local notes never auto-upload. */
+  var cloud=RC.cloud;
+  function message(text){var el=document.getElementById('thMsg');if(el)el.textContent=text;}
+  function error(e){message('操作未完成，已保留待重试记录：'+e.message+' / Retry when connected');}
+  function fromCloudDoc(d){
+    if(!d||typeof d.id!=='string'||!/^[-a-zA-Z0-9_]{1,80}$/.test(d.id))return null;
+    return {id:d.id,code:{cn:RC.model.string(d.codeCn,60),jp:RC.model.string(d.codeJp,60)},sig:RC.model.string(d.sig,16),who:'guest',
+      body:{cn:RC.model.string(d.bodyCn,140),jp:RC.model.string(d.bodyJp||d.bodyCn,140)},mood:RC.model.string(d.mood,20),
+      ts:typeof d.ts==='number'?d.ts:Date.now(),lights:Number.isFinite(d.lights)?Math.max(0,d.lights):0,lit:d.lit===true,
+      mine:d.mine===true,replies:Array.isArray(d.replies)?d.replies.slice(0,200).filter(function(r){return r&&typeof r==='object';}).map(function(r){return {id:RC.model.string(r.id,80),code:RC.model.pair(r.code,60),body:RC.model.pair(r.body,140),who:'user',ts:Number.isFinite(r.ts)?r.ts:Date.now()};}):[],
+      cloud:true,status:d.status,version:Number.isFinite(d.version)?d.version:0};
   }
-  function fromCloudDoc(d) {
-    var reps = [];
-    try { reps = JSON.parse(d.replies || '[]'); } catch (e) { reps = []; }
-    return {
-      id: d.id, code: { cn: d.codeCn || '', jp: d.codeJp || d.codeCn || '' },
-      sig: d.sig || '', who: d.who || 'guest',
-      body: { cn: d.bodyCn || '', jp: d.bodyJp || d.bodyCn || '' },
-      mood: d.mood || 'calm', ts: d.ts || Date.now(),
-      lights: d.lights || 0, lit: false, mine: false, replies: reps, cloud: true
-    };
-  }
-  function mergeCloud(list) {
-    if (!list || !list.length) return 0;
-    var d = load(), added = 0;
-    for (var i = 0; i < list.length; i++) {
-      var n = fromCloudDoc(list[i]);
-      if (!n.id || !n.body.cn) continue;
-      var ex = findNote(d, n.id);
-      if (!ex) { d.notes.push(n); added++; }
-      else {
-        ex.lights = Math.max(ex.lights || 0, n.lights || 0);
-        if ((n.replies || []).length > (ex.replies || []).length) ex.replies = n.replies;
+  function mergeCloud(list){
+    if(!Array.isArray(list))return 0;
+    var d=load(),changed=0,hidden=RC.store.get('hole_hidden',[]);
+    if(!Array.isArray(hidden))hidden=[];
+    list.forEach(function(raw){
+      var n=fromCloudDoc(raw);if(!n||hidden.indexOf(n.id)>=0)return;
+      var ex=findNote(d,n.id);
+      if(n.status==='withdrawn'){
+        if(ex){d.notes=d.notes.filter(function(x){return x.id!==n.id;});changed++;}
+      }else if(n.status==='published' && n.body.cn){
+        if(!ex){d.notes.push(n);changed++;}
+        else if((ex.version||0)<=n.version && JSON.stringify(ex)!==JSON.stringify(n)){d.notes[d.notes.indexOf(ex)]=n;changed++;}
       }
-    }
-    if (added) save(d);
-    return added;
+    });
+    if(changed&&!save(d))throw Error('LOCAL_SAVE_FAILED');
+    return changed;
   }
+  cloud.onResult=function(result,action){
+    if(result.note)mergeCloud([result.note]);
+    render();
+    message(action==='report'?'举报已受理，编号 '+result.reportId+' / Report received': '操作已完成 / 完了しました');
+  };
+  function refresh(){return cloud.pull(load().notes.filter(function(n){return n.cloud;}).map(function(n){return n.id;})).then(function(list){if(mergeCloud(list))render();});}
 
   /* ---------------- 渲染 ---------------- */
   var host = null, filter = 'all';
@@ -363,6 +313,8 @@
 
   function render() {
     if (!host) return;
+    var active=document.activeElement,focused=active&&active.classList.contains('ri')?active.closest('.note').dataset.id:null;
+    var drafts={};host.querySelectorAll('.note').forEach(function(a){var inp=a.querySelector('.ri');if(inp)drafts[a.dataset.id]={value:inp.value,open:!a.querySelector('.n-box').hidden};});
     var d = load();
     var notes = d.notes.slice().sort(function (a, b) {
       return (b.pin ? 1 : 0) - (a.pin ? 1 : 0) || b.ts - a.ts;
@@ -375,6 +327,7 @@
     var h = '';
     for (var i = 0; i < notes.length; i++) h += noteHTML(notes[i]);
     host.innerHTML = h;
+    host.querySelectorAll('.note').forEach(function(a){var draft=drafts[a.dataset.id];if(draft){a.querySelector('.ri').value=draft.value;a.querySelector('.n-box').hidden=!draft.open;if(focused===a.dataset.id)a.querySelector('.ri').focus();}});
   }
 
   function noteHTML(n) {
@@ -406,13 +359,13 @@
     h += '<div class="n-ops">';
     h += '<button type="button" class="op' + (n.lit ? ' on' : '') + '" data-act="light">' +
       (n.lit ? '✦ ' + U.esc(I.t('lit')) : '✧ ' + U.esc(I.t('light'))) +
-      (n.lights ? ' <b>' + n.lights + '</b>' : '') + '</button>';
+      (n.lights ? ' <b>' + U.esc(n.lights) + '</b>' : '') + '</button>';
     h += '<button type="button" class="op" data-act="reply">' + U.esc(I.t('reply')) + '</button>';
     h += '<button type="button" class="op" data-act="share">' + U.esc(I.t('shareNote')) + '</button>';
-    if (n.mine) h += '<button type="button" class="op danger" data-act="take">' + U.esc(I.t('takeBack')) + '</button>';
-    else h += '<button type="button" class="op dim" data-act="report">' + U.esc(I.t('report')) + '</button>';
+    if (n.mine) h += '<button type="button" class="op danger" data-act="take">' + U.esc((n.cloud?'撤回公开纸条 / 取り消す':'删除本机纸条 / 削除')) + '</button>';
+    else h += '<button type="button" class="op dim" data-act="report">' + U.esc((n.cloud?'举报 / 通報':'仅本机隐藏 / 非表示')) + '</button>';
     h += '</div>';
-    h += '<div class="n-box" hidden><input type="text" class="ri" maxlength="' + MAX + '" placeholder="' + U.esc(I.t('replyPh')) + '">' +
+    h += '<div class="n-box" hidden><input type="text" aria-label="回复纸条 / 返信" class="ri" maxlength="' + MAX + '" placeholder="' + U.esc(I.t('replyPh')) + '">' +
       '<button type="button" class="btn small" data-act="send">' + U.esc(I.t('send')) + '</button></div>';
     h += '</article>';
     return h;
@@ -451,6 +404,7 @@
     var burst = RC.store.get('hole_burst', 0);
     if (now - last > 60000) burst = 0;
     if (burst >= BURST) return 'cooldownHit';
+    if(typeof text!=='string'||!text.trim()||text.length>MAX||String(sig||'').length>16)return 'invalid';
     var n = {
       id: 'n' + now.toString(36) + Math.floor(Math.random() * 1e4).toString(36),
       code: ME, sig: sig || '', who: 'guest',
@@ -458,10 +412,10 @@
       ts: now, lights: 0, lit: false, mine: true, replies: []
     };
     d.notes.push(n);
-    save(d);
+    if(!save(d))return 'saveFailed';
     RC.store.set('hole_last', now);
     RC.store.set('hole_burst', burst + 1);
-    cloud.push(n);
+
 
     /* 陌生人的回声：延迟出现，像真的有人在洞口那头 */
     var echoDelay = 2500 + Math.floor(Math.random() * 2500);
@@ -469,10 +423,10 @@
       var dd = load(), nn = findNote(dd, n.id);
       if (!nn) return;
       nn.replies.push({
-        code: { cn: I.t('stranger'), jp: I.t('stranger') }, who: 'user',
+        code: { cn: '本地预设回声（非真人）', jp: '定型文（実在の人ではありません）' }, who: 'user',
         body: pickEcho(nn), ts: Date.now()
       });
-      save(dd); cloud.push(nn); render();
+      if(save(dd))render();
     }, echoDelay);
 
     /* 店主或萨弗兰的回信 */
@@ -482,11 +436,11 @@
       if (!nn) return;
       nn.replies.push({
         code: ch.who === 'safran'
-          ? { cn: I.t('detective'), jp: I.t('detective') }
-          : { cn: I.t('master'), jp: I.t('master') },
+          ? { cn: I.t('detective')+'（预设）', jp: I.t('detective')+'（定型文）' }
+          : { cn: I.t('master')+'（预设）', jp: I.t('master')+'（定型文）' },
         who: ch.who, body: ch.body, ts: Date.now()
       });
-      save(dd); cloud.push(nn); render();
+      if(save(dd))render();
     }, echoDelay + 2200 + Math.floor(Math.random() * 2000));
 
     return n;
@@ -495,7 +449,7 @@
   function bind() {
     if (!host) return;
     host.addEventListener('click', function (e) {
-      var btn = e.target.closest ? e.target.closest('.op') : null;
+      var btn = e.target.closest ? e.target.closest('.op, .n-box button') : null;
       if (!btn) return;
       var art = btn.closest('.note');
       if (!art) return;
@@ -504,38 +458,36 @@
       var d = load(), n = findNote(d, id);
       if (!n) return;
 
-      if (act === 'light') {
-        if (n.lit) return;
-        n.lit = true; n.lights = (n.lights || 0) + 1;
-        save(d); cloud.push(n); render();
-      } else if (act === 'reply') {
-        var box = art.querySelector('.n-box');
-        if (box) {
-          box.hidden = !box.hidden;
-          if (!box.hidden) { var inp = box.querySelector('.ri'); if (inp) inp.focus(); }
-        }
-      } else if (act === 'send') {
-        var box2 = art.querySelector('.n-box');
-        var inp2 = box2 ? box2.querySelector('.ri') : null;
-        var txt = inp2 ? inp2.value.trim() : '';
-        if (!txt) return;
-        n.replies.push({ code: ME, who: 'user', body: { cn: txt, jp: txt }, ts: Date.now() });
-        save(d); cloud.push(n); render();
-      } else if (act === 'share') {
-        shareNote(n);
-      } else if (act === 'take') {
-        d.notes = d.notes.filter(function (x) { return x.id !== id; });
-        save(d); render();
-        var msg = document.getElementById('thMsg');
-        if (msg) msg.innerHTML = '<span class="amber">※ ' + U.esc(I.t('takenBack')) + '</span>';
-      } else if (act === 'report') {
-        var msg2 = document.getElementById('thMsg');
-        if (msg2) msg2.innerHTML = '<span class="dim">※ ' + U.esc(I.t('reported')) + '</span>';
+      if(act==='retry'){cloud.flush().then(refresh).catch(error);return;}
+      if(act==='share'){shareNote(n);return;}
+      if(act==='reply'){
+        var box=art.querySelector('.n-box');box.hidden=!box.hidden;if(!box.hidden)box.querySelector('.ri').focus();return;
+      }
+      if(n.cloud){
+        var fields={};
+        if(act==='send'){fields.body=art.querySelector('.ri').value.trim();if(!fields.body||fields.body.length>MAX)return;}
+        if(act==='light'&&n.lit)return;
+        var actions={send:'reply',light:'light',take:'withdraw',report:'report'};
+        if(actions[act]){btn.disabled=true;cloud.mutate(actions[act],n.id,fields).then(function(){if(act==='send'){var input=host.querySelector('.note[data-id="'+n.id+'"] .ri');if(input)input.value='';}}).catch(error).finally(function(){btn.disabled=false;});}
+        return;
+      }
+      if(act==='light'){
+        if(n.lit)return;n.lit=true;n.lights=(Number(n.lights)||0)+1;if(save(d))render();
+      }else if(act==='send'){
+        var inp=art.querySelector('.ri'),text=inp.value.trim();if(!text||text.length>MAX||n.replies.length>=200)return;
+        n.replies.push({code:ME,who:'user',body:{cn:text,jp:text},ts:Date.now()});
+        if(save(d)){inp.value='';render();}
+      }else if(act==='take'||act==='report'){
+        var hidden=RC.store.get('hole_hidden',[]);if(!Array.isArray(hidden))hidden=[];
+        if(hidden.indexOf(id)<0)hidden.push(id);
+        if(!RC.store.set('hole_hidden',hidden))return;
+        d.notes=d.notes.filter(function(x){return x.id!==id;});
+        if(save(d)){render();message('已从本机移除；不影响已分享或历史公开副本。 / この端末から削除しました。');}
       }
     });
 
     host.addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter') return;
+      if (e.key !== 'Enter' || e.isComposing || e.keyCode===229) return;
       var inp = e.target;
       if (!inp || !inp.classList || !inp.classList.contains('ri')) return;
       var art = inp.closest('.note');
@@ -545,58 +497,28 @@
     });
   }
 
-  function shareNote(n) {
-    var payload = { id: n.id, b: n.body.cn, c: n.sig || (n.code && n.code.cn) || '', m: n.mood || 'calm', t: n.ts };
-    var s = b64(JSON.stringify(payload));
-    var url = location.href.split('?')[0] + '?n=' + s;
-    var msg = document.getElementById('thMsg');
-    var ok = false;
+  function shareNote(n){
+    var payload={id:n.id,b:n.body.cn,c:n.sig||(n.code&&n.code.cn)||'',m:n.mood||'calm',t:n.ts};
     try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url); ok = true;
-      }
-    } catch (e) {}
-    if (!ok) {
-      var ta = document.createElement('textarea');
-      ta.value = url; document.body.appendChild(ta); ta.select();
-      try { ok = document.execCommand('copy'); } catch (e) {}
-      document.body.removeChild(ta);
+      var url=RC.share.link('n',payload),wrap=document.getElementById('noteShare');
+      wrap.hidden=false;document.getElementById('noteSharePreview').textContent=payload.c+'：'+payload.b;
+      document.getElementById('noteShareLink').value=url;
+      message('请检查纸条预览；复制后持有人可读取，副本无法撤回。 / 内容を確認してコピー。');
+    }catch(e){message(e.message);}
+  }
+  function acceptShared(){
+    var p;
+    try{p=RC.share.read('n');if(!p)return;
+      if(typeof p.id!=='string'||!/^[-a-zA-Z0-9_]{1,80}$/.test(p.id)||typeof p.b!=='string'||!p.b.trim()||p.b.length>140||typeof p.c!=='string'||p.c.length>60)throw Error('纸条格式无效 / Invalid note');
+    }catch(e){message(e.message);return;}
+    var d=load(),id='shared-'+U.hash(p.id+'|'+p.b).toString(36);
+    var hidden=RC.store.get('hole_hidden',[]);if(Array.isArray(hidden)&&hidden.indexOf(id)>=0)return;
+    if(!findNote(d,id)){
+      d.notes.push({id:id,code:{cn:p.c,jp:p.c},sig:'',who:'guest',body:{cn:p.b,jp:p.b},mood:RC.model.string(p.m,20),ts:Number.isFinite(p.t)?p.t:Date.now(),lights:0,lit:false,mine:false,replies:[],shared:true});
+      if(!save(d))return;
     }
-    if (msg) msg.innerHTML = '<span class="amber">※ ' + U.esc(I.t(ok ? 'shareNoteDone' : 'shareManual')) + '</span>';
-  }
-  function b64(s) {
-    return btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  }
-  function unb64(s) {
-    s = s.replace(/-/g, '+').replace(/_/g, '/');
-    while (s.length % 4) s += '=';
-    return decodeURIComponent(escape(atob(s)));
-  }
-
-  /* 打开别人递来的纸条 */
-  function acceptShared() {
-    var m = /[?&]n=([^&]+)/.exec(location.search);
-    if (!m) return;
-    var p = null;
-    try { p = JSON.parse(unb64(m[1])); } catch (e) { return; }
-    if (!p || !p.b) return;
-    var d = load();
-    if (!findNote(d, p.id)) {
-      d.notes.push({
-        id: p.id, code: { cn: p.c || I.t('stranger'), jp: p.c || I.t('stranger') },
-        sig: '', who: 'guest', body: { cn: p.b, jp: p.b }, mood: p.m || 'calm',
-        ts: p.t || Date.now(), lights: 0, lit: false, mine: false, replies: [], shared: true
-      });
-      save(d);
-    }
-    setTimeout(function () {
-      var art = document.querySelector('.note[data-id="' + p.id + '"]');
-      if (!art) return;
-      art.classList.add('pin');
-      var box = art.querySelector('.n-box');
-      if (box) box.hidden = false;
-      art.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 300);
+    render();
+    var art=Array.from(host.querySelectorAll('.note')).find(function(a){return a.dataset.id===id;});if(art)art.classList.add('pin');
   }
 
   /* ---------------- 启动 ---------------- */
@@ -664,7 +586,15 @@
         if (txt.length > MAX) { if (msg) msg.innerHTML = '<span class="red">※ ' + U.esc(I.t('tooLong')) + '</span>'; return; }
         var last = RC.store.get('hole_last', 0);
         if (Date.now() - last < COOL) { if (msg) msg.innerHTML = '<span class="red">※ ' + U.esc(I.t('cooling')) + '</span>'; return; }
+        if(document.getElementById('thVisibility').value==='public'){
+          if(!cloud.ready){message('请先连接公开树洞 / Connect first');return;}
+          btn.disabled=true;
+          var id='n'+Date.now().toString(36)+Math.random().toString(36).slice(2,10);
+          cloud.mutate('publish',id,{body:txt,sig:sigEl?sigEl.value.trim():'',mood:curMood}).then(function(){bodyEl.value='';if(cnt)cnt.textContent='0 / '+MAX;}).catch(error).finally(function(){btn.disabled=false;});
+          return;
+        }
         var r = addNote(txt, sigEl ? sigEl.value.trim() : '', curMood);
+        if(typeof r==='string'&&r!=='cooldownHit'){message('未保存，请检查输入与浏览器存储。 / 保存できません');return;}
         if (r === 'cooldownHit') { if (msg) msg.innerHTML = '<span class="red">※ ' + U.esc(I.t('cooldownHit')) + '</span>'; return; }
         if (bodyEl) bodyEl.value = '';
         if (cnt) cnt.textContent = '0 / ' + MAX;
@@ -679,28 +609,22 @@
     render();
     acceptShared();
 
-    /* 云端双轨 */
-    var badge = document.getElementById('thCloud');
-    if (badge) badge.innerHTML = '<span class="dim">' + U.esc(I.t('cloudLoading')) + '</span>';
-    cloud.init(function (ok) {
-      if (badge) badge.innerHTML = ok
-        ? '<span class="dot on"></span>' + U.esc(I.t('cloudOn'))
-        : '<span class="dot"></span>' + U.esc(I.t('cloudOff'));
-      if (!ok) return;
-      cloud.pull(function (list) {
-        if (mergeCloud(list) > 0) render();
-      });
-      setInterval(function () {
-        if (document.hidden) return;
-        cloud.pull(function (list) { if (mergeCloud(list) > 0) render(); });
-      }, CFG.poll);
+    var badge=document.getElementById('thCloud');
+    badge.textContent='本机模式 / この端末のみ';
+    document.getElementById('thConnect').addEventListener('click',function(){
+      var button=this;button.disabled=true;
+      cloud.connect().then(function(){badge.textContent='已连接公开树洞 / 接続済み';document.getElementById('thPublicOption').disabled=false;return cloud.flush();}).then(refresh).catch(error).finally(function(){button.disabled=false;});
     });
+    document.getElementById('thRetry').addEventListener('click',function(){cloud.flush().then(refresh).catch(error);});
+    document.getElementById('thCancelPending').addEventListener('click',function(){try{if(cloud.cancelPending())message('已取消待同步；已送达的操作不受影响。 / 送信待ちを破棄しました。');}catch(e){error(e);}});
+    document.getElementById('noteCopy').addEventListener('click',function(){var box=document.getElementById('noteShareLink');RC.share.copy(box.value).then(function(){message('已复制 / コピーしました');},function(){box.focus();box.select();message('请手动复制 / 手動でコピー');});});
+    setInterval(function(){if(!document.hidden&&cloud.ready)refresh().catch(error);},9000);
 
     RC.i18n.onChange(function () { render(); });
   }
 
   window.RC = window.RC || {};
-  RC.hole = { add: addNote, render: render, code: function () { return ME; }, cloud: cloud };
+  RC.hole = { add: addNote, render: render, code: function () { return ME; }, cloud: cloud, mergeCloud:mergeCloud };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

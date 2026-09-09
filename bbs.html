@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RADIO CLUB｜树洞</title>
 <meta name="description" content="RADIO CLUB 的树洞。不用留名字，写完投进去，会有人回你。">
@@ -55,11 +56,18 @@
 
         <hr class="rule dbl">
 
-        <label class="f" data-i18n="writeNote"></label>
+        <p class="hint">默认仅保存在本机。连接公开树洞会访问云服务；选择公开投递后，纸条正文、署名、心情和回复对其他访客可见。本地角色回声为预设内容，非真人回复。<br>初期設定は端末内のみ。公開すると内容・署名・返信が他の訪問者に見えます。定型文は実在の人の返信ではありません。</p>
+        <button type="button" class="btn ghost" id="thConnect">连接公开树洞 / 公開サービスに接続</button>
+        <button type="button" class="btn ghost" id="thRetry">重试待同步操作 / 再試行</button>
+        <button type="button" class="btn ghost" id="thCancelPending">取消待同步操作 / 送信待ちを破棄</button>
+        <p class="hint">取消只丢弃本机待发送记录，不会撤销服务器已收到的操作。 / 送信済みの操作は取り消せません。</p>
+        <label for="thVisibility">纸条可见范围 / 公開範囲</label>
+        <select id="thVisibility"><option value="local">仅本机 / この端末のみ</option><option id="thPublicOption" value="public" disabled>公开投递 / 公開</option></select>
+        <label class="f" for="thBody" data-i18n="writeNote"></label>
         <textarea id="thBody" rows="3" maxlength="140"
           placeholder="今夜想说、又说不出口的那句"></textarea>
         <div class="th-meta">
-          <input type="text" id="thSig" maxlength="16" placeholder="署名（可留空）">
+          <input type="text" aria-label="署名 / 署名" id="thSig" maxlength="16" placeholder="署名（可留空）">
           <span class="mono dim" id="thCount">0 / 140</span>
         </div>
 
@@ -71,7 +79,8 @@
         <div class="center">
           <button type="button" class="btn" id="thDrop" data-i18n="drop"></button>
         </div>
-        <div class="hint center" id="thMsg"></div>
+        <div class="hint center" id="thMsg" role="status" aria-live="polite"></div>
+        <section id="noteShare" hidden><pre id="noteSharePreview" class="share-preview"></pre><label for="noteShareLink">分享链接 / リンク</label><textarea id="noteShareLink" readonly></textarea><button type="button" id="noteCopy" class="btn">复制此预览 / コピー</button></section>
 
         <hr class="rule">
 
@@ -91,16 +100,15 @@
 
 </div>
 
-<script src="assets/js/store.js?v=2"></script>
-<script src="assets/js/i18n.js?v=2"></script>
-<script src="assets/js/ui.js?v=2"></script>
-<script src="assets/js/haunt.js?v=2"></script>
-<script src="https://static.cloudbase.net/cloudbase-js-sdk/2.7.1/cloudbase.full.js"></script>
-<script src="assets/js/treehole.js?v=2"></script>
-<script>
-RC.ui.chrome({ title: RC.i18n.t('bbs'), path: 'bbs.html' });
-document.getElementById('navMount').innerHTML = RC.ui.nav('bbs.html');
-document.getElementById('footMount').innerHTML = RC.ui.siteFoot({ active: 'bbs.html' });
-</script>
+<script src="assets/js/store.js?v=3"></script>
+<script src="assets/js/model.js?v=3"></script>
+<script src="assets/js/share.js?v=3"></script>
+<script src="assets/js/i18n.js?v=3"></script>
+<script src="assets/js/ui.js?v=3"></script>
+<script src="assets/js/haunt.js?v=3"></script>
+<script src="assets/js/cloud-config.js?v=3"></script>
+<script src="assets/js/treehole-cloud.js?v=3"></script>
+<script src="assets/js/treehole.js?v=3"></script>
+<script src="assets/js/bbs-page.js?v=3"></script>
 </body>
 </html>

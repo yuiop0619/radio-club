@@ -27,20 +27,28 @@
   ];
 
   function spectrum(c) {
-    var text = [c.story, c.dream, c.recurring,
-      (c.analystLog || []).map(function (l) { return l.dream; }).join(' '),
-      (c.assoc || []).map(function (a) { return a.resp; }).join(' ')
-    ].join(' \n ');
-    return EMOTIONS.map(function (e) {
-      var hits = 0;
-      e.w.forEach(function (kw) {
-        var re = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-        var m = text.match(re);
-        if (m) hits += m.length;
+    c=RC.model.normalize(c);
+    var parts=[c.story,c.dream,c.recurring].concat(c.analystLog.map(function(l){return l.dream;}),c.assoc.map(function(a){return a.resp;}),c.sct.map(function(a){return a.a;}));
+    var text=Array.from(new Set(parts.filter(Boolean))).join('。');
+    // Quoted speech is not automatically attributed to the writer. Longest non-overlapping match wins.
+    text=text.replace(/「[^」]*」|“[^”]*”|"[^"\n]*"/g,'');
+    return EMOTIONS.map(function(e){
+      var words=Array.from(new Set(e.w)).sort(function(a,b){return b.length-a.length;});
+      var occupied=new Set(),evidence=[];
+      words.forEach(function(kw){
+        var start=0,at;
+        while((at=text.indexOf(kw,start))!==-1){
+          start=at+kw.length;
+          var prefix=text.slice(Math.max(0,at-8),at);
+          var overlap=false;for(var i=at;i<start;i++)if(occupied.has(i))overlap=true;
+          if(overlap)continue;
+          for(var j=at;j<start;j++)occupied.add(j);
+          if(/(?:不再|不|没有|并非|不是|并不|未曾|毫无|不会|不觉得|不感到|不感到很)$/.test(prefix))continue;
+          evidence.push(kw);
+        }
       });
-      // 0 命中给一个低基线，避免全零；命中越多越饱和
-      var v = hits === 0 ? 4 : U.clamp(18 + hits * 13, 18, 96);
-      return { k: e.k, label: e.label, jp: e.jp, hits: hits, v: v };
+      var hits=evidence.length;
+      return {k:e.k,label:e.label,jp:e.jp,hits:hits,v:hits?U.clamp(18+hits*13,18,96):0,evidence:evidence};
     });
   }
 
@@ -81,19 +89,20 @@
       /* stim 兼容：旧数据为字符串，新数据为 {cn, jp} */
       var stimCn = (typeof a.stim === 'object' && a.stim) ? (a.stim.cn || '') : String(a.stim || '');
       var stimJp = (typeof a.stim === 'object' && a.stim) ? (a.stim.jp || '') : String(a.stim || '');
-      if (!resp || resp === '...' || resp === '…') { flag = 'refuse'; note = '拒答：这个词被你跳过了。跳过本身就是一种回答。'; }
+      if (a.interrupted) { flag='interrupted'; note='本次切换了页面或窗口，计时不参与解读。'; }
+      else if (!resp || resp === '...' || resp === '…') { flag = 'refuse'; note = '拒答：这个词被你跳过了。跳过本身就是一种回答。'; }
       else if (resp.indexOf(stimCn) >= 0 && stimCn) { flag = 'persev'; note = '反復：你的回答里含着刺激词本身。思维在这个词上原地打转。'; }
-      else if (ms > 5000) { flag = 'complex+'; note = '强复合：反应潜伏期 ' + (ms / 1000).toFixed(1) + ' 秒。这个词碰到了不该碰的地方。'; }
-      else if (ms > 2500) { flag = 'complex'; note = '复合：反应潜伏期 ' + (ms / 1000).toFixed(1) + ' 秒，明显长于你的基线。这里有情绪电阻。'; }
+      else if (ms > 5000) { flag = 'complex+'; note = '强复合：反应潜伏期 ' + (ms / 1000).toFixed(1) + ' 秒。这只是输入耗时记录，不能据此判断心理状态。'; }
+      else if (ms > 2500) { flag = 'complex'; note = '复合：反应潜伏期 ' + (ms / 1000).toFixed(1) + ' 秒，超过预设阈值，可能包含阅读或输入时间。'; }
       else if (ms < 900) { flag = 'flight'; note = '过速：几乎是条件反射。太快有时不是流畅，而是抢先堵住答案。'; }
       return { stimCn: stimCn, stimJp: stimJp, stim: stimCn, resp: resp, ms: ms, flag: flag, note: note };
     });
-    var flagged = rows.filter(function (r) { return r.flag && r.flag !== 'flight'; });
-    var summary = flagged.length
+    var flagged = rows.filter(function (r) { return r.flag && r.flag !== 'flight' && r.flag !== 'interrupted'; });
+    var summary = !rows.length ? '（未进行词联想，无法解读。）' : flagged.length
       ? '在 ' + rows.length + ' 个刺激词中，有 ' + flagged.length + ' 个引发了反应延迟或拒答：' +
         flagged.map(function (f) { return '「' + (f.stimCn || f.stimJp) + '」'; }).join('、') +
         '。荣格会把这些点称为"复合"——情绪在那里结成了硬块，绕开了你的意识。'
-      : '你的反应潜伏期整体平稳，没有明显的复合点。要么你真的通透，要么你把电阻藏得很深。我倾向于后者。';
+      : '没有超过预设阈值的记录。这不代表任何心理诊断。';
     return { rows: rows, flagged: flagged, summary: summary };
   }
 
@@ -102,7 +111,7 @@
     var list = c.sct || [];
     if (!list.length) return null;
     var rows = list.map(function (x) {
-      return { i: x.i, qCn: x.qCn || '', qJp: x.qJp || '', a: x.a || '', empty: !x.a };
+      return { i: x.i + 1, qCn: x.qCn || '', qJp: x.qJp || '', a: x.a || '', empty: !x.a };
     });
     var blanks = rows.filter(function (r) { return r.empty; }).length;
 
@@ -237,7 +246,7 @@
     var r = U.rng(U.hash((c.handle || '') + '|' + (c.story || '').length));
     var a = Math.floor(r() * pool.length), b = Math.floor(r() * pool.length);
     if (b === a) b = (b + 3) % pool.length;
-    return [pool[a], pool[b]];
+    return ['角色叙事（预设台词，未测量你的删改或停顿）：' + pool[a], '角色叙事（预设台词）：' + pool[b]];
   }
 
   /* ---------- "缺席"检测：你一次都没提的那个情绪 ---------- */
@@ -252,6 +261,7 @@
 
   /* ---------- 组装鉴定书 ---------- */
   function buildVerdict(c) {
+    c=RC.model.normalize(c);
     var sp = spectrum(c);
     var an = analystProfile(c);
     var assoc = assocProfile(c);
@@ -259,18 +269,19 @@
     var H = hypotheses(c, sp, an, assoc);
     var tarotRows = (c.tarot || []).map(function (t) {
       var card = RC.tarot.byId(t.id);
-      var pos = RC.tarot.positions[t.pos];
+      var pos = RC.tarot.spreads[c.tarotSpread].pos[t.pos];
       return {
         id: t.id, upright: t.upright, pos: pos, card: card,
         meaning: t.upright ? card.up : card.rv
       };
     });
-    var code = 'RC-' + new Date().getFullYear() + '-' + U.pad(U.hash(JSON.stringify(c.story || '')).toString(36).slice(0, 4).toUpperCase(), 4);
+    var code = 'RC-' + new Date(c.createdAt || Date.now()).getFullYear() + '-' + U.pad(U.hash(JSON.stringify(c.story || '')).toString(36).slice(0, 4).toUpperCase(), 4);
     var stampCn = H.length && H[0].score >= 60 ? '假说成立' : (H.length ? '待观察' : '资料不足');
     var stampJp = H.length && H[0].score >= 60 ? '仮説成立' : (H.length ? '要観察' : '資料不足');
     return {
       code: code, stamp: stampCn, stampCn: stampCn, stampJp: stampJp,
-      spectrum: sp, analyst: an, assoc: assoc, birth: birth,
+      spectrum: sp, analyst: an, assoc: assoc, birth: birth, sct: sentenceProfile(c),
+      reportVersion:1, caseId:c.caseId, generatedAt:c.updatedAt || c.createdAt,
       hypotheses: H, tarot: tarotRows,
       tarotSpread: c.tarotSpread, tarotQuestion: c.tarotQuestion,
       prescription: prescription(H.map(function (h) { return h.id; })),

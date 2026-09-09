@@ -281,18 +281,18 @@
       '<form class="paper-form" id="cinForm" autocomplete="off"><span class="paper-pin"></span>' +
       '<div class="pf-head"><div class="pf-title">' + O('咨 询 单', '相 談 票') + '</div><div class="pf-sub">' + O('RADIO CLUB ／ 梦侦探事务所 ／ 只收故事', 'RADIO CLUB ／ 夢探偵事務所 ／ 物語だけ') + '</div></div>' +
       '<div class="pf-body">' +
-      '<div class="pf-row"><label>' + O('怎么称呼你', 'どう呼べばいい') + ' *</label><input type="text" id="cfHandle" value="' + U.esc(c.handle) + '" placeholder="' + O('真名或昵称', '本名かニックネーム') + '"></div>' +
+      '<div class="pf-row"><label for="cfHandle">' + O('怎么称呼你', 'どう呼べばいい') + ' *</label><input type="text" id="cfHandle" maxlength="60" value="' + U.esc(c.handle) + '" placeholder="' + O('真名或昵称', '本名かニックネーム') + '"></div>' +
       '<div class="pf-row"><label>' + RC.i18n.t('category') + ' *</label><div class="pf-chips" id="cfCat">' +
         ['人际关系', '工作', '恋爱', '丧失', '记忆', '自我', '其他'].map(function (v) {
-          return '<span class="pchip' + (c.category === v ? ' on' : '') + '" data-v="' + v + '">' + O(v, CAT_JP[v]) + '</span>';
+          return '<button type="button" class="pchip' + (c.category === v ? ' on' : '') + '" data-v="' + v + '">' + O(v, CAT_JP[v]) + '</button>';
         }).join('') + '</div></div>' +
-      '<div class="pf-row"><label>' + RC.i18n.t('orderStory') + ' *</label><textarea id="cfStory" placeholder="' + O('想到什么写什么，越乱越好。', '思ったまま書いて。乱れていていい。') + '">' + U.esc(c.story) + '</textarea></div>' +
-      '<div class="pf-row"><label>' + RC.i18n.t('orderDream') + '</label><textarea id="cfDream" style="min-height:52px" placeholder="' + O('片段也可以。', '断片でもいい。') + '">' + U.esc(c.dream) + '</textarea></div>' +
+      '<div class="pf-row"><label for="cfStory">' + RC.i18n.t('orderStory') + ' *</label><textarea id="cfStory" maxlength="4000" placeholder="' + O('想到什么写什么，越乱越好。', '思ったまま書いて。乱れていていい。') + '">' + U.esc(c.story) + '</textarea></div>' +
+      '<div class="pf-row"><label for="cfDream">' + RC.i18n.t('orderDream') + '</label><textarea id="cfDream" maxlength="4000" style="min-height:52px" placeholder="' + O('片段也可以。', '断片でもいい。') + '">' + U.esc(c.dream) + '</textarea></div>' +
       '<div class="pf-row"><label>' + RC.i18n.t('orderFreq') + '</label><div class="pf-chips" id="cfFreq">' +
         ['每夜', '每周数次', '偶尔', '几乎不做'].map(function (v) {
-          return '<span class="pchip' + (c.dreamFreq === v ? ' on' : '') + '" data-v="' + v + '">' + O(v, FREQ_JP[v]) + '</span>';
+          return '<button type="button" class="pchip' + (c.dreamFreq === v ? ' on' : '') + '" data-v="' + v + '">' + O(v, FREQ_JP[v]) + '</button>';
         }).join('') + '</div></div>' +
-      '<div class="pf-row"><label>' + O('反复想起的一句话 / 画面', '繰り返し浮かぶ一言 / 場面') + '</label><input type="text" id="cfRec" value="' + U.esc(c.recurring) + '"></div>' +
+      '<div class="pf-row"><label for="cfRec">' + O('反复想起的一句话 / 画面', '繰り返し浮かぶ一言 / 場面') + '</label><input type="text" id="cfRec" maxlength="500" value="' + U.esc(c.recurring) + '"></div>' +
       '<div class="pf-msg" id="cfMsg"></div>' +
       '<div class="pf-foot"><button type="submit" class="btn red mini">' + O('交给她', '彼女に渡す') + '</button>' +
       '<button type="button" class="btn ghost mini" id="cfLater">' + O('先不填', 'あとで') + '</button></div>' +
@@ -313,15 +313,17 @@
       var story = U.el('cfStory').value.trim();
       var catEl = menuSel('#cfCat .pchip.on');
       var freqEl = menuSel('#cfFreq .pchip.on');
-      if (!handle) { msg.innerHTML = '<span class="red">※ ' + RC.i18n.t('needHandle') + '</span>'; return; }
-      if (!catEl) { msg.innerHTML = '<span class="red">※ ' + RC.i18n.t('needCat') + '</span>'; return; }
-      if (story.length < 8) { msg.innerHTML = '<span class="red">※ ' + RC.i18n.t('needStory') + '</span>'; return; }
-      RC.case.save({
+      if (!handle) { msg.innerHTML = '<span class="red">※ ' + RC.i18n.t('needHandle') + '</button>'; return; }
+      if (!catEl) { msg.innerHTML = '<span class="red">※ ' + RC.i18n.t('needCat') + '</button>'; return; }
+      if (story.length < 8) { msg.innerHTML = '<span class="red">※ ' + RC.i18n.t('needStory') + '</button>'; return; }
+      var patch={
         handle: handle, category: catEl.getAttribute('data-v'), story: story,
         dream: U.el('cfDream').value.trim(),
         dreamFreq: freqEl ? freqEl.getAttribute('data-v') : '',
         recurring: U.el('cfRec').value.trim()
-      });
+      };
+      var error=RC.model.formError(patch);if(error){msg.textContent=error;return;}
+      if(!RC.case.save(patch))return;
       if (RC.scene.renderTray) RC.scene.renderTray();
       closeForm();
     });

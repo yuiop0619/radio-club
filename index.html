@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RADIO CLUB</title>
 <meta name="description" content="RADIO CLUB —— 一间只存在于网络上的酒吧。梦侦探萨弗兰用塔罗与精神分析，替你把线头理清楚。致敬今敏《红辣椒》。">
@@ -45,8 +46,8 @@
   <div class="vp" id="vp">
     <div class="shot" id="shHall"><img src="assets/img/scene-hall.jpg" alt="RADIO CLUB 店内：两位酒保站在吧台后，侦探在另一张桌子边看书"></div>
     <div class="shot" id="shPov"><img src="assets/img/scene-seated.jpg" alt="吧台"></div>
-    <img class="vfig det" id="figDet" src="assets/img/puppet-det.png" alt="萨弗兰坐在吧台边">
-    <img class="vfig srv" id="figSrv" src="assets/img/puppet-lian.png" alt="酒保端菜上桌">
+    <img class="vfig det" id="figDet" src="assets/img/puppet-det-768.webp" alt="萨弗兰坐在吧台边">
+    <img class="vfig srv" id="figSrv" src="assets/img/puppet-lian-768.webp" alt="酒保端菜上桌">
     <div class="shot look" id="shBt"><img id="shBtImg" alt="酒保递菜单"></div>
     <div class="shot look" id="shDet"><img src="assets/img/det-push-form.jpg" alt="侦探推来咨询单"></div>
     <div class="dishes3d" id="dishes"></div>
@@ -187,47 +188,14 @@
 
 </div>
 
-<script src="assets/js/store.js?v=2"></script>
-<script src="assets/js/i18n.js?v=2"></script>
-<script src="assets/js/ui.js?v=2"></script>
-<script src="assets/js/puppet.js?v=2"></script>
-<script src="assets/js/haunt.js?v=2"></script>
-<script src="assets/js/scene.js?v=2"></script>
-<script>
-RC.ui.chrome({ title: RC.i18n.t('counter'), path: 'index.html' });
-document.getElementById('navMount').innerHTML = RC.ui.nav('index.html');
-document.getElementById('footMount').innerHTML = RC.ui.siteFoot({ active: 'index.html' });
-
-/* ---------- 你的吧台（账单） ---------- */
-var trayBox = document.getElementById('trayBox');
-function renderTray() {
-  var t = RC.i18n.t, of = RC.i18n.of;
-  var tr = RC.bar.tray(), total = RC.bar.count();
-  var served = RC.bar.served();
-  var items = tr.length ? tr.map(function (x) {
-    var d = RC.bar.byId(x.id);
-    var left = x.n - (served[x.id] || 0);
-    var state = d.kind === 'food' && left > 0
-      ? '<span class="ti-by">' + of({ cn: '厨房里 · 稍后上', jp: '厨房で · 後ほど' }) + '</span>'
-      : (d.kind === 'food' ? '<span class="ti-by">' + of({ cn: '已上桌', jp: 'お出し済み' }) + '</span>'
-         : '<span class="ti-by">' + RC.util.esc(d.by) + of({ cn: ' 调', jp: ' 担当' }) + '</span>');
-    return '<div class="tray-item"><span class="ti-n">×' + x.n + '</span><span>' + RC.util.esc(of({ cn: d.cn, jp: d.jp })) + '</span>' +
-      state + '<span class="ti-x" data-rm="' + x.id + '">' + of({ cn: '撤掉', jp: '取消' }) + '</span></div>';
-  }).join('') : '<div class="tray-empty">' + t('trayEmpty') + '</div>';
-  trayBox.innerHTML =
-    '<div class="tray-head">' + t('yourCounter') + '<span class="cnt">' + t('tonightTotal') + ' ' + total + ' ' + t('items') + '</span></div>' + items +
-    (tr.length ? '<div class="tray-foot"><button type="button" class="btn ghost mini" id="trayClear">' + of({ cn: '清空吧台', jp: 'カウンターを空に' }) + '</button>' +
-      '<a class="btn mini" href="order.html">' + of({ cn: '就这些了 · 去讲我的事 →', jp: 'これで全部 · 話を聞いてもらう →' }) + '</a></div>' : '');
-}
-trayBox.addEventListener('click', function (e) {
-  var rm = e.target.closest('[data-rm]');
-  if (rm) { RC.bar.remove(rm.getAttribute('data-rm')); renderTray(); if (RC.scene) RC.scene.renderDishes(false); return; }
-  if (e.target.id === 'trayClear') { RC.bar.clear(); renderTray(); if (RC.scene) RC.scene.renderDishes(false); }
-});
-RC.scene = RC.scene || {};
-RC.scene.renderTray = renderTray;
-renderTray();
-if (RC.i18n.onChange) RC.i18n.onChange(renderTray);
-</script>
+<script src="assets/js/store.js?v=3"></script>
+<script src="assets/js/model.js?v=3"></script>
+<script src="assets/js/share.js?v=3"></script>
+<script src="assets/js/i18n.js?v=3"></script>
+<script src="assets/js/ui.js?v=3"></script>
+<script src="assets/js/puppet.js?v=3"></script>
+<script src="assets/js/haunt.js?v=3"></script>
+<script src="assets/js/scene.js?v=3"></script>
+<script src="assets/js/index-page.js?v=3"></script>
 </body>
 </html>

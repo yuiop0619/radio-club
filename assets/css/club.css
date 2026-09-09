@@ -846,3 +846,13 @@ body.floor17 .site{animation:floorShake .3s steps(2,end) 2;}
   .hero-puppet{right:4%;bottom:4px;width:88px;}
   .hp-cap{font-size:9px;letter-spacing:.06em;padding:1px 6px;}
 }
+
+/* Input semantics and readable failure states. */
+button.chip,button.pchip,button.tcard{font:inherit;color:inherit;}
+button.tcard{padding:0;background:transparent;border:0;text-align:inherit;}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px;}
+.sct-q{display:block;}
+.share-preview{white-space:pre-wrap;overflow-wrap:anywhere;max-height:28rem;overflow:auto;font:inherit;}
+.storage-error{position:sticky;top:0;z-index:9999;padding:12px;background:#3d201c;color:#fff;border:2px solid #e5ad64;}
+.bars .bar small{max-width:30%;overflow-wrap:anywhere;}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto!important;}}

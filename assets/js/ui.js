@@ -85,9 +85,9 @@
 
   /* ---------- 皮影头像（真实皮影照片风：黑底透光皮影，背光容器 screen 混合裁出头肩） ---------- */
   var AV_IMG = {
-    det: 'assets/img/puppet-det.png',
-    master: 'assets/img/puppet-iwao.png',
-    other: 'assets/img/puppet-lian.png'
+    det: 'assets/img/puppet-det-768.webp',
+    master: 'assets/img/puppet-iwao-768.webp',
+    other: 'assets/img/puppet-lian-768.webp'
   };
   function avatar(host, kind) {
     var src = AV_IMG[kind] || AV_IMG.det;
@@ -97,25 +97,17 @@
 
   /* ---------- 打字机 ---------- */
   function type(el, text, speed, done) {
-    speed = speed || 26;
-    var i = 0;
-    el.innerHTML = '<span class="tw"></span><span class="caret">&nbsp;</span>';
-    var tw = el.querySelector('.tw');
-    var caret = el.querySelector('.caret');
-    var dlg = el.closest('.dialog');
-    if (dlg) dlg.classList.add('talking');
-    var t = setInterval(function () {
-      i++;
-      tw.textContent = text.slice(0, i);
-      if (i % 2) { if (dlg) dlg.classList.toggle('talking'); }
-      if (i >= text.length) {
-        clearInterval(t);
-        if (caret) caret.remove();
-        if (dlg) dlg.classList.remove('talking');
-        if (done) done();
-      }
-    }, speed);
-    return function cancel() { clearInterval(t); tw.textContent = text; if (caret) caret.remove(); if (dlg) dlg.classList.remove('talking'); if (done) done(); };
+    if(el._cancelType)el._cancelType();
+    text=String(text || '');var i=0,finished=false,t;
+    el.innerHTML='<span class="tw"></span>';
+    var tw=el.querySelector('.tw'),skip=document.createElement('button');
+    skip.type='button';skip.className='btn ghost small';skip.textContent=I.of({cn:'显示全部',jp:'すべて表示'});
+    function finish(){if(finished)return;finished=true;clearInterval(t);tw.textContent=text;skip.remove();el._cancelType=null;if(done)done();}
+    el._cancelType=finish;
+    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return finish;}
+    el.appendChild(skip);skip.addEventListener('click',finish);
+    t=setInterval(function(){if(!el.isConnected){clearInterval(t);return;}tw.textContent=text.slice(0,++i);if(i>=text.length)finish();},speed||26);
+    return finish;
   }
 
   /* ---------- 对话气泡 ---------- */
@@ -135,10 +127,14 @@
     return { el: d, line: line };
   }
 
+  function portrait(src,alt){
+    var base=src.replace(/\.png$/,'');
+    return '<picture><source type="image/webp" srcset="'+base+'-160.webp 160w, '+base+'-320.webp 320w, '+base+'-640.webp 640w" sizes="(max-width:600px) 80px, 160px"><img src="'+base+'-320.png" width="320" height="320" loading="lazy" decoding="async" alt="'+U.esc(alt)+'"></picture>';
+  }
   window.RC = window.RC || {};
   RC.ui = {
     BASE_URL: BASE_URL, NAV: NAV,
     chrome: chrome, nav: nav, counter: counter, siteFoot: siteFoot,
-    avatar: avatar, type: type, dialog: dialog, bi: bi, txt: txt
+    portrait:portrait, avatar: avatar, type: type, dialog: dialog, bi: bi, txt: txt
   };
 })();
