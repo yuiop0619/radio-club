@@ -89,6 +89,9 @@ def main():
     sftp = c.open_sftp()
     pairs = [('server/api.cjs', 'server/api.cjs'),
              ('server/file-repo.cjs', 'server/file-repo.cjs'),
+             ('server/llm.cjs', 'server/llm.cjs'),
+             ('server/prompt.cjs', 'server/prompt.cjs'),
+             ('server/interpret.cjs', 'server/interpret.cjs'),
              ('cloudfunctions/treehole/application.js', 'cloudfunctions/treehole/application.js'),
              ('cloudfunctions/treehole/service.js', 'cloudfunctions/treehole/service.js'),
              ('cloudfunctions/treehole/index.js', 'cloudfunctions/treehole/index.js')]
@@ -96,7 +99,23 @@ def main():
         local = os.path.join(REPO, rel.replace('/', os.sep))
         if os.path.exists(local):
             sftp.put(local, APIROOT + '/' + remote_rel)
+    # 叙事层配置：本地 .env.llm 存在才注入，不存在则保持服务端原样（功能自动降级）
+    env_local = os.path.join(REPO, '.env.llm')
+    if os.path.exists(env_local):
+        sftp.put(env_local, APIROOT + '/.env')
+        print('    已上传 .env.llm -> %s/.env' % APIROOT)
     sftp.close()
+    if os.path.exists(env_local):
+        # 用 drop-in 挂 EnvironmentFile，不改动原 unit
+        out, err, rc = run('sudo mkdir -p /etc/systemd/system/rc-api.service.d && '
+                           'printf "[Service]\\nEnvironmentFile=-%s/.env\\n" | '
+                           'sudo tee /etc/systemd/system/rc-api.service.d/llm.conf >/dev/null && '
+                           'U=$(systemctl show rc-api -p User --value); [ -z "$U" ] && U=root; '
+                           'G=$(systemctl show rc-api -p Group --value); [ -z "$G" ] && G=root; '
+                           'sudo chown "$U:$G" %s/.env && sudo chmod 600 %s/.env && '
+                           'sudo systemctl daemon-reload' % (APIROOT, APIROOT, APIROOT))
+        if rc != 0:
+            print('    警告：配置注入未完成 ->', err[-200:])
     out, err, rc = run('sudo systemctl restart rc-api && sleep 1 && sudo systemctl is-active rc-api')
     print('    rc-api:', out or err)
     out, err, rc = run('sudo nginx -t 2>&1 | tail -1 && sudo systemctl reload nginx && sleep 1 && sudo systemctl is-active nginx')

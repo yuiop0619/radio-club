@@ -3,8 +3,15 @@ const {randomBytes,createHash}=require('node:crypto');
 const {application}=require('../cloudfunctions/treehole/application');
 const hash=s=>createHash('sha256').update(s).digest('hex');
 const token=()=>randomBytes(32).toString('base64url');
+
+/* Phase 4：解读层惰性加载。文件缺失或依赖异常也不能拖垮其他接口。 */
+let interpretLib=null;
+function getInterpret(){
+  if(interpretLib===null){try{interpretLib=require('./interpret.cjs');}catch{interpretLib=false;}}
+  return interpretLib||null;
+}
 function createApi(repo,{origin,adminIds=[],clock=Date.now}={}){
-  const handle=application(repo,{isAdmin:uid=>adminIds.includes(uid),clock}),rates=new Map();
+  const handle=application(repo,{isAdmin:uid=>adminIds.includes(uid),clock}),rates=new Map(),aiRates=new Map();
   let requests=0,errors=0;
   return async function api(req,res){
     requests++;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
@@ -22,6 +29,17 @@ function createApi(repo,{origin,adminIds=[],clock=Date.now}={}){
       for await(const chunk of req){size+=chunk.length;if(size>160*1024)throw Error('PAYLOAD_TOO_LARGE');chunks.push(chunk);}
       let body;try{body=JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{throw Error('INVALID_INPUT');}
       if(!body||typeof body!=='object'||Array.isArray(body))throw Error('INVALID_INPUT');
+      /* Phase 4：/api/interpret —— 规则当证据，模型负责措辞。匿名可用（评委不必注册），独立限流。 */
+      if(req.url==='/api/interpret'){
+        const key=ip+'|ai';let ai=aiRates.get(key);
+        if(!ai||now-ai.start>60000)ai={start:now,n:0};
+        if(++ai.n>10)return send(429,{ok:false,error:'RATE_LIMIT'});
+        aiRates.set(key,ai);
+        const lib=getInterpret();
+        if(!lib)return send(200,{ok:true,data:{text:null,source:'unavailable',ms:0}});
+        const r=await lib.interpret(body.evidence,{handle:body.handle});
+        return send(200,{ok:true,data:{text:r.text||null,source:r.source,model:r.model||null,ms:r.ms||0}});
+      }
       const cookie=/\brc_session=([\w-]{43})\b/.exec(req.headers.cookie||'')?.[1];
       const session=cookie?await repo.get(null,'rc_sessions',hash(cookie)):null;
       let uid=session&&session.expires>now?session.uid:null;

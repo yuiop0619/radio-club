@@ -2,7 +2,7 @@
 
 致敬今敏导演《红辣椒》中网络酒吧的同人站点。写下委托，抽塔罗牌，与七位预设角色对话，完成词联想和句子完成测试，生成一份用于娱乐与自我梳理的报告。
 
-新版采用 Vue 3 + TypeScript + Pinia + Vite，保留原有 JavaScript 叙事页面，并增加 Node.js 后端。分析仍使用本地关键词、规则和预设文本，不调用大模型；分数不是心理量表，也不构成医疗或心理诊断。
+新版采用 Vue 3 + TypeScript + Pinia + Vite，保留原有 JavaScript 叙事页面，并增加 Node.js 后端。分析本身由本地关键词、规则与预设文本完成，分数不是心理量表，也不构成医疗或心理诊断。在此之上，鉴定书可选用一台外部叙事模型（本地 Qwen 或云 API），把规则给出的结论改写成一份鉴定报告；模型未配置、超时或断网时自动回退本地模板，页面不会空白。原则是：规则负责「看到什么」，模型负责「怎么说」。
 
 ## 运行
 
@@ -50,6 +50,17 @@ npm run images
 
 Node 内置测试覆盖模型、存储及服务端操作；Playwright 覆盖原有页面及新版点菜、档案和恢复流程，测试使用隔离数据。`npm run images` 从清理后的原图生成 WebP 与会诊头像 PNG 回退。CI 执行类型检查、构建、逻辑与浏览器回归。
 
+## 叙事模型（可选）
+
+鉴定书写完之后，站点可以把规则结论交给一台叙事模型改写成正式报告。
+
+```bash
+cp .env.llm.example .env.llm   # 填入 RC_LLM_BASE_URL / RC_LLM_MODEL / RC_LLM_API_KEY
+npm run deploy                 # 部署时自动上传到服务器，并挂 systemd drop-in
+```
+
+不配也能跑：未配置、超时或断网时，前端自动用本地模板拼一段附注，页面完整可用。
+
 ## 目录
 
 ```text
@@ -62,7 +73,13 @@ assets/js/*-page.js    页面控制器
 assets/js/treehole*    本地纸条、公开操作与重试队列
 assets/js/cloud-config.js  服务配置（默认同站 Node，连接需主动选择）
 src/                  Vue / TypeScript 交互与状态
-server/               Node API 与单进程持久化适配器
+server/               Node API、单进程持久化适配器与叙事模型层
+  llm.cjs             统一模型调用（OpenAI 兼容；云 API 与本地推理共用）
+  prompt.cjs          证据白名单裁剪 + 机器人格提示词
+  interpret.cjs       证据 → 叙事，失败一律降级而不抛错
+content/              叙事文案唯一来源（menu / masters / tarot / i18n / hypotheses）
+tools/build-content.cjs  content/*.json → assets/js/content-bundle.js（构建期生成）
+assets/js/interpret.js  前端接入叙事层：运转日志 → 逐字浮现，失败回退本地模板
 assets/img/            原始素材及响应式衍生资源
 cloudfunctions/treehole/  带鉴权、事务与幂等控制的云函数
 tests/                 逻辑、浏览器回归及模拟数据库

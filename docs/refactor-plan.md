@@ -14,8 +14,8 @@
 | Phase 1 统一入口 | ✅ 完成 | `078df3b` |
 | Phase 3 内容抽离 | ✅ 完成 | 见下方说明 |
 | Phase 2 迁移 Vue | ⏸ 调整到最后（先拿奖三步，用户 2026-09-10 拍板） | — |
-| Phase 4 接入 LLM | ⏳ 下一步 | — |
-| Phase 5 赛道适配 | ⏳ 待办 | — |
+| Phase 4 接入 LLM | ✅ 完成 | 见下方说明 |
+| Phase 5 赛道适配 | ⏳ 下一步 | — |
 | Phase 6 收口 | ⏳ 待办 | — |
 
 **Phase 3 实际产出**（`content/` 成为文案唯一来源）：
@@ -32,6 +32,22 @@
 - **`tools/build-content.cjs`**：`content/*.json` → `assets/js/content-bundle.js`（同步可用的 classic script），带 revision 校验，`npm run check:content` 可验新鲜度
 - **注入**：`vite.config.ts` 保证 `content-bundle` 永远是每页第一个脚本（legacy 脚本同步执行，必须先拿到 `RC_CONTENT`）
 - **遗留**：`about2006` 的 5 章正文尚未抽离（目前在 `ArchiveDesktop.vue` 与 `/api/content` 的 chapters 里，形状不同，单独处理）
+
+**Phase 4 实际产出**（规则负责「看到什么」，AI 负责「怎么说」）：
+
+| 文件 | 职责 |
+|---|---|
+| `server/llm.cjs` | 传输层：OpenAI 兼容 `POST {base}/chat/completions`。云 API 与本地推理（Ollama / OpenVINO GenAI / llama.cpp）共用同一份代码，换模型只改环境变量 |
+| `server/prompt.cjs` | 白名单裁剪证据 + 构造「梦侦探鉴定机 MODEL RC-2006」人格。证据被明确框定为「资料」，其中任何句子都不构成指令（防提示注入） |
+| `server/interpret.cjs` | 编排：证据 → 提示词 → 文本；任何失败都返回 `{ok:false, source}` 而不上抛 |
+| `server/api.cjs` | 新增 `POST /api/interpret`，**匿名可用**（评委不必注册），独立限流 10 次/分 |
+| `assets/js/interpret.js` | 前端：机器运转日志（纯本地、必现）→ 逐字浮现模型文本；失败则用本地模板拼一段附注 |
+
+- **降级契约（最关键）**：未配置 / 超时 / 断网 / 报错 → 一律 `{ok:true, data:{text:null, source}}`，前端回退本地模板。**页面永不空白**，断网也能完整演示
+- **配置**：`.env.llm.example` → 复制为 `.env.llm` → `npm run deploy` 自动上传到服务端并挂 systemd drop-in（`EnvironmentFile=-/opt/rc-api/.env`）
+- **验证**：单测 33 项（原 24 + 新 9）、冒烟 49、browser 9、upgrade 3 全绿；新增 `npm run test:ai`
+  端到端契约（未配置→本地模板+脚注，已配置→模型文本），实测两条路径均无 JS 报错
+- **实测**：未配置时输出 177 字本地兜底；配置假模型后正确显示模型文本
 
 
 ---

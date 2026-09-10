@@ -1035,11 +1035,11 @@ body.has-demo-badge .amb-btn{bottom:48px;}
   .nav::-webkit-scrollbar-thumb{background:var(--line);}
 }
 
-/* 版心加宽到 1180 后：中等屏幕（641–1240）导航不再折行，改为横向滚动 */
-@media (min-width:641px) and (max-width:1240px){
-  .nav{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;scrollbar-width:thin;-webkit-overflow-scrolling:touch;}
-  .nav a{flex-shrink:0;}
-  .nav .counter-mini{flex-shrink:0;}
-  .nav::-webkit-scrollbar{height:6px;}
-  .nav::-webkit-scrollbar-thumb{background:var(--line);}
-}
+/* ── Phase 4：机器附注（AI 叙事层）。规则负责看到什么，AI 负责怎么说 ── */
+.ai-sec{margin-top:20px;border-top:1px dashed var(--line);padding-top:14px;}
+.ai-sec h3{color:var(--amber);}
+.ai-sec h3 .jp{color:var(--text-faint);font-size:10px;}
+.ai-log{min-height:3.4em;transition:opacity .35s ease;color:var(--text-faint);line-height:1.7;}
+.ai-log b{color:var(--ok);font-weight:normal;}
+.ai-body{min-height:1.6em;}
+.ai-body .tw{display:inline;white-space:pre-wrap;}

@@ -115,5 +115,10 @@ async function refresh(page){await page.evaluate(async()=>{const known=RC.store.
     await scenario('static server refuses repository internals',async()=>{for(const p of ['/.git/config','/cloudfunctions/treehole/index.js','/assets/%2e%2e/%2e%2e/package.json'])assert.equal((await fetch(base+p)).status,404);});
     fs.writeFileSync(path.join(__dirname,'artifacts/results.json'),JSON.stringify({passed:results},null,2));
     console.log(results.length+' browser scenarios passed');
-  }finally{await browser.close();server.close();}
-})().catch(e=>{console.error(e);server.close();process.exitCode=1;});
+  }finally{
+    /* browser.close() 与 server.close() 可能被 keep-alive 连接吊死，必须加兜底并显式退出 */
+    await Promise.race([browser.close().catch(()=>{}),new Promise(r=>setTimeout(r,3000))]);
+    if(server.closeAllConnections)server.closeAllConnections();
+    server.close();
+  }
+})().then(()=>process.exit(process.exitCode||0)).catch(e=>{console.error(e);process.exit(1);});

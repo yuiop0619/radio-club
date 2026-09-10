@@ -9,6 +9,7 @@
     "test:browser": "node tests/browser.cjs",
     "test:second": "node tests/second-batch.cjs",
     "test:upgrade": "node tests/upgrade-browser.cjs",
+    "test:ai": "node tests/semantic-layer.cjs",
     "test:remote": "node tests/remote-check.cjs",
     "deploy": "python tools/deploy.py",
     "deploy:fast": "python tools/deploy.py --no-build",

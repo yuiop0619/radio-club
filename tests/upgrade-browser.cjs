@@ -46,6 +46,11 @@ async function main(){
     const b=await context(),bp=await b.newPage();await bp.goto(base+'/account.html');await bp.getByLabel('已有恢复码',{exact:true}).fill(recovery);await bp.getByRole('button',{name:'恢复身份',exact:true}).click();await bp.waitForLoadState('load');await bp.getByRole('button',{name:'连接服务',exact:true}).click();await bp.getByLabel('用这份记录替换本机对应内容，并保留恢复前备份').check();await bp.getByRole('button',{name:'恢复到本机',exact:true}).click();await bp.getByText('记录已恢复。重新打开吧台或档案馆即可看到。',{exact:true}).waitFor();
     assert.equal(await bp.evaluate(()=>RC.store.get('archive_v2').last),3);assert.equal(await bp.evaluate(()=>RC.case.get().story),'');await a.close();await b.close();console.log('PASS consent, no original story by default, recovery and second-browser restore');
     assert.deepEqual(errors,[]);
-  }finally{await browser?.close();await new Promise(r=>server.close(r));}
+  }finally{
+    /* 与 browser.cjs 同理：close 会被 keep-alive 连接吊死，必须超时兜底并显式退出 */
+    await Promise.race([(browser?browser.close():Promise.resolve()).catch(()=>{}),new Promise(r=>setTimeout(r,3000))]);
+    if(server.closeAllConnections)server.closeAllConnections();
+    await new Promise(r=>server.close(r));
+  }
 }
-main().catch(e=>{console.error(e);process.exitCode=1;});
+main().then(()=>process.exit(process.exitCode||0)).catch(e=>{console.error(e);process.exit(1);});

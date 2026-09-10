@@ -197,6 +197,8 @@ if(shareError) {
 
   document.getElementById('report').innerHTML = h;
   RC.i18n.apply(document);
+  /* Phase 4：规则已给出「看到什么」，这里补一层「怎么说」。失败自动回退本地模板。 */
+  if (RC.interpret) RC.interpret.attach(v, c);
 }
 
 })();
