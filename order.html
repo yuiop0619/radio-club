@@ -38,107 +38,14 @@
     <div id="navMount"></div>
   </header>
 
-  <div class="wrap">
-
-    <div id="introMount"></div>
-
-    <p class="hint">编辑保留当前测试；新委托归档当前记录（最多保留五份）并开始新测试。 / 新規依頼は新しいテストを開始します。</p>
-    <label for="caseMode">处理方式 / モード</label><select id="caseMode"><option value="edit">编辑当前委托 / 編集</option><option value="new">新建委托 / 新規</option></select>
-    <label for="caseHistory">恢复历史委托 / 履歴</label><select id="caseHistory"><option value="">选择记录 / 選択</option></select><button type="button" id="restoreCase" class="btn ghost">恢复 / 復元</button>
-    <form id="orderForm" autocomplete="off">
-      <div class="panel">
-        <div class="p-head">
-          <h2><span class="i18n-cn">委托受理</span><span class="i18n-jp">ご用件承り</span></h2>
-          <span class="p-en">ORDER</span>
-          <span class="p-note">※ 带 * 为必填</span>
-        </div>
-        <div class="p-body">
-
-          <div class="row">
-            <div class="field">
-              <label class="f" for="fHandle">怎么称呼你 <span class="req">*</span></label>
-              <input type="text" id="fHandle" maxlength="60" placeholder="真名或昵称都行">
-            </div>
-            <div class="field">
-              <label class="f" for="fAge">年龄段</label>
-              <select id="fAge">
-                <option value="">（不说也行）</option>
-                <option>十几岁</option><option>二十几岁</option><option>三十几岁</option><option>四十几岁</option><option>五十岁以上</option>
-              </select>
-            </div>
-            <div class="field">
-              <label class="f" for="fBirth">生日</label>
-              <input type="date" id="fBirth">
-              <div class="hint">用于数秘与本命牌，可留空</div>
-            </div>
-          </div>
-
-          <div class="field">
-            <span class="f" id="categoryLabel">这件事属于哪一类 <span class="req">*</span></span>
-            <div class="radio-row" id="catRow" role="group" aria-labelledby="categoryLabel">
-              <button type="button" class="chip" data-v="人际关系">人际关系</button>
-              <button type="button" class="chip" data-v="工作">工作</button>
-              <button type="button" class="chip" data-v="恋爱">恋爱</button>
-              <button type="button" class="chip" data-v="丧失">丧失／离别</button>
-              <button type="button" class="chip" data-v="记忆">记忆／遗忘</button>
-              <button type="button" class="chip" data-v="自我">自我／身份</button>
-              <button type="button" class="chip" data-v="其他">其他</button>
-            </div>
-          </div>
-
-          <div class="field">
-            <label class="f" for="fStory">把这件事讲给我听 <span class="req">*</span></label>
-            <textarea id="fStory" maxlength="4000" placeholder="想到什么写什么，不用组织语言。越乱越好，乱的地方就是线头。"></textarea>
-            <div class="hint" id="storyHint">至少写一句话。她真的会逐字读。</div>
-          </div>
-
-          <div class="field">
-            <label class="f" for="fDream">最近反复做的梦</label>
-            <textarea id="fDream" maxlength="4000" style="min-height:64px" placeholder="片段也可以。记不清就写记不清。"></textarea>
-          </div>
-
-          <div class="row">
-            <div class="field">
-              <span class="f" id="frequencyLabel">做梦的频率</span>
-              <div class="radio-row" id="freqRow" role="group" aria-labelledby="frequencyLabel">
-                <button type="button" class="chip" data-v="每夜">每夜</button>
-                <button type="button" class="chip" data-v="每周数次">每周数次</button>
-                <button type="button" class="chip" data-v="偶尔">偶尔</button>
-                <button type="button" class="chip" data-v="几乎不做">几乎不做</button>
-              </div>
-            </div>
-            <div class="field">
-              <span class="f" id="paralysisLabel">是否有过"醒着但动不了"的经历</span>
-              <div class="radio-row" id="parRow" role="group" aria-labelledby="paralysisLabel">
-                <button type="button" class="chip" data-v="1">有过</button>
-                <button type="button" class="chip" data-v="0">没有</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="field">
-            <label class="f" for="fRecurring">最近反复想起的一句话或一个画面</label>
-            <input type="text" id="fRecurring" maxlength="500" placeholder="例如：某人说过的某句话 / 某个走廊 / 某扇关不上的门">
-          </div>
-
-          <div class="center mt">
-            <button type="submit" class="btn red" data-i18n="submitOrder">交给吧台</button>
-            <button type="button" class="btn ghost" id="btnClear" data-i18n="rewrite">重写</button>
-          </div>
-          <div class="hint center" id="formMsg"></div>
-
-        </div>
-      </div>
-    </form>
-
-    <div id="doneMount" class="hidden"></div>
-
-  </div>
+  <div class="wrap" id="order-app"></div>
 
 <div id="footMount"></div>
 
 </div>
 </div><!-- /.site -->
+
+<script type="module" src="/src/main.ts"></script>
 
 </body>
 </html>

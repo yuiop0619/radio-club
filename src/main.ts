@@ -55,3 +55,9 @@ if(document.getElementById('psyche-app')) {
   document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'psyche.html'});
   const {default:Psyche}=await import('./PsychePage.vue');createApp(Psyche).mount('#psyche-app');
 }
+if(document.getElementById('order-app')) {
+  rc.ui.chrome({title:rc.i18n.t('order'),path:'order.html'});
+  document.getElementById('navMount')!.innerHTML=rc.ui.nav('order.html');
+  document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'order.html'});
+  const {default:Order}=await import('./OrderPage.vue');createApp(Order).mount('#order-app');
+}

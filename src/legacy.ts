@@ -23,11 +23,13 @@ export interface Legacy {
   model: {
     normalize(value:unknown): Record<string, unknown>;
     parse?(value:unknown): Record<string, unknown>;
+    formError?(patch:unknown): string | null;
   };
   case: {
     get(): Record<string, unknown>;
     has?(): boolean;
     save?(value:unknown): boolean;
+    start?(value:unknown): boolean;
   };
   ui: {
     chrome(options: {title:string;path:string}): void;
