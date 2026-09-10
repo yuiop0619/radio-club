@@ -50,8 +50,11 @@ export interface Legacy {
   tarot: {
     spreads: Record<string, Spread>;
     DOMAINS?: any[];
-    dimOf?(id:string, question:string): {cn:string;jp:string}|null;
+    byId?(id:number): any;
+    sealOf?(id:number): string;
+    dimOf?(id:number, question:string): {cn:string;jp:string}|null;
     draw?(): unknown;
+    drawFor?(spread:string): unknown;
   };
   interpret?: { attach(v:unknown, c:unknown): void; localNote(v:unknown): string };
   shareCard?: { init(): void };

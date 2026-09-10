@@ -13,7 +13,7 @@
 | Phase 0 止血 | ✅ 完成 | `078df3b` |
 | Phase 1 统一入口 | ✅ 完成 | `078df3b` |
 | Phase 3 内容抽离 | ✅ 完成 | 见下方说明 |
-| Phase 2 迁移 Vue | ⏸ 调整到最后（先拿奖三步，用户 2026-09-10 拍板） | — |
+| Phase 2 迁移 Vue | ✅ 完成 | `b909735` / `f0513be` |
 | Phase 4 接入 LLM | ✅ 完成 | 见下方说明 |
 | Phase 5 赛道适配 | ✅ 5a 机器 + 5b 导航精简均完成 | 见下方说明 |
 | Phase 6 收口 | ✅ 完成 | 见下方说明 |
@@ -80,12 +80,22 @@
 - **文档同步**：本方案各阶段状态归位；`docs/hackathon-strategy.md` 与 `docs/track2-lipu-inventor.md` 保留为评估过程记录
 - **上线核查**：构建 → 全量测试 → 部署 → `npm run test:remote` 冒烟，确认线上与本地一致
 
-**Phase 2 执行中**（2026-09-10，分批推进，每批跑全量测试）：
+**Phase 2 实际产出**（分三批推进，每批跑全量测试）：
 
 核查发现分层明显：`link-page.js`（7 行）/ `bbs-page.js`（7 行）这类控制器**只做 chrome 样板**；
-`verdict / psyche / dreams / masters` 才是带真实逻辑的页。迁移按「收益高 → 一页一测」推进。
+`verdict / psyche / dreams / masters / tarot` 才是带真实逻辑的页。迁移按「收益高 → 一页一测」推进。
 
-**第一批已完成**（`verdict` · `masters` · `dreams` · `psyche`）：
+| 批次 | 页面 | 处置 | 提交 |
+|---|---|---|---|
+| 一 | verdict · masters · dreams · psyche | 各自迁成 Vue 组件 | `b909735` |
+| 二 | order | 迁成 `OrderPage.vue`；link / bbs / people 的样板合并进 `chrome.ts` | `f0513be` |
+| 三 | tarot | 迁成 `TarotPage.vue` | 见下方 |
+
+**最终形态**：13 个页面里 **12 个由单一模块入口驱动**（`src/main.ts` 或 `src/chrome.ts`），
+HTML 里不再手写 `<script>` 清单；`404.html` 无脚本。
+**唯一保留的 legacy 交互内核是 `treehole.js`**（树洞，641 行：云同步 / 点亮 / 撤回 / 举报 /
+投递动画 / 9 秒轮询）。它的页面外壳已由 `chrome.ts` 接管，只把有状态的业务逻辑留在原处——
+重写的风险（打断云同步与「默认接云端」的行为）远大于收益。
 
 | 页面 | 原控制器 | 新组件 | 关键改动 |
 |---|---|---|---|
@@ -93,20 +103,28 @@
 | 画廊 masters | `masters.js`（41 行） | `src/MastersGallery.vue` | 七大师网格改 `v-for`；致敬清单内联为常量 |
 | 梦境 dreams | `dreams.js`（132 行） | `src/DreamsJournal.vue` | 表单 + 时间线 CRUD，存储键仍是 `dreamLog` |
 | 精神分析 psyche | `psyche-page.js`（149 行） | `src/PsychePage.vue` | 联想计时 / SCT 改响应式；Panel A 交给 `RC.analyst.init()` |
+| 委托 order | `order-page.js` | `src/OrderPage.vue` | 校验失败与保存失败都保留输入 |
+| 塔罗 tarot | `tarot-page.js`（223 行） | `src/TarotPage.vue` | 牌阵 / 翻牌 / 读牌表改响应式；`tarotDraft` 草稿恢复语义保持不变 |
+| 链接 / 树洞 / 人物 | `link-page.js` / `bbs-page.js` / `people-page.js` | `src/chrome.ts` | 三份重复的标题 / 导航 / 页脚 / 旁白收进一处 |
 
-**过程中暴露的耦合点（本次一并修掉）**：legacy 脚本在 `DOMContentLoaded` 时就去
-`getElementById`，而 Vue 挂载更晚。为此给两个跨页脚本加了**可重入初始化钩子**：
+**过程中暴露并修掉的耦合点**：legacy 脚本在 `DOMContentLoaded` 时就去 `getElementById`，
+而 Vue 挂载更晚。为此给跨页脚本加了**可重入初始化钩子**：
 
 - `share-card.js`：`RC.shareCard.init()`，`#btnCard` 存在且未绑定才绑（鉴定页）
 - `analyst.js`：`RC.analyst.init()`，找不到 `#masterGrid` 直接返回（精神分析页）
-- `treehole.js`：同上模式，`RC.hole.init()`（待用）
+- `stamps.js`：原先绑 `#btnDeal` 计 `stat_tarot`，塔罗页 Vue 化后会漏绑 →
+  计数改由 `TarotPage.vue` 自己负责，`stamps.js` 里那段删除
 
-另补齐 `src/legacy.ts` 的类型桥：`ui.bi/dialog/type`、`engine`、`analyst`、`tarot`、
-`share`、`util`、`interpret`、`shareCard`、`stamps`。
+**顺手修掉的 3 处真实缺陷**：
 
-**尚未迁移**：`bbs`（纸条系统由 641 行的 `treehole.js` 与云函数驱动）、
-`order` / `tarot`（已移出导航的次级页）、`people` / `link`（样板 + 静态内容）、
-`404`（无脚本，纯静态）。这些页面**功能不变、URL 不变**。
+- 牌阵提示的键名笔误：代码取 `spreadHintTimeLine` / `spreadHintDailyCard`，
+  词条表里实为 `spreadHintTimeline` / `spreadHintDaily` → 「时间线」「每日一牌」的提示长期空白
+- 元素分布条标签 `elementHint` 词条缺失 → 已补入 `content/i18n.json`
+- `people.html` 缺 `skeleton.js`（Phase 0 已修）
+
+另补齐 `src/legacy.ts` 的类型桥：`ui.bi/dialog/type`、`engine`、`analyst`、
+`tarot.byId/sealOf/drawFor`、`share`、`util`、`interpret`、`shareCard`、`stamps`、
+`case.start/save`、`model.formError`。
 
 
 ---

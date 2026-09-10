@@ -135,11 +135,8 @@
       if (host) render(host);
     }, 400);
     RC.i18n.onChange(function () { if (host) render(host); });
-    /* 塔罗展开次数（数据看板用）：只在这一页有「洗牌并抽牌」按钮 */
-    var deal = document.getElementById('btnDeal');
-    if (deal) deal.addEventListener('click', function () {
-      RC.store.set('stat_tarot', (RC.store.get('stat_tarot', 0) || 0) + 1);
-    });
+    /* 塔罗展开次数（数据看板用）：塔罗页已迁到 Vue，由 TarotPage.vue 自己计数，
+       原先在这里绑 #btnDeal 的做法会漏（Vue 挂载晚于 DOMContentLoaded）。 */
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

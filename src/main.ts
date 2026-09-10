@@ -61,3 +61,9 @@ if(document.getElementById('order-app')) {
   document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'order.html'});
   const {default:Order}=await import('./OrderPage.vue');createApp(Order).mount('#order-app');
 }
+if(document.getElementById('tarot-app')) {
+  rc.ui.chrome({title:rc.i18n.t('tarot'),path:'tarot.html'});
+  document.getElementById('navMount')!.innerHTML=rc.ui.nav('tarot.html');
+  document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'tarot.html'});
+  const {default:Tarot}=await import('./TarotPage.vue');createApp(Tarot).mount('#tarot-app');
+}

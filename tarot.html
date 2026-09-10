@@ -38,63 +38,14 @@
     <div id="navMount"></div>
   </header>
 
-  <div class="wrap">
-
-    <div id="introMount"></div>
-
-    <div class="panel">
-      <div class="p-head">
-        <h2><span class="i18n-cn">塔罗展开</span><span class="i18n-jp">タロット展開</span></h2>
-        <span class="p-en">TAROT</span>
-      </div>
-      <div class="p-body">
-        <!-- D1 · 咨询问题（先选问题，再抽牌） -->
-        <div class="spread-bar consult-bar">
-          <span class="sb-label"><span class="i18n-cn">咨询问题</span><span class="i18n-jp">相談ごと</span>：</span>
-          <span id="domainBtns"></span>
-        </div>
-        <div class="spread-hint center" id="consultHint"></div>
-
-        <!-- D2 · 三种牌阵选择器 -->
-        <div class="spread-bar">
-          <span class="sb-label"><span data-i18n="pickSpread">选阵型</span>：</span>
-          <button type="button" class="sb-btn" data-spread="dailyCard" data-i18n="dailyCard">每日一牌</button>
-          <button type="button" class="sb-btn" data-spread="timeLine"  data-i18n="timeLine">时间线</button>
-          <button type="button" class="sb-btn on" data-spread="pentagram" data-i18n="pentagram">五张解读</button>
-        </div>
-        <div class="spread-hint center" id="spreadHint"></div>
-
-        <div class="center mb">
-          <button type="button" class="btn" id="btnDeal" data-i18n="deal">洗牌并抽牌</button>
-          <button type="button" class="btn ghost" id="btnFlipAll" data-i18n="flipAll">全部翻开</button>
-        </div>
-        <div class="spread" id="spread"></div>
-        <div class="hint center" id="dealHint" data-i18n="dealHint">点「洗牌并抽牌」，然后一张张点开。慢慢来，翻牌的速度也是信息。</div>
-      </div>
-    </div>
-
-    <div class="panel hidden" id="readPanel">
-      <div class="p-head">
-        <h2><span class="i18n-cn">读牌</span><span class="i18n-jp">読牌</span></h2>
-        <span class="p-en">READING</span>
-      </div>
-      <div class="p-body">
-        <table class="grid" id="readTable"></table>
-        <div id="synthMount"></div>
-        <div class="center mt" id="elementBarMount"></div>
-        <div class="center mt">
-          <a class="btn" href="psyche.html" data-i18n="toPsyche">去做分析 →</a>
-          <a class="btn ghost" href="verdict.html" data-i18n="toVerdict">领取鉴定书 →</a>
-        </div>
-      </div>
-    </div>
-
-  </div>
+  <div class="wrap" id="tarot-app"></div>
 
 <div id="footMount"></div>
 
 </div>
 </div><!-- /.site -->
+
+<script type="module" src="/src/main.ts"></script>
 
 </body>
 </html>
