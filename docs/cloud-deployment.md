@@ -1,6 +1,22 @@
 # 公开树洞部署
 
-新版默认使用同站 Node 服务（`transport:'local'`），本文件仅用于可选 CloudBase 部署。完成配置后将 transport 改为 `cloudbase` 并重新构建。配置开关不是后台已部署的证明。
+树洞页面进页即自动连接公开服务，可见范围默认落在「公开投递」；访客自行切到「仅本机」后不再被默认值覆盖。默认后端是同站 Node 服务（`transport:'local'`，线上即 nginx 8080 反代到 127.0.0.1:8091 的 rc-api），本文件仅用于可选的 CloudBase 部署路线。改成 CloudBase 需将 transport 设为 `cloudbase`、填 `env` 并重新构建；配置开关不是后台已部署的证明。
+
+## 同源校验（连不上时先查这里）
+
+`/api/*` 的写接口会校验 Origin：显式配置 `RC_ORIGIN` 时严格相等，否则与反代后的 Host 比对（优先 `X-Forwarded-Host`，其次 `Host`；仅端口不同、主机名相同的请求放行）。因此反向代理必须透传带端口的 Host：
+
+```nginx
+location /api/ {
+    proxy_pass http://127.0.0.1:8091;
+    proxy_set_header Host $http_host;              # 注意不是 $host，$host 会剥掉端口
+    proxy_set_header X-Forwarded-Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_read_timeout 20s;
+}
+```
+
+若误用 `$host`，端口被剥掉后浏览器发来的 `Origin`（含 `:8080`）永远不等于后端反推出的 `http://<主机>`，所有写接口都会返回 `ORIGIN_REJECTED`：树洞点「连接公开树洞」失败、「公开投递」始终灰着无法选择。回归用例见 `tests/application.test.cjs` 的 `origin check survives reverse proxies that drop the port from Host`。
 
 ## 资源和权限
 

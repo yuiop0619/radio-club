@@ -610,11 +610,21 @@
     acceptShared();
 
     var badge=document.getElementById('thCloud');
-    badge.textContent='本机模式 / この端末のみ';
-    document.getElementById('thConnect').addEventListener('click',function(){
-      var button=this;button.disabled=true;
-      cloud.connect().then(function(){badge.textContent='已连接公开树洞 / 接続済み';document.getElementById('thPublicOption').disabled=false;return cloud.flush();}).then(refresh).catch(error).finally(function(){button.disabled=false;});
-    });
+    var visSel=document.getElementById('thVisibility'),pubOpt=document.getElementById('thPublicOption'),visTouched=false;
+    if(visSel)visSel.addEventListener('change',function(){visTouched=true;});
+    function markConnected(){badge.textContent='已连接云端树洞 / クラウド接続済み';if(pubOpt)pubOpt.disabled=false;if(visSel&&!visTouched)visSel.value='public';}
+    function markLocal(){badge.textContent='本机模式 / この端末のみ';if(visSel&&!visTouched)visSel.value='local';}
+    function connect(btn,silent){
+      if(btn)btn.disabled=true;
+      return cloud.connect().then(function(){markConnected();return cloud.flush();}).then(refresh)
+        .catch(function(e){markLocal();if(!silent)error(e);}).finally(function(){if(btn)btn.disabled=false;});
+    }
+    document.getElementById('thConnect').addEventListener('click',function(){connect(this,false);});
+    /* 默认接云端：进页即自动连接公开树洞，成功后可见范围默认落在「公开投递」。
+       服务不可达时静默退回「仅本机」，投递与本地回声都不受影响。
+       访客一旦自己改过可见范围，就完全尊重他的选择，不再回写默认值。 */
+    badge.textContent='连接云端中… / 接続中…';
+    connect(null,true);
     document.getElementById('thRetry').addEventListener('click',function(){cloud.flush().then(refresh).catch(error);});
     document.getElementById('thCancelPending').addEventListener('click',function(){try{if(cloud.cancelPending())message('已取消待同步；已送达的操作不受影响。 / 送信待ちを破棄しました。');}catch(e){error(e);}});
     document.getElementById('noteCopy').addEventListener('click',function(){var box=document.getElementById('noteShareLink');RC.share.copy(box.value).then(function(){message('已复制 / コピーしました');},function(){box.focus();box.select();message('请手动复制 / 手動でコピー');});});

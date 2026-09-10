@@ -4,6 +4,21 @@ const {application}=require('../cloudfunctions/treehole/application');
 const hash=s=>createHash('sha256').update(s).digest('hex');
 const token=()=>randomBytes(32).toString('base64url');
 
+/* 同源判定。显式白名单（RC_ORIGIN）优先；否则与代理后的 Host 比对。
+   反向代理（nginx 默认的 proxy_set_header Host $host）会把端口从 Host 里剥掉，
+   直接用 Host 反推 origin 必然与浏览器的 Origin（含端口）不等 —— 必须读
+   X-Forwarded-Host/Proto；两者都没有时再退化为「主机名相同即同源」。 */
+function sameOrigin(header,allowed,fwdHost,fwdProto){
+  if(allowed)return header===allowed;
+  if(!header)return false;
+  let u;try{u=new URL(header);}catch{return false;}
+  const proto=u.protocol.replace(':','');
+  if(fwdProto&&proto!==fwdProto)return false;
+  const originHost=u.host.toLowerCase(),requestHost=String(fwdHost||'').toLowerCase();
+  if(!requestHost)return false;
+  return originHost===requestHost||originHost.split(':')[0]===requestHost.split(':')[0];
+}
+
 /* Phase 4：解读层惰性加载。文件缺失或依赖异常也不能拖垮其他接口。 */
 let interpretLib=null;
 function getInterpret(){
@@ -20,8 +35,10 @@ function createApi(repo,{origin,adminIds=[],clock=Date.now}={}){
       if(req.url==='/api/health'&&req.method==='GET')return send(200,{ok:true,service:'radio-club',storage:'persistent',uptime:Math.floor(process.uptime())});
       if(req.url==='/api/content'&&req.method==='GET')return send(200,{ok:true,data:await handle({action:'content:get'},'public-reader')});
       if(req.method!=='POST')return send(405,{ok:false,error:'METHOD_NOT_ALLOWED'});
-      const expected=origin||'http://'+req.headers.host;
-      if(req.headers.origin!==expected||req.headers['x-radio-client']!=='1'||!req.headers['content-type']?.startsWith('application/json'))return send(403,{ok:false,error:'ORIGIN_REJECTED'});
+      const fwdHost=req.headers['x-forwarded-host']||req.headers.host;
+      const fwdProto=req.headers['x-forwarded-proto'];
+      const expected=origin||((fwdProto||'http')+'://'+fwdHost);
+      if(!sameOrigin(req.headers.origin,origin,fwdHost,fwdProto)||req.headers['x-radio-client']!=='1'||!req.headers['content-type']?.startsWith('application/json'))return send(403,{ok:false,error:'ORIGIN_REJECTED'});
       const now=clock(),ip=req.socket.remoteAddress||'local';
       for(const [key,v] of rates)if(now-v.start>60000)rates.delete(key);
       const rate=rates.get(ip)||{start:now,n:0};if(++rate.n>180)throw Error('RATE_LIMIT');rates.set(ip,rate);

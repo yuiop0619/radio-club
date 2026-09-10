@@ -1,5 +1,5 @@
 {
-  "assetVersion": 5,
+  "assetVersion": 6,
   "_note": "13 个页面脚本清单的唯一来源。构建期由 vite 自动注入 <script> 标签。新增/删除页面只需改这里。",
   "pages": {
     "404.html": [],

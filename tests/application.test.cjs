@@ -58,3 +58,25 @@ test('content edits require admin and reject concurrent stale changes',async()=>
   await assert.rejects(handle(event,'admin'),/VERSION_CONFLICT/);
   assert.equal((await handle({action:'content:get'},'reader')).chapters['2'].cn,'章节附注');
 });
+test('origin check survives reverse proxies that drop the port from Host',async()=>{
+  /* 线上 nginx 的 Host 转发一旦只给主机名（默认 $host 会剥掉端口），
+     后端用 Host 反推 origin 就会把合法请求全判成跨站 —— 树洞因此连不上。
+     本用例锁定两种反代形态都必须放行，同时真跨站仍要拒绝。 */
+  const {createServer}=require('../tools/server.cjs'),http=require('node:http'),repo=memoryRepo();
+  const server=createServer(()=>{},{repo});
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  const port=server.address().port;
+  const post=headers=>new Promise((resolve,reject)=>{
+    const req=http.request({host:'127.0.0.1',port,path:'/api/session',method:'POST',
+      headers:{'Content-Type':'application/json','X-Radio-Client':'1',...headers}},
+      res=>{let body='';res.on('data',c=>body+=c);res.on('end',()=>resolve({status:res.statusCode,json:JSON.parse(body)}));});
+    req.on('error',reject);req.end('{}');
+  });
+  try{
+    assert.equal((await post({Origin:'http://127.0.0.1:'+port,Host:'127.0.0.1'})).status,200);
+    assert.equal((await post({Origin:'http://127.0.0.1:'+port,'X-Forwarded-Host':'127.0.0.1:'+port})).status,200);
+    assert.equal((await post({Origin:'https://evil.example'})).status,403);
+    assert.equal((await post({Origin:'http://127.0.0.1:'+port,Host:'127.0.0.1','X-Forwarded-Proto':'https'})).status,403);
+    assert.equal((await post({Origin:'http://127.0.0.1:'+port,Host:'other.example'})).status,403);
+  }finally{await new Promise(resolve=>server.close(resolve));}
+});

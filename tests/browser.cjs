@@ -88,8 +88,16 @@ async function refresh(page){await page.evaluate(async()=>{const known=RC.store.
       await page.locator('#shareFull').check();assert.equal(await page.locator('#shareWrap').isVisible(),false);await page.locator('#btnShare').click();assert.match(await page.locator('#sharePreview').textContent(),/原始故事/);
       await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:()=>Promise.reject(Error('denied'))}}));await page.locator('#btnCopyShare').click();await page.waitForFunction(()=>document.getElementById('shareMsg').textContent.includes('手动'));await ctx.close();
     });
-    await scenario('local treehole is offline, reply button works, deletion survives reload',async()=>{
-      const {ctx,page,external,errors}=await fresh();await page.goto(base+'/bbs.html');await page.locator('#thBody').fill('一张仅保存在本机的测试纸条');await page.locator('#thDrop').click();
+    await scenario('treehole connects to the cloud by default and defaults to public delivery',async()=>{
+      const {ctx,page,external,errors}=await fresh();await page.goto(base+'/bbs.html');
+      await page.waitForFunction(()=>RC.cloud.ready);
+      assert.ok(await page.locator('#thCloud').textContent().then(t=>/已连接/.test(t)),'badge should say connected');
+      assert.equal(await page.locator('#thVisibility option[value="public"]').isDisabled(),false);
+      assert.equal(await page.locator('#thVisibility').inputValue(),'public');
+      assert.deepEqual(external,[]);assert.deepEqual(errors,[]);await ctx.close();
+    });
+    await scenario('local treehole notes stay on device, reply button works, deletion survives reload',async()=>{
+      const {ctx,page,external,errors}=await fresh();await page.goto(base+'/bbs.html');await page.locator('#thVisibility').selectOption('local');await page.locator('#thBody').fill('一张仅保存在本机的测试纸条');await page.locator('#thDrop').click();
       const note=page.locator('.note.mine').last();await note.locator('[data-act="reply"]').click();await note.locator('.ri').fill('本地回复');await note.locator('[data-act="send"]').click();assert.match(await note.textContent(),/本地回复/);
       await note.locator('[data-act="share"]').click();assert.equal(await page.locator('#noteShare').isVisible(),true);assert.match(await page.locator('#noteShareLink').inputValue(),/#n=/);
       await note.locator('[data-act="take"]').click();await page.reload();assert.equal(await page.locator('.note.mine').count(),0);assert.deepEqual(external,[]);assert.deepEqual(errors,[]);await ctx.close();
