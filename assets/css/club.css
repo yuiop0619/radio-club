@@ -1043,3 +1043,87 @@ body.has-demo-badge .amb-btn{bottom:48px;}
 .ai-log b{color:var(--ok);font-weight:normal;}
 .ai-body{min-height:1.6em;}
 .ai-body .tw{display:inline;white-space:pre-wrap;}
+
+/* ══ Phase 5：梦侦探鉴定机 MODEL RC-2006 ══════════════════════
+   一台 2006 年的老机器：铭牌、指示灯、投币口、吐纸口。
+   投一枚故事 → 指示灯乱闪 → 吐出一份鉴定书。 */
+.machine{max-width:1180px;margin:22px auto 0;padding:0 12px;}
+.mc-cab{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  background:linear-gradient(180deg,#262019 0%,#17120f 46%,#100c0b 100%);
+  box-shadow:inset 0 1px 0 rgba(246,200,119,.10),inset 0 -1px 0 rgba(0,0,0,.75),
+    0 20px 44px rgba(0,0,0,.6);
+  padding:16px 18px 20px;}
+.mc-cab::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px);}
+.mc-cab.running{animation:mcHum .42s ease-in-out infinite alternate;}
+@keyframes mcHum{from{transform:translateY(0);}to{transform:translateY(-1.5px);}}
+
+/* 铭牌 + 指示灯 */
+.mc-top{position:relative;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line-soft);padding-bottom:12px;}
+.mc-plate{display:flex;flex-direction:column;gap:2px;padding:6px 12px;border-radius:6px;
+  border:1px solid var(--line);background:linear-gradient(180deg,#1c1613,#0f0b0a);
+  box-shadow:inset 0 1px 0 rgba(0,0,0,.85),0 1px 0 rgba(246,200,119,.06);}
+.mc-org{font-size:10px;letter-spacing:.16em;color:var(--text-faint);}
+.mc-name{font-family:var(--font-mono);font-size:15px;letter-spacing:.22em;color:var(--amber-hi);
+  text-shadow:0 0 12px rgba(232,163,61,.45);}
+.mc-lamps{display:flex;gap:8px;align-items:center;}
+.mc-lamp{width:9px;height:9px;border-radius:50%;background:#2a211b;
+  border:1px solid var(--line);box-shadow:inset 0 0 3px rgba(0,0,0,.85);}
+.mc-lamp.on{background:var(--ok);box-shadow:0 0 9px rgba(127,174,106,.75);}
+.mc-cab.running .mc-lamp{animation:mcBlink .96s steps(2,end) infinite;}
+.mc-cab.running .mc-lamp:nth-child(2){animation-delay:.32s;}
+.mc-cab.running .mc-lamp:nth-child(3){animation-delay:.64s;}
+@keyframes mcBlink{
+  0%,49%{background:var(--amber);box-shadow:0 0 10px rgba(232,163,61,.85);}
+  50%,100%{background:#2a211b;box-shadow:none;}}
+
+/* 说明 */
+.mc-pitch{position:relative;margin:14px 0 0;font-size:14px;}
+.mc-pitch .mc-sub{display:block;margin-top:4px;font-size:11.5px;color:var(--text-faint);}
+
+/* 投币口 */
+.mc-label{position:relative;display:inline-block;margin:16px 0 7px;
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:.28em;color:var(--crimson-hi);}
+.mc-label::before{content:'';display:inline-block;width:22px;height:6px;margin-right:8px;
+  vertical-align:middle;border-radius:3px;border:1px solid var(--line);
+  background:linear-gradient(180deg,#000,#1a1410);
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.9);}
+#mcStory{position:relative;display:block;width:100%;box-sizing:border-box;
+  min-height:76px;padding:10px 12px;border-radius:6px;border:1px solid var(--line);
+  background:#0c0908;color:var(--text);font-family:var(--font-body);font-size:14px;
+  line-height:1.7;resize:vertical;}
+#mcStory::placeholder{color:var(--text-faint);}
+#mcStory:focus{outline:none;border-color:var(--amber-dim);
+  box-shadow:0 0 0 3px rgba(232,163,61,.10),inset 0 0 22px rgba(232,163,61,.05);}
+
+.mc-cats{position:relative;display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+
+/* 投币按钮 + 退出口 */
+.mc-act{position:relative;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.mc-coin{display:inline-block;width:11px;height:11px;margin-right:7px;border-radius:50%;
+  vertical-align:-1px;background:radial-gradient(circle at 35% 30%,var(--amber-hi),var(--amber-dim));
+  box-shadow:inset 0 -1px 2px rgba(0,0,0,.55),0 0 6px rgba(232,163,61,.4);}
+.mc-hint{font-size:11px;color:var(--text-faint);}
+
+/* 吐纸口 + 吐出的纸条 */
+.mc-mouth{height:9px;margin-top:18px;border-radius:5px;border:1px solid var(--line);
+  background:linear-gradient(180deg,#050403,#241c16);
+  box-shadow:inset 0 3px 6px rgba(0,0,0,.95),0 1px 0 rgba(246,200,119,.06);}
+.mc-out{margin-top:10px;font-family:var(--font-mono);font-size:12.5px;
+  line-height:1.9;color:var(--text-dim);}
+.mc-out:empty{display:none;}
+.mc-out:not(:empty){padding:12px 14px;border-radius:6px;border:1px solid var(--line-soft);
+  background:linear-gradient(180deg,#12100d,#0d0a09);}
+.mc-line{white-space:pre-wrap;word-break:break-word;}
+.mc-line.warn{color:var(--crimson-hi);}
+
+@media (max-width:640px){
+  .machine{padding:0 8px;}
+  .mc-cab{padding:13px 13px 16px;}
+  .mc-name{font-size:13px;letter-spacing:.16em;}
+  .mc-act .btn{width:100%;text-align:center;}
+}
+@media (prefers-reduced-motion:reduce){
+  .mc-cab.running,.mc-cab.running .mc-lamp{animation:none;}
+}

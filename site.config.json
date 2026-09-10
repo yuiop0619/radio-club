@@ -1,5 +1,5 @@
 {
-  "assetVersion": 6,
+  "assetVersion": 7,
   "_note": "13 个页面脚本清单的唯一来源。构建期由 vite 自动注入 <script> 标签。新增/删除页面只需改这里。",
   "pages": {
     "404.html": [],
@@ -7,7 +7,7 @@
     "account.html": ["store", "model", "i18n", "skeleton", "cloud-config", "treehole-cloud"],
     "bbs.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "haunt", "cloud-config", "treehole-cloud", "treehole", "bbs-page"],
     "dreams.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "dreams", "haunt"],
-    "index.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "puppet", "haunt"],
+    "index.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "puppet", "haunt", "tarot-data", "machine"],
     "link.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "haunt", "link-page"],
     "masters.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "analyst", "haunt", "masters"],
     "order.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "haunt", "order-page"],

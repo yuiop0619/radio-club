@@ -22,6 +22,7 @@ tests/artifacts/
 
 dist/
 dist.prev/
+dist.bak-*/
 .data/
 .env
 .env.*

@@ -56,6 +56,55 @@
 
   <div id="paradeMount"></div>
 
+  <!-- ══ 梦侦探鉴定机 MODEL RC-2006 ══
+       投币口：一句话直达鉴定书（把 委托→塔罗→精神分析→鉴定 四步压成一步）。
+       塔罗由机器代抽；精神分析需本人受诊，缺席时照常出报告。 -->
+  <section class="machine" id="rcMachine" aria-labelledby="rcMachineName">
+    <div class="mc-cab">
+      <div class="mc-top">
+        <div class="mc-plate">
+          <span class="mc-org">夢探偵事務所 ／ サフラン技研</span>
+          <span class="mc-name" id="rcMachineName">MODEL RC-2006</span>
+        </div>
+        <div class="mc-lamps" aria-hidden="true">
+          <i class="mc-lamp on"></i><i class="mc-lamp"></i><i class="mc-lamp"></i>
+        </div>
+      </div>
+
+      <p class="mc-pitch">
+        <span class="i18n-cn">投入一句话，机器替你读成一份鉴定书。</span>
+        <span class="i18n-jp">ひと言を投入すると、鑑定書になって出てきます。</span>
+        <span class="mc-sub">
+          <span class="i18n-cn">投币 → 运转 → 吐纸，约 3 秒。不收现金，只收故事。想细说，走下面的「委托受理」。</span>
+          <span class="i18n-jp">投入 → 作動 → 排紙、約 3 秒。現金は取りません、物語だけ。詳しく話すなら下の「ご用件承り」へ。</span>
+        </span>
+      </p>
+
+      <label class="mc-label" for="mcStory">投 币 口</label>
+      <textarea id="mcStory" maxlength="2000" rows="3"
+        placeholder="把最近心里过不去的那个东西，写成一句话投进来。例如：我总在凌晨三点醒来，想起一件十年前的事。"></textarea>
+
+      <div class="mc-cats" id="mcCats" role="group" aria-label="这件事属于哪一类（可跳过）">
+        <button type="button" class="chip on" data-v="" aria-pressed="true">不指定</button>
+        <button type="button" class="chip" data-v="人际关系" aria-pressed="false">人际关系</button>
+        <button type="button" class="chip" data-v="工作" aria-pressed="false">工作</button>
+        <button type="button" class="chip" data-v="恋爱" aria-pressed="false">恋爱</button>
+        <button type="button" class="chip" data-v="丧失" aria-pressed="false">丧失／离别</button>
+        <button type="button" class="chip" data-v="记忆" aria-pressed="false">记忆／遗忘</button>
+        <button type="button" class="chip" data-v="自我" aria-pressed="false">自我／身份</button>
+      </div>
+
+      <div class="mc-act">
+        <button type="button" class="btn red" id="mcInsert"><span class="mc-coin"></span>投 币 · 开始鉴定</button>
+        <a class="btn ghost" href="order.html">我要详细说 →</a>
+        <span class="mc-hint">（Ctrl / ⌘ + Enter 也能投）</span>
+      </div>
+
+      <div class="mc-mouth" aria-hidden="true"></div>
+      <div class="mc-out" id="mcOut" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
   <div id="bar-app" data-skel="cards"></div>
 
   <div class="wrap">

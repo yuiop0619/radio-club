@@ -21,7 +21,8 @@ if(document.getElementById('bar-app')) {
   await loadContent();const {default:Scene}=await import('./CounterScene.vue');await import('./counter.css');
   createApp(Scene).use(createPinia()).mount('#bar-app');
   const puppet=document.getElementById('heroPuppet');
-  const enter=()=>document.getElementById('bar-app')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+  // 「进店」落点是吧台上那台鉴定机（核心入口），场景紧接在它下面
+  const enter=()=>document.getElementById('rcMachine')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
   puppet?.addEventListener('click',enter);puppet?.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();enter();}});
 }
 if(document.getElementById('archive-app')) {
