@@ -146,6 +146,25 @@ async function refresh(page){await page.evaluate(async()=>{const known=RC.store.
       assert.deepEqual(errors,[]);
       await ctx.close();
     });
+    await scenario('personality: 28 forced choices, boundary axes labelled honestly',async()=>{
+      const {ctx,page,errors}=await fresh();
+      await page.goto(base+'/personality.html');
+      await page.locator('#pfmStart').click();
+      /* 每维 7 题，前 4 题选前一句、后 3 题选后一句 —— 构造 4:3 的边界型 */
+      for(let d=0;d<4;d++){for(let i=0;i<7;i++){await page.locator(i<4?'#pfmA':'#pfmB').click();}}
+      await page.waitForSelector('#pfmType');
+      assert.equal((await page.locator('#pfmType').textContent()).trim(),'ESTJ');
+      assert.equal(await page.locator('.pfm-ax').count(),4);
+      /* 边界型必须如实标注，而不是硬贴标签 */
+      assert.match(await page.locator('#personality-app').textContent(),/基本持平/);
+      const saved=await page.evaluate(()=>{const p=RC.store.get('profile',{});return p.personality&&p.personality.type;});
+      assert.equal(saved,'ESTJ');
+      /* 档案页读同一份档案 */
+      await page.goto(base+'/profile.html');
+      assert.match(await page.locator('#profile-app').textContent(),/ESTJ/);
+      assert.deepEqual(errors,[]);
+      await ctx.close();
+    });
     await scenario('static server refuses repository internals',async()=>{for(const p of ['/.git/config','/cloudfunctions/treehole/index.js','/assets/%2e%2e/%2e%2e/package.json'])assert.equal((await fetch(base+p)).status,404);});
     fs.writeFileSync(path.join(__dirname,'artifacts/results.json'),JSON.stringify({passed:results},null,2));
     console.log(results.length+' browser scenarios passed');

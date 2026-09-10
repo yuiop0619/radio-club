@@ -73,3 +73,9 @@ if(document.getElementById('profile-app')) {
   document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'profile.html'});
   const {default:Profile}=await import('./ProfilePage.vue');createApp(Profile).mount('#profile-app');
 }
+if(document.getElementById('personality-app')) {
+  rc.ui.chrome({title:rc.i18n.t('pfmTitle'),path:'personality.html'});
+  document.getElementById('navMount')!.innerHTML=rc.ui.nav('personality.html');
+  document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'personality.html'});
+  const {default:Personality}=await import('./PersonalityPage.vue');createApp(Personality).mount('#personality-app');
+}

@@ -13,6 +13,9 @@
     { id: 'verdict', mark: '鑑', cn: '领取鉴定', jp: '鑑定書',   hint: { cn: '她把结论写下来了，白纸黑字。', jp: '彼女は結論を書いた。' } },
     { id: 'hole',    mark: '穴', cn: '投过纸条', jp: '木の穴',   hint: { cn: '你往树洞里投了一句说不出口的话。', jp: '言えなかった一言を、穴へ。' } },
     { id: 'dream',   mark: '記', cn: '记过梦',   jp: '夢の記録', hint: { cn: '梦不占地方，但你记下了它的形状。', jp: '夢は場所を取らないが、形を残した。' } },
+    { id: 'persona', mark: '格', cn: '做过层析', jp: '層析',     hint: { cn: '二十八句话答完，机器给了你一个坐标。', jp: '28の問いに答え、機械が座標をくれた。' } },
+    { id: 'mood',    mark: '情', cn: '打过卡',   jp: '気分',     hint: { cn: '你给自己的今天打了一个分。', jp: '今日の自分に点をつけた。' } },
+    { id: 'thought', mark: '念', cn: '拆过念头', jp: '念い',     hint: { cn: '一个自动冒出来的念头，被你按在纸上看了看。', jp: '浮かんだ考えを、紙の上で見つめた。' } },
     { id: 'night',   mark: '夜', cn: '深夜来访', jp: '深夜来店', hint: { cn: '0 点到 5 点之间，灯还为你亮着。', jp: '0時〜5時、灯はまだ点いている。' } },
     { id: 'menu',    mark: '杯', cn: '点过三样', jp: '三品注文', hint: { cn: '岩夫记得你点过什么。', jp: '岩夫はあなたの注文を覚えている。' } },
     { id: 'regular', mark: '常', cn: '七回来店', jp: '七度来店', hint: { cn: '第七次了。他们开始先跟你打招呼。', jp: '七度目。彼らが先に声をかける。' } },
@@ -75,6 +78,14 @@
     } catch (e) { /* 忽略 */ }
     return n;
   }
+  /* 新功能的痕迹都写在 rc_profile 下；这里直接读原始键，
+     这样即使当前页没加载 profile.ts（如首页），判定依然准确。 */
+  function inProfile(fn) {
+    try {
+      var box = RC.store.get('profile', null);
+      return !!(box && typeof box === 'object' && fn(box));
+    } catch (e) { return false; }
+  }
 
   function check() {
     var unlocked = [];
@@ -92,6 +103,9 @@
     try_('verdict', page === 'verdict' && !!c && RC.case.has());
     try_('hole', noteCount() > 0);
     try_('dream', dreamCount() > 0);
+    try_('persona', inProfile(function (b) { return !!(b.personality && b.personality.type); }));
+    try_('mood', inProfile(function (b) { return !!(b.moodLogs && b.moodLogs.length); }));
+    try_('thought', inProfile(function (b) { return !!(b.thoughts && b.thoughts.length); }));
     try_('night', hour >= 0 && hour < 5);
     try_('menu', drinkKinds() >= 3);
     try_('regular', RC.store.get('visits', 0) >= 7);

@@ -61,7 +61,11 @@ const TYPE_NAME: Record<string, {cn: string; jp: string}> = {
 function typeName(code: string): {cn: string; jp: string} {
   return TYPE_NAME[code] || {cn: code, jp: code};
 }
-function axisPct(v: number): number { return Math.round(Math.abs(Number(v) - 0.5) * 200); }
+/** 条形从中线向偏向端延伸的长度（占容器百分比）：偏向越明显越长，两端都不溢出 */
+function axisPct(v: number): number {
+  const n = Number(v);
+  return Math.round(Math.max(n, 1 - n) * 50);
+}
 function axisSide(k: string, v: number): string {
   const a = AXES.find(x => x.k === k)!;
   return Number(v) >= 0.5 ? a.l : a.r;
@@ -195,7 +199,11 @@ function exportJson(): void {
           <li v-for="a in AXES" :key="a.k" class="ax">
             <span class="ax-side" :class="{on: axisSide(a.k, snap.personality.dims[a.k]) === a.l}">{{ bi(a.lcn, a.ljp) }}</span>
             <span class="ax-bar" :class="{bal: snap.personality.balanced && snap.personality.balanced[a.k]}">
-              <span class="ax-fill" :style="{width: axisPct(snap.personality.dims[a.k]) + '%', transform: Number(snap.personality.dims[a.k]) >= 0.5 ? 'none' : 'translateX(-100%)', marginLeft: Number(snap.personality.dims[a.k]) >= 0.5 ? '50%' : '50%'}"></span>
+              <span class="ax-fill" :style="{
+                width: axisPct(snap.personality.dims[a.k]) + '%',
+                left: Number(snap.personality.dims[a.k]) >= 0.5 ? 'auto' : '50%',
+                right: Number(snap.personality.dims[a.k]) >= 0.5 ? '50%' : 'auto'
+              }"></span>
             </span>
             <span class="ax-side" :class="{on: axisSide(a.k, snap.personality.dims[a.k]) === a.r}">{{ bi(a.rcn, a.rjp) }}</span>
           </li>
