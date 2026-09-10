@@ -2,7 +2,7 @@ const { chromium } = require('playwright');
 const BASE = process.env.RC_BASE || 'http://101.42.158.132:8080';
 const PAGES = ['/', '/index.html', '/people.html', '/order.html', '/tarot.html', '/psyche.html',
   '/verdict.html', '/dreams.html', '/masters.html', '/bbs.html', '/link.html',
-  '/account.html', '/about2006.html'];
+  '/account.html', '/about2006.html', '/profile.html'];
 (async () => {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });

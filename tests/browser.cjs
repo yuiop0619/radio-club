@@ -120,6 +120,32 @@ async function refresh(page){await page.evaluate(async()=>{const known=RC.store.
       const {ctx,page}=await fresh();await page.goto(base+'/order.html');await page.locator('#fHandle').fill('存储测试');await page.locator('#catRow [data-v="工作"]').click();await page.locator('#fStory').fill('这段输入在保存失败时必须保留下来');
       await page.evaluate(()=>Storage.prototype.setItem=function(){throw Error('quota');});await page.locator('#orderForm button[type="submit"]').click();assert.equal(await page.locator('#orderForm').isVisible(),true);assert.equal(await page.locator('#storageError').isVisible(),true);assert.match(await page.locator('#fStory').inputValue(),/保留下来/);await ctx.close();
     });
+    await scenario('profile page aggregates records, computes mirror and exports',async()=>{
+      const {ctx,page,errors}=await fresh();
+      await page.goto(base+'/profile.html');
+      assert.equal(await page.locator('#profile-app .panel').count()>=4,true);
+      assert.equal(await page.locator('#btnExportMd').isVisible(),true);
+      /* 用真实的旧键数据模拟「已经用过一阵子」的访客，刷新后档案应当把它聚合出来 */
+      await page.evaluate(()=>{
+        RC.case.save({handle:'档案测试',story:'最近总梦见同一部电梯，楼层一直在变。'});
+        RC.store.set('dreamLog',[{id:'d-1',date:'2026-09-10',title:'电梯',body:'楼层一直在变',mood:'还好',tag:'电梯',ts:Date.parse('2026-09-10')}]);
+        RC.store.set('stamps',{enter:Date.parse('2026-09-01'),dream:Date.parse('2026-09-10')});
+      });
+      await page.reload();
+      const text=await page.locator('#profile-app').textContent();
+      assert.match(text,/档案测试|到店|梦境/);
+      assert.match(text,/电梯/);
+      const md=await page.evaluate(()=>RC.profile.toMarkdown());
+      assert.match(md,/梦侦探档案/);
+      assert.match(md,/电梯/);
+      const json=JSON.parse(await page.evaluate(()=>RC.profile.toJSON()));
+      assert.equal(json._format,'radio-club-profile');
+      assert.equal(json.dreams.length,1);
+      const [dl]=await Promise.all([page.waitForEvent('download',{timeout:8000}),page.locator('#btnExportMd').click()]);
+      assert.match(dl.suggestedFilename(),/radio-club-archive-.*\.md$/);
+      assert.deepEqual(errors,[]);
+      await ctx.close();
+    });
     await scenario('static server refuses repository internals',async()=>{for(const p of ['/.git/config','/cloudfunctions/treehole/index.js','/assets/%2e%2e/%2e%2e/package.json'])assert.equal((await fetch(base+p)).status,404);});
     fs.writeFileSync(path.join(__dirname,'artifacts/results.json'),JSON.stringify({passed:results},null,2));
     console.log(results.length+' browser scenarios passed');

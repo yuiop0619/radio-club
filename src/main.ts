@@ -67,3 +67,9 @@ if(document.getElementById('tarot-app')) {
   document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'tarot.html'});
   const {default:Tarot}=await import('./TarotPage.vue');createApp(Tarot).mount('#tarot-app');
 }
+if(document.getElementById('profile-app')) {
+  rc.ui.chrome({title:rc.i18n.t('profileT'),path:'profile.html'});
+  document.getElementById('navMount')!.innerHTML=rc.ui.nav('profile.html');
+  document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'profile.html'});
+  const {default:Profile}=await import('./ProfilePage.vue');createApp(Profile).mount('#profile-app');
+}

@@ -30,7 +30,8 @@
     { href: 'verdict.html', jp: '鑑定',       cn: '鉴定',   en: 'VERDICT' },
     { href: 'dreams.html',  jp: '夢の記録',   cn: '梦境',   en: 'DREAMS' },
     { href: 'masters.html', jp: 'ギャラリー', cn: '画廊',   en: 'GALLERY' },
-    { href: 'bbs.html',     jp: '木の穴',      cn: '树洞',   en: 'BBS' }
+    { href: 'bbs.html',     jp: '木の穴',      cn: '树洞',   en: 'BBS' },
+    { href: 'profile.html', jp: '私の档案',    cn: '档案',   en: 'FILE' }
   ];
 
   /* ---------- 站点外壳：网页原生 max-width 容器（幂等） ----------
