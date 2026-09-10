@@ -91,3 +91,15 @@ if(document.getElementById('toolbox-app')) {
   document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'toolbox.html'});
   const {default:Toolbox}=await import('./ToolboxPage.vue');createApp(Toolbox).mount('#toolbox-app');
 }
+if(document.getElementById('status-app')) {
+  rc.ui.chrome({title:rc.i18n.t('statusTitle'),path:'status.html'});
+  document.getElementById('navMount')!.innerHTML=rc.ui.nav('status.html');
+  document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'status.html'});
+  const {default:Status}=await import('./StatusPage.vue');createApp(Status).mount('#status-app');
+}
+if(document.getElementById('lab-app')) {
+  rc.ui.chrome({title:rc.i18n.t('labTitle'),path:'lab.html'});
+  document.getElementById('navMount')!.innerHTML=rc.ui.nav('lab.html');
+  document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'lab.html'});
+  const {default:Lab}=await import('./LabPage.vue');createApp(Lab).mount('#lab-app');
+}

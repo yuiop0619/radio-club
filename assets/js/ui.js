@@ -32,7 +32,9 @@
     { href: 'toolbox.html', jp: '道具箱',     cn: '理线头', en: 'TOOLBOX' },
     { href: 'masters.html', jp: 'ギャラリー', cn: '画廊',   en: 'GALLERY' },
     { href: 'bbs.html',     jp: '木の穴',      cn: '树洞',   en: 'BBS' },
-    { href: 'profile.html', jp: '私の档案',    cn: '档案',   en: 'FILE' }
+    { href: 'profile.html', jp: '私の档案',    cn: '档案',   en: 'FILE' },
+    { href: 'status.html',  jp: '状態',         cn: '状态',   en: 'STATUS' },
+    { href: 'lab.html',     jp: 'ラボ',         cn: '实验室', en: 'LAB' }
   ];
 
   /* ---------- 站点外壳：网页原生 max-width 容器（幂等） ----------

@@ -336,7 +336,22 @@
       "dreamReportMood": "醒来时的情绪",
       "dreamReportEmpty": "这 30 天还没记过梦。",
       "dreamReportGo": "去记一条梦",
-      "dreamReportTop": "出现最多的意象"
+      "dreamReportTop": "出现最多的意象",
+      "statusTitle": "这台机器的状态",
+      "statusSub": "你在这台机器上留下的痕迹，都汇在这里。",
+      "statusModules": "功能模块",
+      "statusUsed": "已用过",
+      "statusUnused": "还没碰过",
+      "statusStack": "技术栈",
+      "statusDeploy": "部署",
+      "statusOnline": "线上地址",
+      "statusVersion": "版本",
+      "statusNote": "所有数据只存在你这台设备，不上传，也不经过服务器。",
+      "labTitle": "实验室",
+      "labArch": "架构",
+      "labStore": "存储键",
+      "labBuild": "构建链",
+      "labDecisions": "设计决策"
     },
     "jp": {
       "counter": "カウンター",
@@ -673,7 +688,22 @@
       "dreamReportMood": "目覚めの感情",
       "dreamReportEmpty": "この30日はまだ夢を書いてない。",
       "dreamReportGo": "夢を書きに行く",
-      "dreamReportTop": "最も現れたイメージ"
+      "dreamReportTop": "最も現れたイメージ",
+      "statusTitle": "この機械の状態",
+      "statusSub": "この機械に残した痕跡をここに集めた。",
+      "statusModules": "モジュール",
+      "statusUsed": "使った",
+      "statusUnused": "まだ",
+      "statusStack": "技術スタック",
+      "statusDeploy": "配信",
+      "statusOnline": "公開URL",
+      "statusVersion": "バージョン",
+      "statusNote": "すべてのデータはこの端末内にあり、送信もサーバー通過もしない。",
+      "labTitle": "ラボ",
+      "labArch": "アーキテクチャ",
+      "labStore": "ストレージキー",
+      "labBuild": "ビルド",
+      "labDecisions": "設計方針"
     }
   }
 }
