@@ -13,10 +13,11 @@
     "deploy": "python tools/deploy.py",
     "deploy:fast": "python tools/deploy.py --no-build",
     "images": "node tools/optimize-images.cjs",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "node tools/check-pages.cjs && vue-tsc --noEmit && vite build",
     "dev": "vite",
     "typecheck": "vue-tsc --noEmit",
-    "prestart": "npm run build"
+    "prestart": "npm run build",
+    "check:pages": "node tools/check-pages.cjs"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
