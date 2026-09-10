@@ -36,6 +36,7 @@ const overview = computed(() => {
     {k: 'tarot', n: s.counts.tarot, cn: '抽牌', jp: 'タロット'},
     {k: 'dream', n: s.counts.dreams, cn: '梦境', jp: '夢'},
     {k: 'mood', n: s.counts.mood, cn: '情绪', jp: '気分'},
+    {k: 'breath', n: s.counts.breaths, cn: '呼吸', jp: '呼吸'},
     {k: 'thought', n: s.thoughts.length, cn: '念头', jp: '念い'},
     {k: 'stamp', n: s.counts.stamps, cn: '印章', jp: '印'}
   ];
@@ -114,6 +115,7 @@ const KIND: Record<string, {mark: string; cn: string; jp: string}> = {
   tarot: {mark: '牌', cn: '塔罗', jp: 'タロット'},
   personality: {mark: '格', cn: '性格', jp: '性格'},
   mood: {mark: '情', cn: '情绪', jp: '気分'},
+  breath: {mark: '息', cn: '呼吸', jp: '呼吸'},
   dream: {mark: '夢', cn: '梦境', jp: '夢'},
   note: {mark: '穴', cn: '树洞', jp: '木の穴'},
   stamp: {mark: '印', cn: '印章', jp: '印'},
@@ -127,6 +129,14 @@ function fmtAt(ts: number): string {
   return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
 }
 const shownEvents = computed(() => events.value.slice(0, 40));
+
+/* ---------------- 章 4b · 呼吸练习 ---------------- */
+const breaths = computed(() => snap.value.breaths.slice().reverse());
+const breathRounds = computed(() => snap.value.breaths.reduce((a, b) => a + (Number(b.rounds) || 0), 0));
+const breathMin = computed(() => Math.round(snap.value.breaths.reduce((a, b) => a + (Number(b.seconds) || 0), 0) / 60));
+
+/* ---------------- 章 4c · 念头记录 ---------------- */
+const thoughts = computed(() => snap.value.thoughts.slice().reverse());
 
 /* ---------------- 章 6 · 导出 ---------------- */
 function stampStr(): string {
@@ -280,6 +290,56 @@ function exportJson(): void {
     </div>
   </div>
 
+  <!-- 章 4b · 呼吸练习 -->
+  <div class="panel" v-if="breaths.length">
+    <div class="p-head">
+      <h2>{{ t('breathTitle') }}</h2>
+      <span class="p-en">BREATH</span>
+      <span class="p-note">{{ breaths.length }}</span>
+    </div>
+    <div class="p-body">
+      <p class="dim small">{{ t('breathSum') }}　{{ breathRounds }} {{ bi('轮','周') }} · {{ breathMin }} {{ bi('分钟','分') }}</p>
+      <div class="pf-tl">
+        <div v-for="(b, i) in breaths.slice(0, 8)" :key="i" class="pf-ev">
+          <span class="ev-mark">息</span>
+          <span class="ev-body">
+            <span class="ev-title">{{ b.pattern }} · {{ b.rounds }} {{ bi('轮','周') }}</span>
+            <span class="ev-detail">{{ b.seconds }}s</span>
+          </span>
+          <span class="ev-at">{{ fmtAt(b.at) }}</span>
+        </div>
+      </div>
+      <div class="center mt">
+        <a class="btn ghost" href="toolbox.html">{{ bi('去坐两分钟','二分だけ座る') }} →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 章 4c · 念头记录 -->
+  <div class="panel" v-if="thoughts.length">
+    <div class="p-head">
+      <h2>{{ t('thoughtList') }}</h2>
+      <span class="p-en">THOUGHTS</span>
+      <span class="p-note">{{ thoughts.length }}</span>
+    </div>
+    <div class="p-body">
+      <ul class="pf-th">
+        <li v-for="r in thoughts" :key="r.id">
+          <div class="pf-th-h">
+            <span class="dim small">{{ fmtAt(r.at) }}</span>
+          </div>
+          <p class="pf-th-s">{{ r.scene }}</p>
+          <p class="pf-th-t">{{ r.thought }}</p>
+          <p v-if="r.against" class="pf-th-a">{{ bi('反过来的证据：','反する根拠：') }}{{ r.against }}</p>
+          <p v-if="r.alt" class="pf-th-a">{{ bi('换一种说法：','別の言い方：') }}{{ r.alt }}</p>
+        </li>
+      </ul>
+      <div class="center mt">
+        <a class="btn ghost" href="toolbox.html">{{ bi('再记一条','もう一つ書く') }} →</a>
+      </div>
+    </div>
+  </div>
+
   <!-- 章 5 · 时间线 -->
   <div class="panel">
     <div class="p-head">
@@ -323,7 +383,7 @@ function exportJson(): void {
 </template>
 
 <style scoped>
-.pf-ov { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.pf-ov { display: grid; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); gap: 8px; }
 .ov-cell { border: 1px solid var(--line, #2a2a2a); border-radius: 8px; padding: 10px 4px; text-align: center; }
 .ov-n { font-size: 22px; font-weight: 500; line-height: 1.2; }
 .ov-l { font-size: 12px; opacity: .65; margin-top: 4px; }
@@ -349,6 +409,12 @@ function exportJson(): void {
 .mood-chart { display: flex; align-items: flex-end; gap: 3px; height: 84px; margin: 8px 0 6px; }
 .mc-col { flex: 1; display: flex; align-items: flex-end; height: 100%; }
 .mc-bar { display: block; width: 100%; border-radius: 2px 2px 0 0; background: currentColor; opacity: .55; }
+.pf-th { list-style: none; margin: 0; padding: 0; }
+.pf-th > li { padding: 10px 0; border-bottom: 1px dashed rgba(128,128,128,.18); }
+.pf-th-h { display: flex; justify-content: space-between; }
+.pf-th-s { font-size: 13px; opacity: .6; margin: 6px 0 2px; }
+.pf-th-t { font-size: 14px; margin: 0; }
+.pf-th-a { font-size: 12px; opacity: .55; margin: 4px 0 0; }
 .pf-tl { margin-top: 4px; }
 .pf-ev { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: baseline; padding: 7px 0; border-bottom: 1px dashed rgba(128,128,128,.18); }
 .ev-mark { font-size: 13px; opacity: .8; text-align: center; }

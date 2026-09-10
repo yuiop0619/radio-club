@@ -1,5 +1,5 @@
 {
-  "assetVersion": 14,
+  "assetVersion": 15,
   "_note": "页面脚本清单的唯一来源。构建期由 vite 自动注入 <script> 标签。新增/删除页面只需改这里。",
   "pages": {
     "404.html": [],
@@ -17,6 +17,7 @@
     "profile.html": ["store", "model", "share", "i18n", "skeleton", "tarot-data", "ui", "stamps", "ambient", "demo", "haunt"],
     "psyche.html": ["store", "model", "share", "i18n", "skeleton", "tarot-data", "engine", "ui", "stamps", "ambient", "demo", "analyst", "haunt"],
     "tarot.html": ["store", "model", "share", "i18n", "skeleton", "tarot-data", "tarot-dim", "ui", "stamps", "ambient", "demo", "haunt"],
+    "toolbox.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "haunt"],
     "verdict.html": ["store", "model", "share", "i18n", "skeleton", "tarot-data", "tarot-dim", "engine", "analyst", "ui", "stamps", "ambient", "demo", "share-card", "haunt", "interpret"]
   }
 }

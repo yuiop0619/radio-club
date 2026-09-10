@@ -203,6 +203,95 @@ async function refresh(page){await page.evaluate(async()=>{const known=RC.store.
       assert.deepEqual(errors,[]);
       await ctx.close();
     });
+    await scenario('toolbox: mood log, guided breathing, thought record and the route between them',async()=>{
+      const {ctx,page,errors}=await fresh();
+      await page.goto(base+'/toolbox.html');
+
+      /* 一、情绪打卡 */
+      await page.locator('#tbMood2').click();
+      await page.locator('#tbTag-tired').click();
+      await page.locator('#tbMoodNote').fill('开会开到一半就想走。');
+      await page.locator('#tbMoodSave').click();
+      const mood=await page.evaluate(()=>(RC.store.get('profile',{}).moodLogs)||[]);
+      assert.equal(mood.length,1);
+      assert.equal(mood[0].score,2);
+      assert.deepEqual(mood[0].tags,['tired']);
+      assert.equal(mood[0].note,'开会开到一半就想走。');
+      assert.equal(await page.evaluate(()=>!!(RC.store.get('stamps',{})||{}).mood),true);
+      assert.equal(await page.locator('#tbMoodChart .tb-col').count(),14);
+      /* 低分 → 机器把下一步递过来（三件工具由此串起来） */
+      assert.equal(await page.locator('#tbBridge').isVisible(),true);
+      assert.match(await page.locator('#tbBridgeText').textContent(),/偏低/);
+
+      /* 同一天再打一次是覆盖，不是叠一条；高分走的是另一条桥 */
+      await page.locator('#tbMood4').click();
+      await page.locator('#tbMoodSave').click();
+      assert.equal(await page.evaluate(()=>(RC.store.get('profile',{}).moodLogs||[]).length),1);
+      assert.match(await page.locator('#tbBridgeText').textContent(),/顺/);
+
+      /* 连续天数：昨天也打过就该算 2。
+         这条曾经在日期补零上栽过（月/日 < 10 时 key 拼不上，天数恒为 0）。 */
+      await page.evaluate(()=>{
+        const box=RC.store.get('profile',{})||{},d=new Date();
+        d.setDate(d.getDate()-1);d.setHours(21,0,0,0);
+        const p=n=>String(n).padStart(2,'0');
+        const y=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+        box.moodLogs=(box.moodLogs||[]).filter(l=>l.date!==y)
+          .concat([{date:y,score:3,tags:[],at:d.getTime()}]).sort((a,b)=>(a.date<b.date?-1:1));
+        RC.store.set('profile',box);
+      });
+      await page.reload();
+      assert.equal((await page.locator('#tbRoStreak').textContent()).trim(),'2');
+      /* 回到 2 分，取回低分那条桥 */
+      await page.locator('#tbMood2').click();
+      await page.locator('#tbMoodSave').click();
+      assert.match(await page.locator('#tbBridgeText').textContent(),/偏低/);
+
+      /* 二、顺着桥接去呼吸 */
+      await page.locator('#tbBridgeGo').click();
+      assert.equal(await page.locator('#tbBreathPanel').isVisible(),true);
+      await page.locator('#tbPat-478').click();
+      await page.locator('#tbBreathStart').click();
+      await page.waitForFunction(()=>document.querySelector('#tbBreathPhase').textContent.trim()==='吸气');
+      /* 4 秒吸气之后进入 7 秒停住 —— 相位是真的在走 */
+      await page.waitForFunction(()=>document.querySelector('#tbBreathPhase').textContent.trim()==='停住',{timeout:9000});
+      await page.locator('#tbBreathStop').click();
+      const breaths=await page.evaluate(()=>(RC.store.get('profile',{}).breaths)||[]);
+      assert.equal(breaths.length,1);
+      assert.equal(breaths[0].pattern,'478');
+      assert.ok(breaths[0].seconds>=4,'应当坐满 4 秒以上，实际 '+breaths[0].seconds);
+      assert.equal((await page.locator('#tbRoBreath').textContent()).trim(),'1');
+      assert.match(await page.locator('#tbBridgeText').textContent(),/写下来/);
+
+      /* 三、再顺着桥接去念头记录 */
+      await page.locator('#tbBridgeGo').click();
+      assert.equal(await page.locator('#tbThoughtPanel').isVisible(),true);
+      await page.locator('#tbThSave').click();
+      assert.match(await page.locator('#tbThMsg').textContent(),/还得填上/);   /* 必填没填 → 拒收 */
+      assert.equal(await page.evaluate(()=>(RC.store.get('profile',{}).thoughts||[]).length),0);
+      await page.locator('#tbTh-scene').fill('会开到一半被问到进度。');
+      await page.locator('#tbTh-thought').fill('我根本不适合做这件事。');
+      await page.locator('#tbTh-against').fill('上周的方案是我先提出来的。');
+      await page.locator('#tbTh-alt').fill('这次没准备好，不等于不适合。');
+      await page.locator('#tbThSave').click();
+      const th=await page.evaluate(()=>(RC.store.get('profile',{}).thoughts)||[]);
+      assert.equal(th.length,1);
+      assert.equal(th[0].scene,'会开到一半被问到进度。');
+      assert.equal(th[0].alt,'这次没准备好，不等于不适合。');
+      assert.equal(await page.locator('#tbThList .tb-item').count(),1);
+      assert.equal(await page.evaluate(()=>!!(RC.store.get('stamps',{})||{}).thought),true);
+      /* 删得掉 */
+      await page.locator('#tbThList .tb-del').first().click();
+      assert.equal(await page.evaluate(()=>(RC.store.get('profile',{}).thoughts||[]).length),0);
+
+      /* 四、三样都汇进同一份档案 */
+      await page.goto(base+'/profile.html');
+      const prof=await page.locator('#profile-app').textContent();
+      assert.match(prof,/情绪/);
+      assert.match(prof,/呼吸/);
+      assert.deepEqual(errors,[]);
+      await ctx.close();
+    });
     await scenario('static server refuses repository internals',async()=>{for(const p of ['/.git/config','/cloudfunctions/treehole/index.js','/assets/%2e%2e/%2e%2e/package.json'])assert.equal((await fetch(base+p)).status,404);});
     fs.writeFileSync(path.join(__dirname,'artifacts/results.json'),JSON.stringify({passed:results},null,2));
     console.log(results.length+' browser scenarios passed');

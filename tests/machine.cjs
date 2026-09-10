@@ -53,11 +53,12 @@ function settle(closeFn, ms = 2000) {
     check('投币按钮存在', (await page.locator('#mcInsert').count()) === 1);
     check('型号铭牌正确', (await page.locator('.mc-name').innerText()).includes('RC-2006'));
 
-    log('· A2 导航：主流程 7 项（含新增的「档案」），移出的页面仍可达');
+    log('· A2 导航：主流程 8 项（含「档案」与「理线头」），移出的页面仍可达');
     const nav = await page.locator('#navMount .nav a')
       .evaluateAll((els) => els.map((a) => a.getAttribute('href')));
-    check('导航恰好 7 项', nav.length === 7, nav.join(' '));
+    check('导航恰好 8 项', nav.length === 8, nav.join(' '));
     check('档案已进导航', nav.includes('profile.html'), nav.join(' '));
+    check('理线头已进导航', nav.includes('toolbox.html'), nav.join(' '));
     check('委托 / 塔罗已移出导航', !nav.includes('order.html') && !nav.includes('tarot.html'), nav.join(' '));
     check('精神分析仍在（机器不能代做）', nav.includes('psyche.html'), nav.join(' '));
     const foot = await page.locator('#footMount a')

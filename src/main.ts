@@ -85,3 +85,9 @@ if(document.getElementById('cards-app')) {
   document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'cards.html'});
   const {default:Cards}=await import('./TarotCards.vue');createApp(Cards).mount('#cards-app');
 }
+if(document.getElementById('toolbox-app')) {
+  rc.ui.chrome({title:rc.i18n.t('tbTitle'),path:'toolbox.html'});
+  document.getElementById('navMount')!.innerHTML=rc.ui.nav('toolbox.html');
+  document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'toolbox.html'});
+  const {default:Toolbox}=await import('./ToolboxPage.vue');createApp(Toolbox).mount('#toolbox-app');
+}

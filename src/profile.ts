@@ -81,6 +81,16 @@ export interface ThoughtRecord {
   alt: string;
 }
 
+export interface BreathSession {
+  at: number;
+  /** 模式键：478 / box / long */
+  pattern: string;
+  /** 完成的轮数 */
+  rounds: number;
+  /** 实际停留秒数 */
+  seconds: number;
+}
+
 export interface Snapshot {
   handle: string;
   visits: {total: number; today: number; lastAt: number};
@@ -91,18 +101,19 @@ export interface Snapshot {
   tarot: {draws: TarotDraw[]; count: number};
   mood: {logs: MoodLog[]; streak: number; avg7: number};
   thoughts: ThoughtRecord[];
+  breaths: BreathSession[];
   dreams: any[];
   notes: any[];
   stamps: {id: string; at: number}[];
   counts: {
     orders: number; items: number; tarot: number;
-    dreams: number; notes: number; stamps: number; mood: number;
+    dreams: number; notes: number; stamps: number; mood: number; thoughts: number; breaths: number;
   };
 }
 
 export interface Event {
   at: number;
-  kind: 'order' | 'verdict' | 'tarot' | 'personality' | 'mood' | 'dream' | 'note' | 'stamp' | 'thought';
+  kind: 'order' | 'verdict' | 'tarot' | 'personality' | 'mood' | 'dream' | 'note' | 'stamp' | 'thought' | 'breath';
   title: string;
   detail: string;
 }
@@ -123,10 +134,6 @@ function subSet(k: string, v: unknown): boolean {
 
 /* ---------------- 时间工具 ---------------- */
 
-function dayKey(ts: number): string {
-  const d = new Date(ts);
-  return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-}
 function toDateStr(ts: number): string {
   const d = new Date(ts);
   const p = (n: number) => (n < 10 ? '0' + n : String(n));
@@ -139,24 +146,23 @@ function fmt(ts: number): string {
   return toDateStr(ts) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
 }
 
-/** 连续打卡天数（含今天；今天没打则从昨天往前数） */
+/** 连续打卡天数（含今天；今天没打则从昨天往前数）
+    注意：日期键必须与 MoodLog.date 同口径 —— 都是补零的 YYYY-MM-DD。
+    早先这里漏了补零，月或日小于 10 时永远匹配不上，连续天数恒为 0。 */
 function calcStreak(logs: MoodLog[]): number {
   if (!logs.length) return 0;
   const days = new Set(logs.map(l => l.date).filter(Boolean));
-  const today = new Date();
-  const todayKey = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-  if (!days.has(todayKey)) {
-    today.setDate(today.getDate() - 1);
-    const yKey = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-    if (!days.has(yKey)) return 0;
+  const cursor = new Date();
+  cursor.setHours(0, 0, 0, 0);
+  if (!days.has(toDateStr(cursor.getTime()))) {
+    cursor.setDate(cursor.getDate() - 1);
+    if (!days.has(toDateStr(cursor.getTime()))) return 0;
   }
   let n = 0;
-  const cur = new Date();
   for (let i = 0; i < 400; i++) {
-    const k = cur.getFullYear() + '-' + (cur.getMonth() + 1) + '-' + cur.getDate();
-    if (!days.has(k)) break;
+    if (!days.has(toDateStr(cursor.getTime()))) break;
     n++;
-    cur.setDate(cur.getDate() - 1);
+    cursor.setDate(cursor.getDate() - 1);
   }
   return n;
 }
@@ -267,6 +273,18 @@ export const profile = {
     return subSet('thoughts', this.thoughts().filter(t => t.id !== id));
   },
 
+  /** 呼吸练习：坐了一次就记一次（轮数可以为 0，秒数不能） */
+  addBreath(b: Omit<BreathSession, 'at'> & {at?: number}): BreathSession | null {
+    if (!b) return null;
+    const secs = Math.max(0, Math.round(Number(b.seconds) || 0));
+    const rounds = Math.max(0, Math.round(Number(b.rounds) || 0));
+    if (secs <= 0 && rounds <= 0) return null;
+    const list = arr<BreathSession>(subGet<BreathSession[]>('breaths', []));
+    const rec: BreathSession = {at: b.at || Date.now(), pattern: String(b.pattern || ''), rounds, seconds: secs};
+    return subSet('breaths', list.concat([rec]).slice(-400)) ? rec : null;
+  },
+  breaths(): BreathSession[] { return arr<BreathSession>(subGet<BreathSession[]>('breaths', [])); },
+
   /* ---- 聚合 ---- */
 
   snapshot(): Snapshot {
@@ -306,6 +324,7 @@ export const profile = {
       tarot: {draws, count: read<number>('stat_tarot', 0) + (caseTarot ? 1 : 0)},
       mood: {logs: moodLogs, streak: calcStreak(moodLogs), avg7: calcAvg7(moodLogs)},
       thoughts: this.thoughts(),
+      breaths: this.breaths(),
       dreams, notes, stamps,
       counts: {
         orders: tickets.length, items,
@@ -313,7 +332,9 @@ export const profile = {
         dreams: dreams.length,
         notes: notes.length,
         stamps: stamps.length,
-        mood: moodLogs.length
+        mood: moodLogs.length,
+        thoughts: this.thoughts().length,
+        breaths: this.breaths().length
       }
     };
   },
@@ -366,6 +387,12 @@ export const profile = {
     s.thoughts.forEach(t => {
       ev.push({at: t.at, kind: 'thought', title: '记下一条念头', detail: String(t.thought || '').slice(0, 30)});
     });
+    s.breaths.forEach(b => {
+      ev.push({
+        at: b.at, kind: 'breath', title: '做了一次呼吸练习',
+        detail: b.pattern + ' · ' + b.rounds + ' 轮'
+      });
+    });
 
     return ev.filter(e => e.at > 0).sort((a, b) => b.at - a.at);
   },
@@ -384,6 +411,7 @@ export const profile = {
       tarot: {count: s.counts.tarot, draws: s.tarot.draws, mirror: this.mirror()},
       mood: s.mood,
       thoughts: s.thoughts,
+      breaths: s.breaths,
       dreams: s.dreams,
       counts: s.counts,
       stamps: s.stamps
@@ -413,6 +441,7 @@ export const profile = {
     L.push('| 抽牌 | ' + s.counts.tarot + ' 次 |');
     L.push('| 记录梦境 | ' + s.counts.dreams + ' 则 |');
     L.push('| 情绪打卡 | ' + s.counts.mood + ' 天（连续 ' + s.mood.streak + ' 天） |');
+    L.push('| 呼吸练习 | ' + s.counts.breaths + ' 次 |');
     L.push('| 念头记录 | ' + s.thoughts.length + ' 条 |');
     L.push('| 印章 | ' + s.counts.stamps + ' 枚 |');
     L.push('');
@@ -456,7 +485,21 @@ export const profile = {
       L.push('');
       s.mood.logs.slice(-14).forEach(l => {
         L.push('- ' + l.date + '　' + '●'.repeat(l.score) + '○'.repeat(Math.max(0, 5 - l.score)) +
-          (l.tags && l.tags.length ? '　' + l.tags.join('、') : ''));
+          (l.tags && l.tags.length ? '　' + l.tags.join('、') : '') +
+          (l.note ? '　—　' + l.note : ''));
+      });
+      L.push('');
+    }
+
+    if (s.breaths.length) {
+      const rounds = s.breaths.reduce((a, b) => a + (Number(b.rounds) || 0), 0);
+      const mins = Math.round(s.breaths.reduce((a, b) => a + (Number(b.seconds) || 0), 0) / 60);
+      L.push('## 呼吸练习');
+      L.push('');
+      L.push('- 共 ' + s.breaths.length + ' 次，累计 ' + rounds + ' 轮 / ' + mins + ' 分钟');
+      L.push('');
+      s.breaths.slice(-10).forEach(b => {
+        L.push('- ' + fmt(b.at) + '　' + b.pattern + '　' + b.rounds + ' 轮');
       });
       L.push('');
     }
@@ -507,7 +550,8 @@ export const profile = {
   has(): boolean {
     const s = this.snapshot();
     return !!(s.visits.total || s.counts.tarot || s.counts.dreams || s.counts.mood ||
-      s.counts.notes || s.counts.stamps || s.personality || s.verdict);
+      s.counts.notes || s.counts.stamps || s.counts.thoughts || s.counts.breaths ||
+      s.personality || s.verdict);
   }
 };
 

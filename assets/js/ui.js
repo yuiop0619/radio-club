@@ -29,6 +29,7 @@
     { href: 'psyche.html',  jp: '精神分析',   cn: '精神分析', en: 'PSYCHE' },
     { href: 'verdict.html', jp: '鑑定',       cn: '鉴定',   en: 'VERDICT' },
     { href: 'dreams.html',  jp: '夢の記録',   cn: '梦境',   en: 'DREAMS' },
+    { href: 'toolbox.html', jp: '道具箱',     cn: '理线头', en: 'TOOLBOX' },
     { href: 'masters.html', jp: 'ギャラリー', cn: '画廊',   en: 'GALLERY' },
     { href: 'bbs.html',     jp: '木の穴',      cn: '树洞',   en: 'BBS' },
     { href: 'profile.html', jp: '私の档案',    cn: '档案',   en: 'FILE' }
