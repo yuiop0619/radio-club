@@ -300,5 +300,20 @@ onMounted(() => {
       <textarea ref="shareBox" id="shareBox" readonly style="min-height:64px;font-size:11px"></textarea>
       <div class="hint">链接持有人可以读取预览内容。片段不会随页面请求发送，但不是加密；已分发副本无法撤回。 / リンクを持つ人は内容を読めます。</div>
     </div>
+
+    <div class="panel next-card">
+      <div class="p-head">
+        <h2><span class="i18n-cn">接下来</span><span class="i18n-jp">次は</span></h2>
+        <span class="p-en">NEXT</span>
+      </div>
+      <div class="p-body">
+        <p class="dim"><span class="i18n-cn">这份鉴定书只是中场。你可以继续往深处走，也可以重新开始一句委托。</span><span class="i18n-jp">この鑑定書は中盤。深く進んでもいいし、新しい依頼を書いてもいい。</span></p>
+        <div class="next-actions">
+          <a class="btn" href="psyche.html"><span class="i18n-cn">去做精神分析 →</span><span class="i18n-jp">精神分析へ →</span></a>
+          <a class="btn ghost" href="tarot.html"><span class="i18n-cn">再抽一组牌 →</span><span class="i18n-jp">もう一组のカード →</span></a>
+          <a class="btn ghost" href="order.html?new=1"><span class="i18n-cn">追加一句委托 →</span><span class="i18n-jp">依頼を追加 →</span></a>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

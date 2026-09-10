@@ -342,16 +342,7 @@
       "statusModules": "功能模块",
       "statusUsed": "已用过",
       "statusUnused": "还没碰过",
-      "statusStack": "技术栈",
-      "statusDeploy": "部署",
-      "statusOnline": "线上地址",
-      "statusVersion": "版本",
-      "statusNote": "所有数据只存在你这台设备，不上传，也不经过服务器。",
-      "labTitle": "实验室",
-      "labArch": "架构",
-      "labStore": "存储键",
-      "labBuild": "构建链",
-      "labDecisions": "设计决策"
+      "statusNote": "所有数据只存在你这台设备，不上传，也不经过服务器。"
     },
     "jp": {
       "counter": "カウンター",
@@ -694,16 +685,7 @@
       "statusModules": "モジュール",
       "statusUsed": "使った",
       "statusUnused": "まだ",
-      "statusStack": "技術スタック",
-      "statusDeploy": "配信",
-      "statusOnline": "公開URL",
-      "statusVersion": "バージョン",
-      "statusNote": "すべてのデータはこの端末内にあり、送信もサーバー通過もしない。",
-      "labTitle": "ラボ",
-      "labArch": "アーキテクチャ",
-      "labStore": "ストレージキー",
-      "labBuild": "ビルド",
-      "labDecisions": "設計方針"
+      "statusNote": "すべてのデータはこの端末内にあり、送信もサーバー通過もしない。"
     }
   }
 }

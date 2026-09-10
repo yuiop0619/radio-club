@@ -8,7 +8,7 @@
     "bbs.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "haunt", "cloud-config", "treehole-cloud", "treehole"],
     "cards.html": ["store", "model", "share", "i18n", "skeleton", "tarot-data", "tarot-dim", "ui", "stamps", "ambient", "demo", "haunt"],
     "dreams.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "haunt"],
-    "index.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "puppet", "haunt", "tarot-data", "omen", "machine"],
+    "index.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "puppet", "haunt", "tarot-data", "omen", "home-summary", "machine"],
     "link.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "haunt"],
     "masters.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "analyst", "haunt"],
     "order.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "haunt"],
@@ -19,7 +19,6 @@
     "tarot.html": ["store", "model", "share", "i18n", "skeleton", "tarot-data", "tarot-dim", "ui", "stamps", "ambient", "demo", "haunt"],
     "toolbox.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "haunt"],
     "status.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "haunt"],
-    "lab.html": ["store", "model", "share", "i18n", "skeleton", "ui", "stamps", "ambient", "demo", "haunt"],
     "verdict.html": ["store", "model", "share", "i18n", "skeleton", "tarot-data", "tarot-dim", "engine", "analyst", "ui", "stamps", "ambient", "demo", "share-card", "haunt", "interpret"]
   }
 }

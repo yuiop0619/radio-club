@@ -59,7 +59,11 @@ function persist(): void { rc.store.set(KEY, list.value.slice(0, 200)); }
 function refresh(): void { list.value = load(); }
 
 const today = todayStr();
-const countText = computed(() => list.value.length + ' ' + t('dreamCount'));
+const monthCount = computed(() => {
+  const y = today.slice(0, 7);
+  return list.value.filter(d => d.date && d.date.startsWith(y)).length;
+});
+const countText = computed(() => list.value.length + ' ' + t('dreamCount') + ' · ' + (lang.value === 'jp' ? '今月 ' : '本月 ') + monthCount.value);
 
 function submit(): void {
   const body = form.value.body.trim();
@@ -139,7 +143,12 @@ refresh();
     </div>
     <div class="p-body">
       <div id="dreamMount">
-        <p v-if="!list.length" class="dim center">{{ t('dreamEmpty') }}</p>
+        <div v-if="!list.length" class="dream-guide">
+          <div class="dg-icon">✦</div>
+          <p class="dg-title"><span class="i18n-cn">档案还是空的</span><span class="i18n-jp">記録はまだ空</span></p>
+          <p class="dg-body"><span class="i18n-cn">第一个梦不需要完整。醒来还记得的三句、一个颜色、一种感觉，都够。</span><span class="i18n-jp">最初の夢は完璧である必要はない。覚えている三行、色、感覚だけでいい。</span></p>
+          <p class="dg-hint"><span class="i18n-cn">写完后可以「带去会诊」，七位大师会轮流读它。</span><span class="i18n-jp">書いたら「診断へ持っていく」で、七人の名家が読む。</span></p>
+        </div>
         <div v-else class="tl">
           <div v-for="d in list" :key="d.id" class="tl-item" :class="{today: d.date === today}">
             <div class="tl-date">{{ d.date }}<template v-if="d.date === today"> · {{ t('justNow') }}</template></div>

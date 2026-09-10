@@ -393,6 +393,25 @@ function restoreDraft() {
   if (results.value.length && flippedIdx.value.length === results.value.length) finish(false);
 }
 
+/* ---------- 今日一牌（独立快速入口） ---------- */
+const dailyCard = ref<{id: number; upright: boolean}|null>(null);
+function todayStr() {
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, '0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+function hash(s: string) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+function drawDaily() {
+  const arc = (T.arcana || []) as any[];
+  if (!arc.length) return;
+  const c = arc[hash(todayStr()) % arc.length];
+  dailyCard.value = {id: c.n, upright: hash(todayStr() + 'up') % 2 === 0};
+}
+
 /* ---------- 挂载 ---------- */
 onMounted(() => {
   rc.ui.dialog({
@@ -408,6 +427,25 @@ onMounted(() => {
 
 <template>
   <div ref="introMount" id="introMount"></div>
+
+  <div class="panel">
+    <div class="p-head">
+      <h2><span class="i18n-cn">今日一牌</span><span class="i18n-jp">今日の一枚</span></h2>
+      <span class="p-en">TODAY'S CARD</span>
+      <span class="p-note"><span class="i18n-cn">同一天只会出现这一张</span><span class="i18n-jp">同じ日はこの一枚だけ</span></span>
+    </div>
+    <div class="p-body">
+      <div v-if="!dailyCard" class="center">
+        <button type="button" class="btn ghost" @click="drawDaily"><span class="i18n-cn">翻开今日之牌 →</span><span class="i18n-jp">今日の札を開く →</span></button>
+      </div>
+      <div v-else class="daily-card">
+        <div class="daily-glyph">{{ card(dailyCard.id).g }}</div>
+        <div class="daily-name">{{ bi(card(dailyCard.id).cn, card(dailyCard.id).jp) }} · {{ t(dailyCard.upright ? 'upright' : 'reversed') }}</div>
+        <p class="daily-text">{{ dailyCard.upright ? card(dailyCard.id).up : card(dailyCard.id).rv }}</p>
+        <a class="daily-link" :href="'cards.html#card-' + dailyCard.id"><span class="i18n-cn">看完整牌义 →</span><span class="i18n-jp">詳細を見る →</span></a>
+      </div>
+    </div>
+  </div>
 
   <div class="panel">
     <div class="p-head">

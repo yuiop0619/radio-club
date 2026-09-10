@@ -97,9 +97,3 @@ if(document.getElementById('status-app')) {
   document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'status.html'});
   const {default:Status}=await import('./StatusPage.vue');createApp(Status).mount('#status-app');
 }
-if(document.getElementById('lab-app')) {
-  rc.ui.chrome({title:rc.i18n.t('labTitle'),path:'lab.html'});
-  document.getElementById('navMount')!.innerHTML=rc.ui.nav('lab.html');
-  document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'lab.html'});
-  const {default:Lab}=await import('./LabPage.vue');createApp(Lab).mount('#lab-app');
-}
