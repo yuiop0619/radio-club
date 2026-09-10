@@ -292,6 +292,41 @@ async function refresh(page){await page.evaluate(async()=>{const known=RC.store.
       assert.deepEqual(errors,[]);
       await ctx.close();
     });
+    await scenario('daily omen: 首页按日期选签且当天稳定',async()=>{
+      const {ctx,page,errors}=await fresh();
+      await page.goto(base+'/index.html');
+      await page.locator('#omenMount .omen-card').waitFor();
+      const text1=(await page.locator('#omenMount .omen-text').textContent()||'').trim();
+      assert.ok(text1.length>0,'签文为空');
+      const seen=await page.evaluate(()=>{try{return (RC.store.get('profile',{})||{}).omenSeen||[];}catch(e){return [];}});
+      assert.equal(seen.length,1,'当天应只记一次 omenSeen');
+      await page.reload();await page.locator('#omenMount .omen-card').waitFor();
+      const text2=(await page.locator('#omenMount .omen-text').textContent()||'').trim();
+      assert.equal(text2,text1,'当天刷新签文应变');
+      assert.deepEqual(errors,[]);
+    });
+    await scenario('dream report: 档案页词云 + 情绪分布',async()=>{
+      const {ctx,page}=await fresh();
+      await page.goto(base+'/profile.html');
+      const now=Date.now();
+      await page.evaluate(ts=>{
+        const logs=[
+          {id:'d1',date:'2026-09-01',title:'电梯',body:'x',mood:'迷路',tag:'电梯／水',ts:ts-5*864e5},
+          {id:'d2',date:'2026-09-03',title:'水',body:'x',mood:'疲惫',tag:'水',ts:ts-4*864e5},
+          {id:'d3',date:'2026-09-05',title:'追',body:'x',mood:'疲惫',tag:'追赶／电梯',ts:ts-3*864e5},
+          {id:'d4',date:'2026-09-07',title:'y',body:'x',mood:'想念',tag:'电梯',ts:ts-2*864e5},
+          {id:'d5',date:'2026-09-09',title:'z',body:'x',mood:'迷路',tag:'迷宫',ts:ts-1*864e5}
+        ];
+        try{RC.store.set('dreamLog',logs);}catch(e){localStorage.setItem('dreamLog',JSON.stringify(logs));}
+      },now);
+      await page.reload();
+      await page.locator('#dreamReportPanel').waitFor();
+      const words=await page.locator('#dreamReportPanel .dr-word').allTextContents();
+      assert.ok(words.length>=3,'词云应有多条意象（实得 '+words.length+'）');
+      assert.ok(words.some(w=>w.indexOf('电梯')>=0),'电梯应出现在词云');
+      const moods=await page.locator('#dreamReportPanel .dr-mood').count();
+      assert.equal(moods,3,'情绪分布应有 3 种 mood（实得 '+moods+'）');
+    });
     await scenario('static server refuses repository internals',async()=>{for(const p of ['/.git/config','/cloudfunctions/treehole/index.js','/assets/%2e%2e/%2e%2e/package.json'])assert.equal((await fetch(base+p)).status,404);});
     fs.writeFileSync(path.join(__dirname,'artifacts/results.json'),JSON.stringify({passed:results},null,2));
     console.log(results.length+' browser scenarios passed');

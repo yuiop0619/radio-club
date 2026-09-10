@@ -138,6 +138,39 @@ const breathMin = computed(() => Math.round(snap.value.breaths.reduce((a, b) => 
 /* ---------------- 章 4c · 念头记录 ---------------- */
 const thoughts = computed(() => snap.value.thoughts.slice().reverse());
 
+/* ---------------- 章 4d · 梦境月报 ---------------- */
+/* 梦境的 mood 是分类值（不是 1~5 分），所以这里给的是「分布」而非曲线：
+   词云看反复出现的意象，横向条看醒来时的情绪构成。 */
+const MOOD_CN: Record<string, {label: string; color: string}> = {
+  '还好': {label: '还好', color: '#7fb3a3'},
+  '疲惫': {label: '疲惫', color: '#b39a7f'},
+  '生气': {label: '生气', color: '#c2726a'},
+  '想念': {label: '想念', color: '#9d8ec2'},
+  '睡不着': {label: '睡不着', color: '#6f8fb3'},
+  '迷路': {label: '迷路', color: '#b3a76f'}
+};
+const dreamMonth = computed(() => {
+  const all = (snap.value.dreams as any[]) || [];
+  const cut = Date.now() - 30 * 86400000;
+  const recent = all.filter(d => (Number(d.ts) || 0) >= cut);
+  const tagFreq: Record<string, number> = {};
+  recent.forEach(d => {
+    String(d.tag || '').split(/[\/／、,，\s]+/).map(s => s.trim()).filter(Boolean)
+      .forEach(w => { tagFreq[w] = (tagFreq[w] || 0) + 1; });
+  });
+  const tags = Object.keys(tagFreq).map(w => ({w, n: tagFreq[w]})).sort((a, b) => b.n - a.n);
+  const maxTag = tags.length ? tags[0].n : 0;
+  const moodFreq: Record<string, number> = {};
+  recent.forEach(d => { const m = String(d.mood || '').trim(); if (m) moodFreq[m] = (moodFreq[m] || 0) + 1; });
+  const moods = Object.keys(moodFreq).map(m => ({
+    m, n: moodFreq[m],
+    label: (MOOD_CN[m] || {label: m, color: '#888'}).label,
+    color: (MOOD_CN[m] || {label: m, color: '#888'}).color
+  })).sort((a, b) => b.n - a.n);
+  const maxMood = moods.length ? moods[0].n : 0;
+  return {recent, tags, maxTag, moods, maxMood, count: recent.length};
+});
+
 /* ---------------- 章 6 · 导出 ---------------- */
 function stampStr(): string {
   const d = new Date();
@@ -340,6 +373,41 @@ function exportJson(): void {
     </div>
   </div>
 
+  <!-- 章 4d · 梦境月报 -->
+  <div class="panel" id="dreamReportPanel" v-if="snap.counts.dreams">
+    <div class="p-head">
+      <h2>{{ t('dreamReportTitle') }}</h2>
+      <span class="p-en">DREAM REPORT</span>
+      <span class="p-note">{{ t('dreamReportSub') }} · {{ dreamMonth.count }} {{ t('dreamReportCount') }}</span>
+    </div>
+    <div class="p-body">
+      <p v-if="!dreamMonth.count" class="dim center">{{ t('dreamReportEmpty') }}</p>
+      <template v-else>
+        <template v-if="dreamMonth.tags.length">
+          <p class="dim small">{{ t('dreamReportTags') }}</p>
+          <div class="dr-cloud">
+            <span v-for="tg in dreamMonth.tags" :key="tg.w" class="dr-word"
+              :style="{ fontSize: (12 + (tg.n / dreamMonth.maxTag) * 16) + 'px', opacity: 0.5 + (tg.n / dreamMonth.maxTag) * 0.5 }">{{ tg.w }}<i>{{ tg.n }}</i></span>
+          </div>
+        </template>
+        <template v-if="dreamMonth.moods.length">
+          <hr class="rule">
+          <p class="dim small">{{ t('dreamReportMood') }}</p>
+          <div class="dr-moods">
+            <div v-for="m in dreamMonth.moods" :key="m.m" class="dr-mood">
+              <span class="dr-m-label">{{ m.label }}</span>
+              <span class="dr-m-bar"><span class="dr-m-fill" :style="{ width: (m.n / dreamMonth.maxMood * 100) + '%', background: m.color }"></span></span>
+              <span class="dr-m-n">{{ m.n }}</span>
+            </div>
+          </div>
+        </template>
+        <div class="center mt">
+          <a class="btn ghost" href="dreams.html">{{ t('dreamReportGo') }} →</a>
+        </div>
+      </template>
+    </div>
+  </div>
+
   <!-- 章 5 · 时间线 -->
   <div class="panel">
     <div class="p-head">
@@ -422,6 +490,15 @@ function exportJson(): void {
 .ev-detail { font-size: 12px; opacity: .55; margin-left: 8px; }
 .ev-at { font-size: 11px; opacity: .45; white-space: nowrap; }
 .dim.small { font-size: 12px; }
+.dr-cloud { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; line-height: 2.1; margin: 6px 0 4px; }
+.dr-word { display: inline-flex; align-items: baseline; gap: 3px; }
+.dr-word i { font-style: normal; font-size: 10px; opacity: .5; }
+.dr-moods { margin-top: 6px; }
+.dr-mood { display: grid; grid-template-columns: 64px 1fr 28px; align-items: center; gap: 8px; margin: 6px 0; }
+.dr-m-label { font-size: 12px; opacity: .8; }
+.dr-m-bar { display: block; height: 8px; border-radius: 4px; background: rgba(128,128,128,.2); overflow: hidden; }
+.dr-m-fill { display: block; height: 100%; border-radius: 4px; }
+.dr-m-n { font-size: 12px; opacity: .6; text-align: right; }
 @media (max-width: 640px) {
   .pf-ov { grid-template-columns: repeat(3, 1fr); }
   .ev-detail { display: block; margin-left: 0; }

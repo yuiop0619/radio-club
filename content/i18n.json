@@ -325,7 +325,18 @@
       "tbBridgeThought": "记下了。要不要看一眼完整档案？今天这三样，这台机器把它们排在同一条时间线上。",
       "breathTitle": "呼吸练习",
       "breathSum": "累计",
-      "thoughtList": "念头记录"
+      "thoughtList": "念头记录",
+      "omenTitle": "今日一签",
+      "omenSee": "看这张牌的解读",
+      "omenNote": "每天换一张，但当天的签不会变。",
+      "dreamReportTitle": "本月梦境月报",
+      "dreamReportSub": "近 30 天",
+      "dreamReportCount": "则梦境",
+      "dreamReportTags": "反复出现的意象",
+      "dreamReportMood": "醒来时的情绪",
+      "dreamReportEmpty": "这 30 天还没记过梦。",
+      "dreamReportGo": "去记一条梦",
+      "dreamReportTop": "出现最多的意象"
     },
     "jp": {
       "counter": "カウンター",
@@ -651,7 +662,18 @@
       "tbBridgeThought": "記録した。档案を一度見てみる？今日の三つは、同じ時間軸に並んでいる。",
       "breathTitle": "呼吸の記録",
       "breathSum": "累計",
-      "thoughtList": "念いの記録"
+      "thoughtList": "念いの記録",
+      "omenTitle": "今日の一签",
+      "omenSee": "この札の読みへ",
+      "omenNote": "毎日替わるが、今日の札は変わらない。",
+      "dreamReportTitle": "今月の夢月報",
+      "dreamReportSub": "直近30日",
+      "dreamReportCount": "件の夢",
+      "dreamReportTags": "繰り返すイメージ",
+      "dreamReportMood": "目覚めの感情",
+      "dreamReportEmpty": "この30日はまだ夢を書いてない。",
+      "dreamReportGo": "夢を書きに行く",
+      "dreamReportTop": "最も現れたイメージ"
     }
   }
 }

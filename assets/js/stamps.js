@@ -111,6 +111,10 @@
     try_('regular', RC.store.get('visits', 0) >= 7);
     try_('lang', RC.i18n.lang() === 'jp' || RC.store.get('lang', 'cn') === 'jp');
     try_('floor17', !!RC.store.get('seen17', false));
+    /* 看过三天不同日期的每日一签（痕迹写在 rc_profile.omenSeen，由 omen.js 写） */
+    try_('omen', inProfile(function (b) { return (b.omenSeen || []).length >= 3; }));
+    /* 记下的梦够开一份月报 */
+    try_('month', dreamCount() >= 4);
     return unlocked;
   }
 

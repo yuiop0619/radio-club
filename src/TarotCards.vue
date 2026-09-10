@@ -75,7 +75,7 @@ onMounted(() => { try { (rc.i18n as any).apply?.(); } catch (e) { /* 忽略 */ }
         <button
           v-for="c in shown" :key="c.n" type="button"
           class="cd-cell" :class="{open: openId === c.n}"
-          :data-card="c.n" @click="toggle(c.n)">
+          :id="'card-' + c.n" :data-card="c.n" @click="toggle(c.n)">
           <span class="cd-num">{{ c.r }}</span>
           <span class="cd-glyph">{{ c.g }}</span>
           <span class="cd-name">{{ nameOf(c) }}</span>
