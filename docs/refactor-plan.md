@@ -78,7 +78,12 @@
 
 - **README 重写**：定位从「复刻站点」改为《梦侦探鉴定机 MODEL RC-2006》——开头即讲清「投币 → 取纸」两步，并把「机器不代做精神分析」写成产品原则；同步修正过时表述（树洞默认云端、导航 6 项、`test:machine` / `test:ai` 脚本）
 - **文档同步**：本方案各阶段状态归位；`docs/hackathon-strategy.md` 与 `docs/track2-lipu-inventor.md` 保留为评估过程记录
-- **上线核查**：构建 → 全量测试 → 部署 → `npm run test:remote` 冒烟，确认线上与本地一致
+- **上线核查（2026-09-10 实测）**：构建 → 全量测试 → SSH 推送（`1b0ba57..7b12181`）→
+  `deploy.py --no-build`（上传 33.1 MB / 148 文件，`rc-api` + `nginx` active）→
+  `npm run test:remote` 冒烟：**13 页全 PASS**（导航 6 项一致、零 JS 报错、零 404）
+- **测试工具修复**：`tests/remote-check.cjs` 收尾的 `browser.close()` 会被 keep-alive 连接吊死，
+  症状是「全部 PASS 打印完但进程不退」（被 `| tail` 缓冲时表现为「什么都不打印、一直不结束」）。
+  已改为**先出结论 → `Promise.race` 兜底 close → `process.exit()`**，耗时从挂死 6 分钟降到 32 秒
 
 **Phase 2 实际产出**（分三批推进，每批跑全量测试）：
 

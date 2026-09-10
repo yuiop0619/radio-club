@@ -26,7 +26,9 @@ const PAGES = ['/', '/index.html', '/people.html', '/order.html', '/tarot.html',
     if (f404.length) console.log('   资源失败:', f404.slice(0, 4).join(' | '));
     await page.close();
   }
-  await browser.close();
+  /* browser.close() 可能被 keep-alive 连接吊死；先出结论，再兜底收尾并显式退出，
+     否则脚本会卡在 close 上（被管道缓冲时表现为「什么都不打印、一直不结束」）。 */
+  await Promise.race([browser.close().catch(() => {}), new Promise(r => setTimeout(r, 3000))]);
   console.log(bad ? `\n✗ ${bad} 页有问题` : '\n✓ 全部页面正常');
   process.exit(bad ? 1 : 0);
-})();
+})().catch(e => { console.error(e); process.exit(1); });
