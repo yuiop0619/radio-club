@@ -79,3 +79,9 @@ if(document.getElementById('personality-app')) {
   document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'personality.html'});
   const {default:Personality}=await import('./PersonalityPage.vue');createApp(Personality).mount('#personality-app');
 }
+if(document.getElementById('cards-app')) {
+  rc.ui.chrome({title:rc.i18n.t('cardsTitle'),path:'cards.html'});
+  document.getElementById('navMount')!.innerHTML=rc.ui.nav('cards.html');
+  document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'cards.html'});
+  const {default:Cards}=await import('./TarotCards.vue');createApp(Cards).mount('#cards-app');
+}

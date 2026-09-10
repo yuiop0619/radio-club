@@ -74,7 +74,8 @@ function ok(name, cond, extra) {
     const page = await ctx.newPage();
     await page.goto(base + '/index.html');
     await page.waitForTimeout(800);
-    ok('集章卡 12 格', await page.locator('#stampMount .stamp-cell').count() === 12);
+    const stampDefs = await page.evaluate(() => RC.stamps.DEFS.length);
+    ok('集章卡格数与印章定义一致', await page.locator('#stampMount .stamp-cell').count() === stampDefs);
     ok('初次到店已盖章', await page.locator('#stampMount .stamp-cell.got').count() >= 1);
     await ctx.close();
   }

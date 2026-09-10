@@ -165,6 +165,44 @@ async function refresh(page){await page.evaluate(async()=>{const known=RC.store.
       assert.deepEqual(errors,[]);
       await ctx.close();
     });
+    await scenario('tarot: positional reading, draw logged once, share image downloads',async()=>{
+      const {ctx,page,errors}=await fresh();
+      await page.goto(base+'/tarot.html');
+      await page.locator('[data-domain="work"]').click();
+      await page.locator('#btnDeal').click();
+      await page.locator('#btnFlipAll').click();
+      await page.waitForSelector('#readPanel:not(.hidden)');
+      assert.equal(await page.locator('#readTable tr').count(),5);
+      /* 位置化解读：五张牌各自的位置口吻不同，且各带一句追问 */
+      const txt=await page.locator('#readTable').textContent();
+      assert.match(txt,/已经发生的那部分/);
+      assert.match(txt,/挡在路上的，正是这一张/);
+      assert.match(txt,/↳/);
+      /* 抽牌写入档案 */
+      assert.equal(await page.evaluate(()=>((RC.store.get('profile',{}).tarotDraws)||[]).length),1);
+      /* 切换语言只重渲染，不重复记账 */
+      await page.locator('.foot-lang').first().click();
+      await page.waitForTimeout(250);
+      assert.equal(await page.evaluate(()=>((RC.store.get('profile',{}).tarotDraws)||[]).length),1);
+      /* 分享长图：真实下载事件 */
+      const [dl]=await Promise.all([page.waitForEvent('download',{timeout:10000}),page.locator('#btnTarotImage').click()]);
+      assert.match(dl.suggestedFilename(),/radio-club-tarot-.*\.png$/);
+      assert.deepEqual(errors,[]);
+      await ctx.close();
+    });
+    await scenario('cards page lists all 22 arcana with 2006 notes and filters',async()=>{
+      const {ctx,page,errors}=await fresh();
+      await page.goto(base+'/cards.html');
+      assert.equal(await page.locator('.cd-cell').count(),22);
+      await page.locator('.cd-cell').first().click();
+      assert.equal(await page.locator('#cardDetail').isVisible(),true);
+      assert.match(await page.locator('#cardDetail').textContent(),/2006/);
+      await page.locator('.cd-filter .sb-btn').nth(1).click();
+      const n=await page.locator('.cd-cell').count();
+      assert.ok(n>0&&n<22,'元素筛选后应当只剩部分牌，实际 '+n);
+      assert.deepEqual(errors,[]);
+      await ctx.close();
+    });
     await scenario('static server refuses repository internals',async()=>{for(const p of ['/.git/config','/cloudfunctions/treehole/index.js','/assets/%2e%2e/%2e%2e/package.json'])assert.equal((await fetch(base+p)).status,404);});
     fs.writeFileSync(path.join(__dirname,'artifacts/results.json'),JSON.stringify({passed:results},null,2));
     console.log(results.length+' browser scenarios passed');
