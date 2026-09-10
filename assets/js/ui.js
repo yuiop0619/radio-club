@@ -20,17 +20,17 @@
     return U.esc(o);
   }
 
+  /* 主流程只留 6 项。委托与塔罗已被首页的鉴定机合并（投一句话即代抽牌），
+     不必再各占一个入口；精神分析保留，因为它是机器唯一不能代做的模块
+     （词联想与句子完成必须本人受诊）。人物 / 委托 / 塔罗 / 链接 / 2006 档案 /
+     账户移出导航，文件保留、URL 仍可达，页脚给入口。 */
   var NAV = [
     { href: 'index.html',   jp: 'カウンター', cn: '吧台',   en: 'COUNTER' },
-    { href: 'people.html',  jp: '登場人物',   cn: '人物',   en: 'PEOPLE' },
-    { href: 'order.html',   jp: 'ご注文',     cn: '委托',   en: 'ORDER' },
-    { href: 'tarot.html',   jp: 'タロット',   cn: '塔罗',   en: 'TAROT' },
     { href: 'psyche.html',  jp: '精神分析',   cn: '精神分析', en: 'PSYCHE' },
     { href: 'verdict.html', jp: '鑑定',       cn: '鉴定',   en: 'VERDICT' },
     { href: 'dreams.html',  jp: '夢の記録',   cn: '梦境',   en: 'DREAMS' },
     { href: 'masters.html', jp: 'ギャラリー', cn: '画廊',   en: 'GALLERY' },
-    { href: 'bbs.html',     jp: '木の穴',      cn: '树洞',   en: 'BBS' },
-    { href: 'link.html',    jp: 'LINK',       cn: '链接',   en: 'LINK' }
+    { href: 'bbs.html',     jp: '木の穴',      cn: '树洞',   en: 'BBS' }
   ];
 
   /* ---------- 站点外壳：网页原生 max-width 容器（幂等） ----------
@@ -74,7 +74,10 @@
     el.innerHTML = s.split('').map(function (d) { return '<i>' + d + '</i>'; }).join('');
   }
 
-  /* ---------- 统一 footer：8 个页面都调一次，输出同样的版心 ---------- */
+  /* ---------- 统一 footer：每页调一次，输出同样的版心 ----------
+     主行是版权 / 2006 档案 / 账户 / 语言；次行是「索引」——Phase 5b 移出主流程的
+     页面（人物 / 委托 / 塔罗 / 链接）在此保留入口，文件与 URL 不变，只是不再占据
+     导航。委托与塔罗的日常入口已由首页的鉴定机合并（投一句话即代抽牌）。 */
   function siteFoot(opts) {
     opts = opts || {};
     var langBtn =
@@ -90,6 +93,13 @@
         '<a class="badge88" href="about2006.html" title="看看 2006 年同人版">2006 ↗</a>' +
         '<a href="account.html">' + bi('保存与同步','保存と同期') + '</a>' +
         '<span class="sf-lang">' + langBtn + '</span>' +
+      '</div>' +
+      '<div class="sf-row sf-more">' +
+        '<span class="sf-since">' + bi('索引','索引') + '</span>' +
+        '<a href="people.html">' + bi('人物','登場人物') + '</a>' +
+        '<a href="order.html">' + bi('委托','ご注文') + '</a>' +
+        '<a href="tarot.html">' + bi('塔罗','タロット') + '</a>' +
+        '<a href="link.html">' + bi('链接','LINK') + '</a>' +
       '</div>' +
     '</footer>';
   }
