@@ -21,6 +21,15 @@ const pass = (m) => console.log('  \u2713 ' + m);
 
 const referenced = new Set();
 
+/* 内容包（Phase 3）：构建期自动注入到每个页面最前面，由 content/*.json 生成 */
+const CONTENT_BUNDLE = 'content-bundle';
+if (!existsSync(join(jsDir, CONTENT_BUNDLE + '.js'))) {
+  fail(`缺少 ${CONTENT_BUNDLE}.js —— 请先运行 node tools/build-content.cjs`);
+} else {
+  pass(`${CONTENT_BUNDLE}.js 存在（内容层已生成）`);
+}
+referenced.add(CONTENT_BUNDLE);
+
 for (const f of htmlFiles) {
   if (!(f in cfg.pages)) fail(`${f} 未在 site.config.json 中登记`);
 }

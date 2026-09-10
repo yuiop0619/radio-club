@@ -31,7 +31,9 @@ function siteScripts() {
         const file = basename(ctx.filename || ctx.path || '');
         const list = PAGES[file];
         if (!list || !list.length) return html;
-        const tags = list
+        // content-bundle 永远排在第一位：legacy 脚本同步执行，必须先拿到
+        // window.RC_CONTENT（内容层）才能初始化自己的数据。
+        const tags = ['content-bundle', ...list]
           .map((n) => `<script src="assets/js/${n}.js?v=${siteConfig.assetVersion}"></script>`)
           .join('\n');
         const at = injectIndex(html);

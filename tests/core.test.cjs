@@ -4,7 +4,8 @@ function setup(){
   const data=new Map();let fail=false;
   const context=vm.createContext({console,TextEncoder,TextDecoder,btoa,atob,URLSearchParams,Uint8Array,document:{getElementById:()=>null,body:null},localStorage:{getItem:k=>data.get(k)||null,setItem:(k,v)=>{if(fail)throw Error('QUOTA');data.set(k,v);},removeItem:k=>data.delete(k)}});
   context.window=context;
-  for(const name of ['store','model','tarot-data','engine'])vm.runInContext(fs.readFileSync(path.join(ROOT,'assets/js/'+name+'.js'),'utf8'),context);
+  // 与浏览器一致的加载顺序：内容包（content/*.json 生成）必须最先到位
+  for(const name of ['content-bundle','store','model','tarot-data','engine'])vm.runInContext(fs.readFileSync(path.join(ROOT,'assets/js/'+name+'.js'),'utf8'),context);
   return {RC:context.RC,fail:()=>{fail=true;},context,data};
 }
 test('every browser script parses',()=>{for(const f of fs.readdirSync(path.join(ROOT,'assets/js')))new vm.Script(fs.readFileSync(path.join(ROOT,'assets/js',f),'utf8'),{filename:f});});

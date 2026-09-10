@@ -6,6 +6,36 @@
 
 ---
 
+## 〇、执行进度
+
+| 阶段 | 状态 | 提交 |
+|---|---|---|
+| Phase 0 止血 | ✅ 完成 | `078df3b` |
+| Phase 1 统一入口 | ✅ 完成 | `078df3b` |
+| Phase 3 内容抽离 | ✅ 完成 | 见下方说明 |
+| Phase 2 迁移 Vue | ⏸ 调整到最后（先拿奖三步，用户 2026-09-10 拍板） | — |
+| Phase 4 接入 LLM | ⏳ 下一步 | — |
+| Phase 5 赛道适配 | ⏳ 待办 | — |
+| Phase 6 收口 | ⏳ 待办 | — |
+
+**Phase 3 实际产出**（`content/` 成为文案唯一来源）：
+
+| JSON | 来源文件 | 规模 | 消费端 |
+|---|---|---|---|
+| `menu.json` | `store.js` | 酒 6 + 主食 4 | `store.js` 216 行（原 266） |
+| `masters.json` | `analyst.js` | 意象 12 + 大师 7 | `analyst.js` 161 行（原 281） |
+| `tarot.json` | `tarot-data.js` | 牌 22 + 牌阵 3 | `tarot-data.js` 56 行（原 166） |
+| `i18n.json` | `i18n.js` | 词条 224 × 2 语言 | `i18n.js` 95 行（原 339） |
+| `hypotheses.json` | `engine.js` | 情感 8 / 假说 6 / 处方 / 冷读 / 印章 / 小结模板 | `engine.js`（逻辑保留，文案外置） |
+
+- **`tools/extract-content.cjs`**：一次性抽取（Node VM 沙箱加载 legacy IIFE → 导出 JSON），**幂等**，可重复运行
+- **`tools/build-content.cjs`**：`content/*.json` → `assets/js/content-bundle.js`（同步可用的 classic script），带 revision 校验，`npm run check:content` 可验新鲜度
+- **注入**：`vite.config.ts` 保证 `content-bundle` 永远是每页第一个脚本（legacy 脚本同步执行，必须先拿到 `RC_CONTENT`）
+- **遗留**：`about2006` 的 5 章正文尚未抽离（目前在 `ArchiveDesktop.vue` 与 `/api/content` 的 chapters 里，形状不同，单独处理）
+
+
+---
+
 ## 一、项目体检
 
 ### 1.1 规模

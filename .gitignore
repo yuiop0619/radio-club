@@ -28,3 +28,6 @@ dist/
 
 # 本地备份（静态 .site 包裹前的原始 HTML）
 .backup-preflash/
+
+# 生成物：由 content/*.json 经 tools/build-content.cjs 产出
+assets/js/content-bundle.js
