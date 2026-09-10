@@ -211,7 +211,9 @@
 
   function run() {
     var btn = document.getElementById('btnCard');
-    if (btn) btn.addEventListener('click', function () {
+    if (!btn || btn.getAttribute('data-sc-bound')) return;
+    btn.setAttribute('data-sc-bound', '1');
+    btn.addEventListener('click', function () {
       var old = btn.textContent;
       btn.textContent = RC.i18n.t('shareCardDoing');
       try {
@@ -227,7 +229,9 @@
   }
 
   window.RC = window.RC || {};
-  RC.shareCard = { draw: draw, data: data };
+  /* Phase 2：鉴定页改由 Vue 挂载，DOM 晚于本脚本出现。
+     除 DOMContentLoaded 外，组件挂载后也会调 init()，因此必须可重入。 */
+  RC.shareCard = { draw: draw, data: data, init: run };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();

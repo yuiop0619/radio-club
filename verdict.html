@@ -38,50 +38,14 @@
     <div id="navMount"></div>
   </header>
 
-  <div class="wrap">
-
-    <div id="introMount"></div>
-
-    <div id="emptyMount" class="hidden">
-      <div class="panel"><div class="p-body center">
-        <p class="dim" data-i18n="emptyVerdict">吧台还没有收到你的委托。</p>
-        <a class="btn" href="order.html" data-i18n="toOrder">去点单 →</a>
-      </div></div>
-    </div>
-
-    <div id="reportMount" class="hidden">
-      <div class="panel">
-        <div class="p-head">
-          <h2><span class="i18n-cn">鉴定书</span><span class="i18n-jp">鑑定書</span></h2>
-          <span class="p-en">VERDICT</span>
-          <span class="p-note" id="vCode"></span>
-        </div>
-        <div class="p-body report" id="report" data-skel="table"></div>
-      </div>
-      <div class="center mt">
-        <button type="button" class="btn ghost" id="btnPrint" data-i18n="printIt">打印</button>
-        <label><input type="checkbox" id="shareFull"> 包含原始档案（生日、原文和测试回答） / 原文も含む</label>
-        <button type="button" class="btn ghost" id="btnShare">预览分享 / プレビュー</button>
-        <button type="button" class="btn ghost" id="btnCard"><span class="i18n-cn" data-i18n="shareCard"></span><span class="i18n-jp" data-i18n="shareCard"></span></button>
-        <a class="btn ghost" href="order.html?new=1" data-i18n="orderAgain">重写委托</a>
-        <a class="btn" href="index.html" data-i18n="backCounter">回吧台</a>
-      </div>
-      <div class="hint center" id="shareMsg"></div>
-      <div class="mt hidden" id="shareWrap">
-        <pre id="sharePreview" class="share-preview"></pre>
-        <button type="button" class="btn" id="btnCopyShare">复制预览链接 / コピー</button>
-        <label for="shareBox">分享链接 / リンク</label>
-        <textarea id="shareBox" readonly style="min-height:64px;font-size:11px"></textarea>
-        <div class="hint">链接持有人可以读取预览内容。片段不会随页面请求发送，但不是加密；已分发副本无法撤回。 / リンクを持つ人は内容を読めます。</div>
-      </div>
-    </div>
-
-  </div>
+  <div class="wrap" id="verdict-app" data-skel="table"></div>
 
 <div id="footMount"></div>
 
 </div>
 </div><!-- /.site -->
+
+<script type="module" src="/src/main.ts"></script>
 
 </body>
 </html>

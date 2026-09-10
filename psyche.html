@@ -38,92 +38,14 @@
     <div id="navMount"></div>
   </header>
 
-  <div class="wrap">
-
-    <div id="introMount"></div>
-
-    <!-- A · 解梦智能体：七大师会诊 -->
-    <div class="panel">
-      <div class="p-head">
-        <h2><span class="i18n-cn">解梦智能体</span><span class="i18n-jp">夢解きエージェント</span></h2>
-        <span class="p-en">DREAM ANALYST ×7</span>
-        <span class="p-note"><span class="i18n-cn">选一位大师，讲一个梦，领一张卡</span><span class="i18n-jp">大師を一人選び、夢を語り、カードを受け取る</span></span>
-      </div>
-      <div class="p-body">
-        <div id="masterGrid" class="mgrid"></div>
-        <div id="analystChat" class="achat hidden">
-          <div class="achat-head">
-            <span id="chatWho" class="chat-who"></span>
-            <button type="button" class="btn ghost" id="btnMasterBack"><span class="i18n-cn">← 换一位</span><span class="i18n-jp">← 替える</span></button>
-          </div>
-          <div id="chatLog" class="chat-log"></div>
-          <div class="chat-input">
-            <label for="chatIn">梦的内容 / 夢の内容</label>
-            <textarea id="chatIn" maxlength="2000" rows="2" placeholder="把你记得的梦写在这里……"></textarea>
-            <div class="chat-btns">
-              <button type="button" class="btn" id="btnSend"><span class="i18n-cn">讲给大师</span><span class="i18n-jp">大師に語る</span></button>
-              <button type="button" class="btn" id="btnCard"><span class="i18n-cn">领成就卡</span><span class="i18n-jp">カード受取</span></button>
-            </div>
-          </div>
-          <div class="hint center" id="analystMsg"></div>
-          <div id="cardBox" class="center mt"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- B · 词语联想（12 词，加入红辣椒意象） -->
-    <div class="panel">
-      <div class="p-head">
-        <h2><span class="i18n-cn">词语联想测试</span><span class="i18n-jp">単語連想テスト</span></h2>
-        <span class="p-en">WORD ASSOCIATION ×12</span>
-        <span class="p-note"><span class="i18n-cn">会记录你的反应时间</span><span class="i18n-jp">反応潜時も記録します</span></span>
-      </div>
-      <div class="p-body">
-        <div id="assocBox" class="center">
-          <div class="dim small" data-i18n="stimWord">刺激词</div>
-          <div id="stim" class="logo" style="font-size:48px;margin:8px 0">―</div>
-          <div class="hint mb" id="stimBilingual"></div>
-          <div style="max-width:340px;margin:0 auto">
-            <input type="text" id="assocInput" aria-label="联想回答 / 連想の回答" aria-describedby="stim" maxlength="200" data-i18n-ph="bodyPh2" placeholder="今夜想说、又说不出口的那句" disabled>
-          </div>
-          <div class="mt">
-            <button type="button" class="btn" id="btnAssocStart" data-i18n="startTest">开始测试</button>
-            <button type="button" class="btn ghost hidden" id="btnAssocNext" data-i18n="submit">提交</button>
-          </div>
-          <div class="hint" id="assocProg"></div>
-        </div>
-        <div id="assocResult" class="hidden">
-          <table class="grid" id="assocTable"></table>
-          <div id="assocSumm" class="mt dim"></div>
-          <div class="center mt">
-            <a class="btn" href="verdict.html" data-i18n="toVerdict">领取鉴定书 →</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- C · 句子完成测试（SCT，6 句） -->
-    <div class="panel">
-      <div class="p-head">
-        <h2><span data-i18n="sctTitle">句子完成测试</span></h2>
-        <span class="p-en">SCT ×6</span>
-        <span class="p-note" data-i18n="sctSub">句子没有对错；写下脑子里冒出来的第一个答案</span>
-      </div>
-      <div class="p-body">
-        <div id="sctList"></div>
-        <div class="center mt">
-          <button type="button" class="btn" id="btnSct" data-i18n="sctSave">记录并提交</button>
-        </div>
-        <div class="hint center" id="sctMsg"></div>
-      </div>
-    </div>
-
-  </div>
+  <div class="wrap" id="psyche-app"></div>
 
 <div id="footMount"></div>
 
 </div>
 </div><!-- /.site -->
+
+<script type="module" src="/src/main.ts"></script>
 
 </body>
 </html>

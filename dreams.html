@@ -38,74 +38,14 @@
     <div id="navMount"></div>
   </header>
 
-  <div class="wrap">
-
-    <div class="panel">
-      <div class="p-head">
-        <h2><span class="i18n-cn" data-i18n="dreamTitle"></span><span class="i18n-jp" data-i18n="dreamTitle"></span></h2>
-        <span class="p-en">DREAM LOG</span>
-        <span class="p-note"><span class="i18n-cn" data-i18n="dreamSub"></span><span class="i18n-jp" data-i18n="dreamSub"></span></span>
-      </div>
-      <div class="p-body">
-        <p class="dim"><span class="i18n-cn">只存在这台设备上，不会上传。醒来还记得的三句就够，写不下就写「记不清了」。</span><span class="i18n-jp">この端末の中だけ。アップロードしない。起きて覚えている三行でいい。</span></p>
-        <hr class="rule">
-
-        <form id="dreamForm" class="dream-form">
-          <div class="df-row">
-            <label for="dDate"><span class="i18n-cn" data-i18n="dreamDate"></span><span class="i18n-jp" data-i18n="dreamDate"></span>
-              <input type="date" id="dDate"></label>
-            <label for="dMood"><span class="i18n-cn" data-i18n="dreamMood"></span><span class="i18n-jp" data-i18n="dreamMood"></span>
-              <select id="dMood">
-                <option value="还好">还好</option>
-                <option value="疲惫">疲惫</option>
-                <option value="生气">生气</option>
-                <option value="想念">想念</option>
-                <option value="睡不着">睡不着</option>
-                <option value="迷路">迷路</option>
-              </select></label>
-            <label for="dTag"><span class="i18n-cn" data-i18n="dreamTag"></span><span class="i18n-jp" data-i18n="dreamTag"></span>
-              <input type="text" id="dTag" maxlength="40" placeholder="电梯／水／追赶…"></label>
-          </div>
-          <label for="dTitle"><span class="i18n-cn">给它起个名字</span><span class="i18n-jp">タイトル</span>
-            <input type="text" id="dTitle" maxlength="60" placeholder="电梯第一次出现"></label>
-          <label for="dBody"><span class="i18n-cn" data-i18n="dreamBody"></span><span class="i18n-jp" data-i18n="dreamBody"></span>
-            <textarea id="dBody" rows="4" maxlength="2000" placeholder="片段也可以。记不清就写记不清。"></textarea></label>
-          <div class="center">
-            <button type="submit" class="btn"><span class="i18n-cn" data-i18n="dreamSave"></span><span class="i18n-jp" data-i18n="dreamSave"></span></button>
-          </div>
-        </form>
-        <p class="hint center" id="dreamMsg" role="status" aria-live="polite"></p>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="p-head">
-        <h2><span class="i18n-cn">时间线</span><span class="i18n-jp">タイムライン</span></h2>
-        <span class="p-en">TIMELINE</span>
-        <span class="p-note" id="dreamCount">0</span>
-      </div>
-      <div class="p-body">
-        <div id="dreamMount" data-skel="lines"></div>
-        <div class="center mt">
-          <a class="btn ghost" href="psyche.html"><span class="i18n-cn">去做会诊 →</span><span class="i18n-jp">診断へ →</span></a>
-          <a class="btn ghost" href="order.html"><span class="i18n-cn">写进委托 →</span><span class="i18n-jp">ご用件へ →</span></a>
-        </div>
-      </div>
-    </div>
-
-  </div>
+  <div class="wrap" id="dreams-app" data-skel="lines"></div>
 
 <div id="footMount"></div>
 
 </div>
 </div><!-- /.site -->
 
-<script>
-RC.ui.chrome({ title: RC.i18n.t('dreams'), path: 'dreams.html' });
-document.getElementById('navMount').innerHTML = RC.ui.nav('dreams.html');
-document.getElementById('footMount').innerHTML = RC.ui.siteFoot({ active: 'dreams.html' });
-document.getElementById('dDate').value = new Date().toISOString().slice(0, 10);
-RC.i18n.apply(document);
-</script>
+<script type="module" src="/src/main.ts"></script>
+
 </body>
 </html>

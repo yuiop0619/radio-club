@@ -154,7 +154,9 @@
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
   window.RC = window.RC || {};
-  RC.analyst = { MASTERS: MASTERS, byId: byId, motifs: motifs, motifLabel: motifLabel, replyOf: replyOf, verdictOf: verdictOf };
+  /* Phase 2：精神分析页改由 Vue 挂载，DOM 晚于本脚本出现。
+     init 可重入（找不到 #masterGrid 直接返回），组件挂载后再调一次。 */
+  RC.analyst = { MASTERS: MASTERS, byId: byId, motifs: motifs, motifLabel: motifLabel, replyOf: replyOf, verdictOf: verdictOf, init: init };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

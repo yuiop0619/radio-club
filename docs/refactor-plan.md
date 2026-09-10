@@ -16,7 +16,7 @@
 | Phase 2 迁移 Vue | ⏸ 调整到最后（先拿奖三步，用户 2026-09-10 拍板） | — |
 | Phase 4 接入 LLM | ✅ 完成 | 见下方说明 |
 | Phase 5 赛道适配 | ✅ 5a 机器 + 5b 导航精简均完成 | 见下方说明 |
-| Phase 6 收口 | ⏳ 待办 | — |
+| Phase 6 收口 | ✅ 完成 | 见下方说明 |
 
 **Phase 3 实际产出**（`content/` 成为文案唯一来源）：
 
@@ -73,6 +73,40 @@
 - **精神分析必须保留**：它是机器唯一不能代做的模块，移出即等于砍掉
 - **可达性兜底**：页脚新增「索引」一行，列出四个移出页面的入口；`link.html` 自身也是索引页，指向人物 / 委托 / 塔罗。全站无孤岛
 - `tests/machine.cjs` 新增 7 项契约：导航恰好 6 项、移出项不在、`psyche` 仍在、页脚四个入口齐备
+
+**Phase 6 实际产出**（收口）：
+
+- **README 重写**：定位从「复刻站点」改为《梦侦探鉴定机 MODEL RC-2006》——开头即讲清「投币 → 取纸」两步，并把「机器不代做精神分析」写成产品原则；同步修正过时表述（树洞默认云端、导航 6 项、`test:machine` / `test:ai` 脚本）
+- **文档同步**：本方案各阶段状态归位；`docs/hackathon-strategy.md` 与 `docs/track2-lipu-inventor.md` 保留为评估过程记录
+- **上线核查**：构建 → 全量测试 → 部署 → `npm run test:remote` 冒烟，确认线上与本地一致
+
+**Phase 2 执行中**（2026-09-10，分批推进，每批跑全量测试）：
+
+核查发现分层明显：`link-page.js`（7 行）/ `bbs-page.js`（7 行）这类控制器**只做 chrome 样板**；
+`verdict / psyche / dreams / masters` 才是带真实逻辑的页。迁移按「收益高 → 一页一测」推进。
+
+**第一批已完成**（`verdict` · `masters` · `dreams` · `psyche`）：
+
+| 页面 | 原控制器 | 新组件 | 关键改动 |
+|---|---|---|---|
+| 鉴定 verdict | `verdict-page.js`（204 行） | `src/VerdictPage.vue` | 报告主体逐字保持原 DOM（既有契约测试不变）；`hidden` 类语义保留 |
+| 画廊 masters | `masters.js`（41 行） | `src/MastersGallery.vue` | 七大师网格改 `v-for`；致敬清单内联为常量 |
+| 梦境 dreams | `dreams.js`（132 行） | `src/DreamsJournal.vue` | 表单 + 时间线 CRUD，存储键仍是 `dreamLog` |
+| 精神分析 psyche | `psyche-page.js`（149 行） | `src/PsychePage.vue` | 联想计时 / SCT 改响应式；Panel A 交给 `RC.analyst.init()` |
+
+**过程中暴露的耦合点（本次一并修掉）**：legacy 脚本在 `DOMContentLoaded` 时就去
+`getElementById`，而 Vue 挂载更晚。为此给两个跨页脚本加了**可重入初始化钩子**：
+
+- `share-card.js`：`RC.shareCard.init()`，`#btnCard` 存在且未绑定才绑（鉴定页）
+- `analyst.js`：`RC.analyst.init()`，找不到 `#masterGrid` 直接返回（精神分析页）
+- `treehole.js`：同上模式，`RC.hole.init()`（待用）
+
+另补齐 `src/legacy.ts` 的类型桥：`ui.bi/dialog/type`、`engine`、`analyst`、`tarot`、
+`share`、`util`、`interpret`、`shareCard`、`stamps`。
+
+**尚未迁移**：`bbs`（纸条系统由 641 行的 `treehole.js` 与云函数驱动）、
+`order` / `tarot`（已移出导航的次级页）、`people` / `link`（样板 + 静态内容）、
+`404`（无脚本，纯静态）。这些页面**功能不变、URL 不变**。
 
 
 ---

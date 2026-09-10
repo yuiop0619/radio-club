@@ -31,3 +31,27 @@ if(document.getElementById('archive-app')) {
 if(document.getElementById('account-app')) {
   const {default:Account}=await import('./AccountPanel.vue');createApp(Account).mount('#account-app');
 }
+if(document.getElementById('verdict-app')) {
+  rc.ui.chrome({title:rc.i18n.t('verdict'),path:'verdict.html'});
+  document.getElementById('navMount')!.innerHTML=rc.ui.nav('verdict.html');
+  document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'verdict.html'});
+  const {default:Verdict}=await import('./VerdictPage.vue');createApp(Verdict).mount('#verdict-app');
+}
+if(document.getElementById('masters-app')) {
+  rc.ui.chrome({title:rc.i18n.t('gallery'),path:'masters.html'});
+  document.getElementById('navMount')!.innerHTML=rc.ui.nav('masters.html');
+  document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'masters.html'});
+  const {default:Masters}=await import('./MastersGallery.vue');createApp(Masters).mount('#masters-app');
+}
+if(document.getElementById('dreams-app')) {
+  rc.ui.chrome({title:rc.i18n.t('dreams'),path:'dreams.html'});
+  document.getElementById('navMount')!.innerHTML=rc.ui.nav('dreams.html');
+  document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'dreams.html'});
+  const {default:Dreams}=await import('./DreamsJournal.vue');createApp(Dreams).mount('#dreams-app');
+}
+if(document.getElementById('psyche-app')) {
+  rc.ui.chrome({title:rc.i18n.t('psyche'),path:'psyche.html'});
+  document.getElementById('navMount')!.innerHTML=rc.ui.nav('psyche.html');
+  document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'psyche.html'});
+  const {default:Psyche}=await import('./PsychePage.vue');createApp(Psyche).mount('#psyche-app');
+}
