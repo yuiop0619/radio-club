@@ -342,7 +342,24 @@
       "statusModules": "功能模块",
       "statusUsed": "已用过",
       "statusUnused": "还没碰过",
-      "statusNote": "所有数据只存在你这台设备，不上传，也不经过服务器。"
+      "statusNote": "所有数据只存在你这台设备，不上传，也不经过服务器。",
+      "modelTitle": "模型",
+      "modelSub": "接上你自己的模型，这台机器才会真的开口。没接也照常能用，只是分析由本机模板代笔。",
+      "modelProvider": "服务商预设",
+      "modelBase": "接口地址 (Base URL)",
+      "modelKey": "API Key",
+      "modelModel": "模型名",
+      "modelTemp": "温度",
+      "modelTokens": "最大生成长度",
+      "modelEnabled": "启用（开启后分析由你的模型生成）",
+      "modelSave": "保存",
+      "modelTest": "测试连接",
+      "modelTesting": "连接中…",
+      "modelTestOk": "✓ 连通，模型回了：",
+      "modelTestFail": "✗ 连不通：",
+      "modelFillAll": "请先填好接口地址、模型名和 Key 再测试。",
+      "modelFillBaseModel": "接口地址和模型名不能为空。",
+      "modelHint": "Key 只存在你这台设备，不经过本店服务器；云端模型若报跨域，请确认服务商允许浏览器请求，本地 Ollama 需开启跨域。"
     },
     "jp": {
       "counter": "カウンター",
@@ -685,7 +702,24 @@
       "statusModules": "モジュール",
       "statusUsed": "使った",
       "statusUnused": "まだ",
-      "statusNote": "すべてのデータはこの端末内にあり、送信もサーバー通過もしない。"
+      "statusNote": "すべてのデータはこの端末内にあり、送信もサーバー通過もしない。",
+      "modelTitle": "モデル",
+      "modelSub": "あなた自身のモデルを繋げば、この機械は本当に口を開く。繋がなくても使えるが、分析は本機テンプレになる。",
+      "modelProvider": "プロバイダ",
+      "modelBase": "エンドポイント (Base URL)",
+      "modelKey": "API Key",
+      "modelModel": "モデル名",
+      "modelTemp": "温度",
+      "modelTokens": "最大生成長",
+      "modelEnabled": "有効（入れると分析はあなたのモデルで生成）",
+      "modelSave": "保存",
+      "modelTest": "接続確認",
+      "modelTesting": "接続中…",
+      "modelTestOk": "✓ つながった。モデルの返答：",
+      "modelTestFail": "✗ つながらない：",
+      "modelFillAll": "端点・モデル名・Key を埋めてから確認を。",
+      "modelFillBaseModel": "端点とモデル名は空にできない。",
+      "modelHint": "Key はこの端末内のみにあり、本店サーバーを通らない。クラウド系で CORS が出る場合は許可を、Ollama ローカルはクロスオリジンを確認。"
     }
   }
 }

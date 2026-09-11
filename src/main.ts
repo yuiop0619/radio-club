@@ -97,3 +97,9 @@ if(document.getElementById('status-app')) {
   document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'status.html'});
   const {default:Status}=await import('./StatusPage.vue');createApp(Status).mount('#status-app');
 }
+if(document.getElementById('model-app')) {
+  rc.ui.chrome({title:rc.i18n.t('modelTitle'),path:'model.html'});
+  document.getElementById('navMount')!.innerHTML=rc.ui.nav('model.html');
+  document.getElementById('footMount')!.innerHTML=rc.ui.siteFoot({active:'model.html'});
+  const {default:Model}=await import('./ModelPage.vue');createApp(Model).mount('#model-app');
+}

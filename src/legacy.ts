@@ -57,6 +57,17 @@ export interface Legacy {
     drawFor?(spread:string): unknown;
   };
   interpret?: { attach(v:unknown, c:unknown): void; localNote(v:unknown): string };
+  gen?: {
+    KEY: string;
+    isReady(): boolean;
+    getCfg(): any;
+    chat(messages:any[], opts?:any): Promise<any>;
+    interpret(kind:string, ev:unknown, handle?:string): Promise<any>;
+    buildMessages(kind:string, ev:unknown, handle?:string): any[];
+    save(cfg:any): boolean;
+    load(): any;
+    test(cfg:any): Promise<any>;
+  };
   shareCard?: { init(): void };
   stamps?: { check?(): void };
   cloud?: { connect():Promise<void>; request<T>(body:unknown):Promise<T> };

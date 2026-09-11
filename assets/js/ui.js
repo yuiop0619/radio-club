@@ -102,6 +102,7 @@
         '<a href="people.html">' + bi('人物','登場人物') + '</a>' +
         '<a href="order.html">' + bi('委托','ご注文') + '</a>' +
         '<a href="tarot.html">' + bi('塔罗','タロット') + '</a>' +
+        '<a href="model.html">' + bi('模型','モデル') + '</a>' +
         '<a href="link.html">' + bi('链接','LINK') + '</a>' +
       '</div>' +
     '</footer>';

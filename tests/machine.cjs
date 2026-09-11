@@ -65,7 +65,7 @@ function settle(closeFn, ms = 2000) {
     check('精神分析仍在（机器不能代做）', nav.includes('psyche.html'), nav.join(' '));
     const foot = await page.locator('#footMount a')
       .evaluateAll((els) => els.map((a) => a.getAttribute('href')));
-    for (const p of ['people.html', 'order.html', 'tarot.html', 'link.html']) {
+    for (const p of ['people.html', 'order.html', 'tarot.html', 'model.html', 'link.html']) {
       check('页脚仍可达 ' + p, foot.includes(p));
     }
 

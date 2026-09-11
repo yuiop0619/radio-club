@@ -84,25 +84,34 @@
       RC.ui.type(body, text, 18);
     }
 
-    /* 并发：一边跑日志，一边请求模型 */
+    /* 并发：一边跑日志，一边请求模型。
+       优先用户自己的模型（BYOK，rc.gen）；未配置则回退本店 /api/interpret（模板兜底）。 */
     var result = null;
-    var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
-    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 15000);
+    var handle = (c || {}).handle || '';
+    var promise;
 
-    var payload = { evidence: v, handle: (c || {}).handle || '' };
-    var req = fetch('/api/interpret', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Radio-Client': '1' },
-      body: JSON.stringify(payload),
-      credentials: 'same-origin',
-      signal: ctrl ? ctrl.signal : undefined
-    }).then(function (r) { return r.json(); })
-      .then(function (r) { if (r && r.ok && r.data && r.data.text) result = r.data.text; })
-      .catch(function () { /* 静默：兜底见下 */ })
-      .then(function () { clearTimeout(timer); });
+    if (RC.gen && RC.gen.isReady()) {
+      promise = RC.gen.interpret('verdict', v, handle)
+        .then(function (r) { if (r && r.ok && r.text) result = r.text; return result; })
+        .catch(function () { return null; });
+    } else {
+      var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+      var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 15000);
+      var payload = { evidence: v, handle: handle };
+      promise = fetch('/api/interpret', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Radio-Client': '1' },
+        body: JSON.stringify(payload),
+        credentials: 'same-origin',
+        signal: ctrl ? ctrl.signal : undefined
+      }).then(function (r) { return r.json(); })
+        .then(function (r) { if (r && r.ok && r.data && r.data.text) result = r.data.text; return result; })
+        .catch(function () { return null; })
+        .then(function () { clearTimeout(timer); return result; });
+    }
 
     runLog(logBox, function () {
-      req.then(function () {
+      promise.then(function () {
         if (result) settle(result, false);
         else settle(localNote(v), true);
       });
