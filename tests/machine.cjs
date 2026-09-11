@@ -56,8 +56,9 @@ function settle(closeFn, ms = 2000) {
     log('· A2 导航：主流程 7 项（含「档案」「理线头」「状态」），移出的页面仍可达');
     const nav = await page.locator('#navMount .nav a')
       .evaluateAll((els) => els.map((a) => a.getAttribute('href')));
-    check('导航恰好 9 项', nav.length === 9, nav.join(' '));
+    check('导航恰好 10 项', nav.length === 10, nav.join(' '));
     check('状态已进导航', nav.includes('status.html'), nav.join(' '));
+    check('模型已进导航', nav.includes('model.html'), nav.join(' '));
     check('实验室已移出导航', !nav.includes('lab.html'), nav.join(' '));
     check('档案已进导航', nav.includes('profile.html'), nav.join(' '));
     check('理线头已进导航', nav.includes('toolbox.html'), nav.join(' '));

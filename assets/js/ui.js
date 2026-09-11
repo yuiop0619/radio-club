@@ -33,7 +33,8 @@
     { href: 'masters.html', jp: 'ギャラリー', cn: '画廊',   en: 'GALLERY' },
     { href: 'bbs.html',     jp: '木の穴',      cn: '树洞',   en: 'BBS' },
     { href: 'profile.html', jp: '私の档案',    cn: '档案',   en: 'FILE' },
-    { href: 'status.html',  jp: '状態',         cn: '状态',   en: 'STATUS' }
+    { href: 'status.html',  jp: '状態',         cn: '状态',   en: 'STATUS' },
+    { href: 'model.html',   jp: 'モデル',       cn: '模型',   en: 'MODEL' }
   ];
 
   /* ---------- 站点外壳：网页原生 max-width 容器（幂等） ----------
