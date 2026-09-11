@@ -11,7 +11,6 @@ import {rc} from './legacy';
 const lang = ref(rc.i18n.lang());
 rc.i18n.onChange(() => { lang.value = rc.i18n.lang(); });
 const t = (k: string) => { void lang.value; return rc.i18n.t(k); };
-const bi = (cn: string, jp: string) => (lang.value === 'jp' ? jp : cn);
 
 const PRESETS: Record<string, {base: string; model: string; label: string}> = {
   deepseek: { base: 'https://api.deepseek.com/v1', model: 'deepseek-chat', label: 'DeepSeek' },
@@ -99,44 +98,44 @@ onMounted(loadCfg);
 </script>
 
 <template>
-  <div class="wrap-narrow">
+  <div class="wrap">
     <div class="panel">
       <div class="p-head">
         <h2><span class="i18n-cn">模型</span><span class="i18n-jp">モデル</span></h2>
         <span class="p-en">YOUR MODEL</span>
       </div>
       <div class="p-body">
-        <p class="hint">{{ t('modelSub') }}</p>
+        <p class="hint mb">{{ t('modelSub') }}</p>
 
         <div class="field">
-          <label><span class="i18n-cn">服务商预设</span><span class="i18n-jp">プロバイダ</span></label>
+          <label class="f"><span class="i18n-cn">服务商预设</span><span class="i18n-jp">プロバイダ</span></label>
           <select v-model="form.preset" @change="applyPreset">
             <option v-for="(p, k) in PRESETS" :key="k" :value="k">{{ p.label }}</option>
           </select>
         </div>
 
         <div class="field">
-          <label><span class="i18n-cn">接口地址 (Base URL)</span><span class="i18n-jp">エンドポイント</span></label>
+          <label class="f"><span class="i18n-cn">接口地址 (Base URL)</span><span class="i18n-jp">エンドポイント</span></label>
           <input v-model="form.base" type="text" placeholder="https://api.deepseek.com/v1" spellcheck="false" />
         </div>
 
         <div class="field">
-          <label><span class="i18n-cn">API Key</span><span class="i18n-jp">API Key</span></label>
+          <label class="f">API Key</label>
           <input v-model="form.key" type="password" autocomplete="off" placeholder="sk-..." spellcheck="false" />
         </div>
 
         <div class="field">
-          <label><span class="i18n-cn">模型名</span><span class="i18n-jp">モデル名</span></label>
+          <label class="f"><span class="i18n-cn">模型名</span><span class="i18n-jp">モデル名</span></label>
           <input v-model="form.model" type="text" placeholder="deepseek-chat" spellcheck="false" />
         </div>
 
         <div class="field row2">
           <div>
-            <label><span class="i18n-cn">温度</span><span class="i18n-jp">温度</span> · {{ form.temperature.toFixed(2) }}</label>
+            <label class="f"><span class="i18n-cn">温度</span><span class="i18n-jp">温度</span> · {{ form.temperature.toFixed(2) }}</label>
             <input v-model.number="form.temperature" type="range" min="0" max="2" step="0.05" />
           </div>
           <div>
-            <label><span class="i18n-cn">最大长度</span><span class="i18n-jp">最大長</span></label>
+            <label class="f"><span class="i18n-cn">最大长度</span><span class="i18n-jp">最大長</span></label>
             <input v-model.number="form.maxTokens" type="number" min="128" max="2000" step="32" />
           </div>
         </div>
@@ -152,7 +151,7 @@ onMounted(loadCfg);
           <button type="button" class="btn" :disabled="testing" @click="doTest">
             <span class="i18n-cn">测试连接</span><span class="i18n-jp">接続確認</span>
           </button>
-          <button type="button" class="btn primary" @click="doSave">
+          <button type="button" class="btn red" @click="doSave">
             <span class="i18n-cn">保存</span><span class="i18n-jp">保存</span>
           </button>
           <button type="button" class="btn ghost" @click="doClear">
@@ -178,31 +177,21 @@ onMounted(loadCfg);
 </template>
 
 <style scoped>
-.wrap-narrow{max-width:680px;margin:18px auto;padding:0 14px;}
-.field{margin:14px 0;display:flex;flex-direction:column;gap:6px;}
-.field > label{font-size:13px;color:var(--text-dim);}
-.field input[type=text],.field input[type=password],.field input[type=number],.field select{
-  background:var(--panel-2);border:1px solid var(--line);color:var(--text);
-  border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;
-}
-.field input:focus,.field select:focus{outline:none;border-color:var(--amber-dim);}
+.model-actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px;}
+.model-actions .btn{margin:0;}
 .field.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 .field.row2 > div{display:flex;flex-direction:column;gap:6px;}
 .field.row2 input[type=range]{width:100%;}
 .field.check .cb{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--text-dim);cursor:pointer;}
-.model-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
-.btn{padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);cursor:pointer;font-family:inherit;font-size:14px;}
-.btn:hover{border-color:var(--amber-dim);}
-.btn.primary{background:var(--amber-dim);color:#1a1207;border-color:var(--amber-dim);}
-.btn.ghost{background:transparent;}
-.btn:disabled{opacity:.55;cursor:default;}
-.ok-note{color:var(--ok,#3fae7a);font-size:13px;margin-top:10px;}
+.ok-note{color:var(--ok);font-size:13px;margin-top:10px;}
 .test-note{font-size:13px;margin-top:6px;word-break:break-word;}
-.test-note.ok{color:var(--ok,#3fae7a);}
-.test-note.err{color:var(--warn,#d98a3a);}
-.status-chip{display:flex;align-items:center;gap:8px;margin-top:16px;padding:10px 12px;border-radius:10px;font-size:13px;background:var(--panel-2);border:1px solid var(--line);}
-.status-chip .dot{width:9px;height:9px;border-radius:50%;background:var(--text-faint);flex:none;}
-.status-chip.on .dot{background:var(--ok,#3fae7a);box-shadow:0 0 8px var(--ok,#3fae7a);}
-.status-chip.on{color:var(--ok,#3fae7a);}
+.test-note.ok{color:var(--ok);}
+.test-note.err{color:var(--warn);}
+.status-chip{display:flex;align-items:center;gap:10px;margin-top:16px;padding:10px 14px;border:1px solid var(--line);background:var(--panel);font-size:13px;}
+.status-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--text-faint);flex:none;}
+.status-chip.on .dot{background:var(--ok);box-shadow:0 0 8px var(--ok);}
+.status-chip.on{color:var(--ok);}
+.hint.faint{margin-top:14px;}
+.hint.mb{margin-bottom:14px;}
 @media (max-width:520px){.field.row2{grid-template-columns:1fr;}}
 </style>
