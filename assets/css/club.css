@@ -970,6 +970,10 @@ body.has-demo-badge .amb-btn{bottom:48px;}
 .tl-meta .tagx{color:var(--cold-hi);}
 .tl-meta button{font:inherit;font-size:10px;cursor:pointer;background:none;border:0;color:var(--text-faint);text-decoration:underline;padding:0;}
 .tl-meta button:hover{color:var(--crimson-hi);}
+.tl-meta button:disabled{color:var(--text-faint);cursor:default;text-decoration:none;}
+.tl-reading{margin:10px 0 2px;border:1px solid var(--amber-dim);border-radius:8px;padding:10px 12px;background:rgba(232,163,61,.05);}
+.tl-reading-h{font-size:10px;letter-spacing:.12em;color:var(--amber);margin:0 0 5px;}
+.tl-reading-t{font-size:13px;line-height:1.75;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;}
 .dream-form{display:grid;gap:8px;margin-bottom:6px;}
 .dream-form .df-row{display:flex;gap:8px;flex-wrap:wrap;}
 .dream-form label{font-size:10px;color:var(--text-dim);}

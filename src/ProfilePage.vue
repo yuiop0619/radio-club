@@ -19,6 +19,10 @@ const snap = ref(profile.snapshot());
 const events = ref<RcEvent[]>(profile.timeline());
 const mirror = ref(profile.mirror());
 const msg = ref('');
+const genReady = ref<boolean>(!!(rc.gen && rc.gen.isReady && rc.gen.isReady()));
+const reading = ref<string>(profile.reading()?.text || '');
+const readingAt = ref<number>(profile.reading()?.at || 0);
+const readingLoading = ref<boolean>(false);
 
 function refresh(): void {
   snap.value = profile.snapshot();
@@ -26,7 +30,10 @@ function refresh(): void {
   mirror.value = profile.mirror();
 }
 refresh();
-onMounted(() => { try { (rc.i18n as any).apply?.(); } catch (e) { /* 忽略 */ } });
+onMounted(() => {
+  try { (rc.i18n as any).apply?.(); } catch (e) { /* 忽略 */ }
+  genReady.value = !!(rc.gen && rc.gen.isReady && rc.gen.isReady());
+});
 
 /* ---------------- 章 1 · 概览 ---------------- */
 const overview = computed(() => {
@@ -107,6 +114,20 @@ const moodBars = computed(() =>
     tags: (l.tags || []).join(' · ')
   }))
 );
+
+/* 近 30 天情绪趋势：均值 / 峰值 / 谷值 / 走向（前一半 vs 后一半） */
+const moodTrend = computed(() => {
+  const logs = snap.value.mood.logs.slice(-30);
+  const scores = logs.map(l => Number(l.score) || 0).filter(Boolean);
+  if (scores.length < 2) return null;
+  const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+  const hi = Math.max(...scores), lo = Math.min(...scores);
+  const half = Math.max(1, Math.floor(scores.length / 2));
+  const first = scores.slice(0, half).reduce((a, b) => a + b, 0) / half;
+  const last = scores.slice(half).reduce((a, b) => a + b, 0) / (scores.length - half);
+  const dir = last > first + 0.3 ? 'up' : (last < first - 0.3 ? 'down' : 'flat');
+  return { avg: Math.round(avg * 10) / 10, hi, lo, dir };
+});
 
 /* ---------------- 章 5 · 时间线 ---------------- */
 const KIND: Record<string, {mark: string; cn: string; jp: string}> = {
@@ -198,6 +219,87 @@ function exportMd(): void {
 }
 function exportJson(): void {
   download('radio-club-archive-' + stampStr() + '.json', profile.toJSON(), 'application/json;charset=utf-8');
+}
+
+/* ---------------- 章 6b · 机器读你（跨功能合成叙事） ---------------- */
+async function genReading(): Promise<void> {
+  const g = rc.gen;
+  if (!g || !g.isReady || !g.isReady()) {
+    msg.value = bi('先去模型页接入你的模型，再来让我读你。', '模型ページで模型を繋いでから読ませて。');
+    return;
+  }
+  readingLoading.value = true;
+  const s = snap.value;
+  const ev: any = {
+    personality: s.personality ? { type: s.personality.type, dims: s.personality.dims } : null,
+    mirror: {
+      draws: mirror.value.draws, elements: mirror.value.elements,
+      uprightRatio: mirror.value.uprightRatio, top: mirror.value.top.slice(0, 3)
+    },
+    mood: {
+      avg7: s.mood.avg7, streak: s.mood.streak,
+      recent: s.mood.logs.slice(-14).map(l => ({ date: l.date, score: l.score, tags: l.tags }))
+    },
+    dreams: s.dreams.slice().reverse().slice(0, 3).map((d: any) =>
+      ({ title: d.title, body: String(d.body || '').slice(0, 300), tags: d.tag, mood: d.mood })),
+    thoughts: s.thoughts.slice().reverse().slice(0, 2).map((t: any) => t.thought),
+    caseStory: (s.caseDoc && s.caseDoc.story) ? String(s.caseDoc.story).slice(0, 200) : null,
+    hasVerdict: !!s.verdict
+  };
+  try {
+    const r = await g.interpret('reading', ev, '夜访者');
+    if (r && r.ok && r.text) {
+      reading.value = r.text;
+      readingAt.value = Date.now();
+      profile.setReading({ text: r.text, at: readingAt.value });
+      msg.value = bi('机器读完了你，已记进档案。', 'あなたを読み終えた、档案に残した。');
+    } else {
+      msg.value = bi('模型这回没回话，稍后再试。', '今回は返事がなく、後でまた。');
+    }
+  } catch (e) {
+    msg.value = bi('读取出错，稍后再试。', '読み込み失敗、後でまた。');
+  } finally {
+    readingLoading.value = false;
+  }
+}
+
+/* ---------------- 章 6c · 导出 PDF（浏览器打印，零依赖、中文正常） ---------------- */
+function exportPdf(): void {
+  const s = snap.value;
+  const L: string[] = [];
+  L.push('<h1>梦侦探档案' + (s.handle ? ' · ' + s.handle : '') + '</h1>');
+  L.push('<p class="meta">RADIO CLUB · MODEL RC-2006　生成于 ' + fmtAt(Date.now()) + '</p>');
+  L.push('<h2>概览</h2><ul>');
+  overview.value.forEach(c => L.push('<li>' + bi(c.cn, c.jp) + '：' + c.n + '</li>'));
+  L.push('</ul>');
+  if (s.personality) {
+    L.push('<h2>性格层析 · ' + s.personality.type + '</h2>');
+    L.push('<p>' + typeName(s.personality.type).cn + '</p>');
+  }
+  if (s.mood.logs.length) {
+    L.push('<h2>情绪记录</h2>');
+    s.mood.logs.slice(-14).forEach(l =>
+      L.push('<p>' + l.date + '　' + '★'.repeat(l.score) + (l.tags.length ? ('　' + l.tags.join('、')) : '') + (l.note ? ('　—　' + l.note) : '') + '</p>'));
+  }
+  const dm = dreamMonth.value;
+  if (dm.count) {
+    L.push('<h2>梦境月报 · ' + dm.count + ' 则</h2>');
+    s.dreams.slice().reverse().slice(0, 12).forEach((d: any) =>
+      L.push('<p><b>' + (d.date || '') + (d.title ? ('　' + d.title) : '') + '</b><br>' + String(d.body || '').slice(0, 240).replace(/\n/g, '<br>') + '</p>'));
+  }
+  if (reading.value) {
+    L.push('<h2>机器读你</h2><p>' + reading.value.replace(/\n/g, '<br>') + '</p>');
+  }
+  const html = '<!doctype html><html lang="zh"><head><meta charset="utf-8"><title>梦侦探档案</title><style>' +
+    'body{font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;color:#1c1c1c;max-width:780px;margin:24px auto;padding:0 18px;line-height:1.75}' +
+    'h1{font-size:22px;margin:0 0 4px}h2{font-size:16px;margin:22px 0 6px;border-bottom:1px solid #ddd;padding-bottom:4px}' +
+    '.meta{color:#888;font-size:12px;margin:0 0 8px}li{margin:2px 0}p{margin:3px 0}small{color:#888}</style></head><body>' +
+    L.join('') + '</body></html>';
+  const w = window.open('', '_blank');
+  if (!w) { msg.value = bi('浏览器拦截了弹窗，请允许弹出后再试。', 'ポップアップが遮断された。許可してからまた。'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+  w.focus();
+  setTimeout(() => { try { w.print(); } catch (e) { /* 忽略 */ } }, 350);
 }
 </script>
 
@@ -317,6 +419,14 @@ function exportJson(): void {
       <p class="dim small">
         {{ bi('最近 30 天。柱子的高低就是你当天给自己打的分。', '直近30日。バーの高さがその日の自己採点。') }}
       </p>
+      <p v-if="moodTrend" class="pf-trend">
+        {{ bi('近 30 天均值', '直近30日平均') }} {{ moodTrend.avg }}/5 ·
+        {{ bi('峰', 'ピーク') }} {{ moodTrend.hi }} ·
+        {{ bi('谷', '底') }} {{ moodTrend.lo }} ·
+        <template v-if="moodTrend.dir === 'up'">{{ bi('近况在往上走', '最近は上向き') }}</template>
+        <template v-else-if="moodTrend.dir === 'down'">{{ bi('近况在往下走', '最近は下向き') }}</template>
+        <template v-else>{{ bi('基本持平', 'おおむね横ばい') }}</template>
+      </p>
       <div class="center mt">
         <a class="btn ghost" href="toolbox.html">{{ bi('去打卡','記録する') }} →</a>
       </div>
@@ -408,6 +518,36 @@ function exportJson(): void {
     </div>
   </div>
 
+  <!-- 章 4e · 机器读你（跨功能合成叙事） -->
+  <div class="panel" id="readingPanel">
+    <div class="p-head">
+      <h2>{{ bi('机器读你', '機械があなたを読む') }}</h2>
+      <span class="p-en">MODEL READS YOU</span>
+      <span v-if="readingAt" class="p-note">{{ fmtAt(readingAt) }}</span>
+    </div>
+    <div class="p-body">
+      <p class="dim">{{ bi(
+        '把你在不同功能里留下的痕迹，交给你自己接入的模型，合成一段个人速写。模型只看到本机数据，不经过本店服务器。',
+        '各機能に残した痕跡を、あなたが繋いだ模型に渡し、一人の速写にする。模型は端末内のデータだけを見る。'
+      ) }}</p>
+      <div v-if="readingLoading" class="pf-reading">
+        <p class="dim small">{{ bi('正在读你……', 'あなたを読んでいます…') }}</p>
+      </div>
+      <div v-else-if="reading" class="pf-reading">
+        <p class="pf-reading-t">{{ reading }}</p>
+      </div>
+      <div v-else-if="!genReady" class="pf-reading off">
+        <p class="dim small">{{ bi('这台机器还没接上你自己的模型。', 'この機械にはあなたの模型がまだ繋がっていない。') }}
+          <a href="model.html">{{ bi('去模型页接一个', '模型ページで繋ぐ') }}</a>{{ bi('，接上后点下面按钮让我读你。', '、繋いでから下のボタンで読ませて。') }}</p>
+      </div>
+      <div class="center mt">
+        <button type="button" class="btn" id="btnReading" :disabled="readingLoading" @click="genReading">
+          {{ readingLoading ? bi('读取中…', '読み込み中…') : (reading ? bi('重新读一遍', 'もう一度読む') : bi('让机器读你', '読ませる')) }}
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- 章 5 · 时间线 -->
   <div class="panel">
     <div class="p-head">
@@ -443,6 +583,7 @@ function exportJson(): void {
       ) }}</p>
       <div class="center mt">
         <button type="button" class="btn" id="btnExportMd" @click="exportMd">{{ t('expMd') }}</button>
+        <button type="button" class="btn ghost" id="btnExportPdf" @click="exportPdf">{{ bi('导出 PDF', 'PDF 出力') }}</button>
         <button type="button" class="btn ghost" id="btnExportJson" @click="exportJson">{{ t('expJson') }}</button>
       </div>
       <p class="hint center" id="exportMsg" role="status" aria-live="polite">{{ msg }}</p>
@@ -490,6 +631,10 @@ function exportJson(): void {
 .ev-detail { font-size: 12px; opacity: .55; margin-left: 8px; }
 .ev-at { font-size: 11px; opacity: .45; white-space: nowrap; }
 .dim.small { font-size: 12px; }
+.pf-trend { font-size: 12px; color: var(--amber-dim); margin: 6px 0 0; letter-spacing: .02em; }
+.pf-reading { margin-top: 12px; border: 1px solid var(--amber-dim); border-radius: 10px; padding: 12px 14px; background: rgba(232,163,61,.05); }
+.pf-reading.off { background: transparent; border-style: dashed; }
+.pf-reading-t { font-size: 13px; line-height: 1.8; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .dr-cloud { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; line-height: 2.1; margin: 6px 0 4px; }
 .dr-word { display: inline-flex; align-items: baseline; gap: 3px; }
 .dr-word i { font-style: normal; font-size: 10px; opacity: .5; }

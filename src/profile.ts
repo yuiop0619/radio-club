@@ -15,6 +15,8 @@ import {rc as rcBridge} from './legacy';
    ============================================================ */
 
 const KEY = 'profile';
+/** 「机器读你」AI 叙事的存储键（独立于 rc_profile，避免污染聚合层） */
+const READING_KEY = 'rc_gen_reading';
 
 /** 拿最新的 window.RC（模块求值时它可能还没挂上） */
 function R(): any {
@@ -414,7 +416,8 @@ export const profile = {
       breaths: s.breaths,
       dreams: s.dreams,
       counts: s.counts,
-      stamps: s.stamps
+      stamps: s.stamps,
+      reading: this.reading()
     }, null, 2);
   },
 
@@ -540,6 +543,16 @@ export const profile = {
       L.push('');
     }
 
+    const rd = this.reading();
+    if (rd && rd.text) {
+      L.push('## 机器读你');
+      L.push('');
+      L.push('> 由你接入的模型生成于 ' + fmt(rd.at));
+      L.push('');
+      L.push(rd.text.trim());
+      L.push('');
+    }
+
     L.push('---');
     L.push('');
     L.push('*本档案由《梦侦探鉴定机 MODEL RC-2006》生成。性格层析是一种自我叙述的框架，不是心理诊断。*');
@@ -552,6 +565,16 @@ export const profile = {
     return !!(s.visits.total || s.counts.tarot || s.counts.dreams || s.counts.mood ||
       s.counts.notes || s.counts.stamps || s.counts.thoughts || s.counts.breaths ||
       s.personality || s.verdict);
+  },
+
+  /* ---- 「机器读你」AI 叙事（由用户自己的模型生成，独立键存储） ---- */
+  reading(): {text: string; at: number} | null {
+    const v = read<any>(READING_KEY, null);
+    return (v && typeof v.text === 'string' && v.text.trim()) ? v : null;
+  },
+  setReading(v: {text: string; at: number} | null): boolean {
+    if (!v || !String(v.text || '').trim()) return write(READING_KEY, null);
+    return write(READING_KEY, {text: String(v.text), at: Number(v.at) || Date.now()});
   }
 };
 

@@ -50,6 +50,9 @@ const picked = ref<string[]>((today && today.tags) ? today.tags.slice() : []);
 const note = ref<string>((today && today.note) || '');
 const hasToday = ref<boolean>(!!today);
 const moodMsg = ref<string>('');
+const moodReading = ref<string>('');
+const readingLoading = ref<boolean>(false);
+const genReady = ref<boolean>(!!(rc.gen && rc.gen.isReady && rc.gen.isReady()));
 const logs = ref(profile.moods());
 
 const series = computed(() => moodSeries(logs.value, 14));
@@ -77,6 +80,32 @@ function saveMood(): void {
   try { (rc.stamps as any)?.unlock?.('mood'); } catch (e) { /* 忽略 */ }
   moodMsg.value = t('tbMoodSaved');
   bridge.value = bridgeFor(score.value);
+  genMoodReading();
+}
+
+/** 打卡后让机器读你：把今天的分、标签、近况交给用户自己的模型，回来一句不鸡汤的洞察。
+    未接模型（RC.gen 未就绪）时静默跳过，不影响打卡本身。 */
+async function genMoodReading(): Promise<void> {
+  moodReading.value = '';
+  const g = rc.gen;
+  if (!g || !g.isReady || !g.isReady()) return;
+  readingLoading.value = true;
+  const ev = {
+    score: score.value,
+    tags: picked.value.slice(),
+    note: note.value.trim(),
+    avg7: avg7.value,
+    streak: streak.value,
+    series: series.value.map(c => c.score || 0)
+  };
+  try {
+    const r = await g.interpret('mood', ev, '夜访者');
+    if (r && r.ok && r.text) moodReading.value = r.text;
+  } catch (e) {
+    /* 模型失败：静默降级，不阻塞打卡 */
+  } finally {
+    readingLoading.value = false;
+  }
 }
 
 /** 打完分之后，这台机器给你的下一步（三件工具就这样串起来） */
@@ -198,7 +227,10 @@ function fmt(ts: number): string {
   return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
 }
 
-onMounted(() => { try { (rc.i18n as any).apply?.(); } catch (e) { /* 忽略 */ } });
+onMounted(() => {
+  try { (rc.i18n as any).apply?.(); } catch (e) { /* 忽略 */ }
+  genReady.value = !!(rc.gen && rc.gen.isReady && rc.gen.isReady());
+});
 onBeforeUnmount(() => { if (timer) window.clearInterval(timer); });
 </script>
 
@@ -317,6 +349,16 @@ onBeforeUnmount(() => { if (timer) window.clearInterval(timer); });
       </div>
       <p class="hint">{{ t('tbMoodEmpty') }}</p>
       <p v-if="tier !== 'none'" class="dim small mt" id="tbStreakTier">{{ t('tbStreak_' + tier) }}</p>
+
+      <div v-if="readingLoading || moodReading" class="tb-machine" id="tbMoodReading">
+        <p class="tb-machine-h">机器读你 · MODEL RC-2006</p>
+        <p v-if="readingLoading" class="dim small">{{ bi('正在读取今夜的你……', '今夜のあなたを読んでいます…') }}</p>
+        <p v-else class="tb-machine-t">{{ moodReading }}</p>
+      </div>
+      <p v-else-if="!genReady" class="tb-machine-off">
+        {{ bi('这台机器还没接上你自己的模型。', 'この機械にはあなたの模型がまだ繋がっていない。') }}
+        <a href="model.html">{{ bi('去模型页接一个', '模型ページで繋ぐ') }}</a>{{ bi('，每次打卡会给你一句「机器读你」。', '、毎回の記録に一言添える。') }}
+      </p>
     </div>
   </div>
 
@@ -450,6 +492,13 @@ onBeforeUnmount(() => { if (timer) window.clearInterval(timer); });
 .tb-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .tb-tag { font-size: 11px; }
 .tb-msg { font-size: 11px; color: var(--amber); margin-left: 10px; }
+
+/* 机器读你（情绪打卡 AI 洞察） */
+.tb-machine { margin-top: 16px; border: 1px solid var(--amber-dim); border-radius: 10px; padding: 12px 14px; background: rgba(232,163,61,.05); }
+.tb-machine-h { font-size: 11px; letter-spacing: .12em; color: var(--amber); margin: 0 0 6px; }
+.tb-machine-t { font-size: 13px; line-height: 1.75; margin: 0; }
+.tb-machine-off { margin-top: 14px; font-size: 12px; color: var(--text-faint); line-height: 1.7; }
+.tb-machine-off a { color: var(--amber-dim); }
 .tb-chart-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
 .tb-chart { display: flex; align-items: flex-end; gap: 3px; height: 100px; padding-top: 4px; border-bottom: 1px solid var(--line-soft); }
 .tb-col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; gap: 4px; }

@@ -19,11 +19,12 @@ const MOODS = [
   { k: 'lost', cn: '迷路', jp: '迷い' }
 ];
 
-interface Entry { id: string; date: string; title: string; body: string; mood: string; tag: string; ts: number }
+interface Entry { id: string; date: string; title: string; body: string; mood: string; tag: string; ts: number; reading?: string }
 
 const lang = ref(rc.i18n.lang());
 rc.i18n.onChange(() => { lang.value = rc.i18n.lang(); });
 const t = (key: string) => { void lang.value; return rc.i18n.t(key); };
+const bi = (cn: string, jp: string) => (lang.value === 'jp' ? jp : cn);
 
 const list = ref<Entry[]>([]);
 const msg = ref('');
@@ -50,6 +51,7 @@ function load(): Entry[] {
       body: String(d.body || '').slice(0, 2000),
       mood: String(d.mood || '').slice(0, 20),
       tag: String(d.tag || '').slice(0, 40),
+      reading: String(d.reading || '').slice(0, 4000),
       ts: Number(d.ts) || Date.parse(d.date) || Date.now()
     }))
     .sort((a, b) => b.ts - a.ts);
@@ -96,6 +98,35 @@ function remove(id: string): void {
   persist();
   refresh();
   msg.value = t('dreamDeleted');
+}
+
+/* ---------- 单条梦境 AI 解析 ----------
+   调用户自己的模型写一段温柔又留白的解析，结果回写 dreamLog.reading 永久留痕。
+   未接模型时提示去模型页，不报错。 */
+const readingId = ref<string>('');
+async function parseOne(id: string): Promise<void> {
+  const d = list.value.find((x) => x.id === id);
+  if (!d) return;
+  if (!rc.gen || !rc.gen.isReady || !rc.gen.isReady()) {
+    msg.value = bi('先去模型页接入你的模型，再来解析梦境。', '模型ページで模型を繋いでから解析して。');
+    return;
+  }
+  readingId.value = id;
+  try {
+    const r = await rc.gen.interpret('dream', d.body, '夜访者');
+    if (r && r.ok && r.text) {
+      d.reading = r.text;
+      persist();
+      refresh();
+      msg.value = bi('这条梦境已解析，记进了档案。', 'この夢は解析して档案に残した。');
+    } else {
+      msg.value = bi('模型这回没回话，稍后再试。', '今回は模型から返事がなく、後でまた。');
+    }
+  } catch (e) {
+    msg.value = bi('模型这回没回话，稍后再试。', '今回は模型から返事がなく、後でまた。');
+  } finally {
+    readingId.value = '';
+  }
 }
 
 refresh();
@@ -154,9 +185,14 @@ refresh();
             <div class="tl-date">{{ d.date }}<template v-if="d.date === today"> · {{ t('justNow') }}</template></div>
             <div v-if="d.title" class="tl-title">{{ d.title }}</div>
             <div class="tl-body">{{ d.body }}</div>
+            <div v-if="d.reading" class="tl-reading">
+              <p class="tl-reading-h">机器读梦 · MODEL RC-2006</p>
+              <p class="tl-reading-t">{{ d.reading }}</p>
+            </div>
             <div class="tl-meta">
               <span v-if="d.mood"><span class="i18n-cn">{{ moodLabel(d.mood).cn }}</span><span class="i18n-jp">{{ moodLabel(d.mood).jp }}</span></span>
               <span v-if="d.tag" class="tagx">＃{{ d.tag }}</span>
+              <button type="button" @click="parseOne(d.id)" :disabled="readingId === d.id">{{ readingId === d.id ? bi('解析中…', '解析中…') : bi('解析', '解析') }}</button>
               <button type="button" @click="take(d.id)">{{ t('dreamTake') }}</button>
               <button type="button" @click="remove(d.id)">×</button>
             </div>
