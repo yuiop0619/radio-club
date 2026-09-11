@@ -475,11 +475,19 @@
     var cn = '你是 RADIO CLUB 的解梦大师「' + master.cn + '」，代表「' + master.school.cn +
       '」学派。请用该学派的口吻、视角与术语，为来访者解读梦境。' +
       '保持克制、有洞察力，不强行解释，不制造恐惧，不下医学诊断。' +
-      '每次回复 3-5 句中文，语气像一位深夜酒吧里愿意倾听的大师。';
+      '每次回复 3-5 句中文，语气像一位深夜酒吧里愿意倾听的大师。' +
+      '注意上下文：不要重复自己之前已经说过的话，基于来访者的最新补充推进对话，而不是每次都从头解释。';
     var jp = 'あなたは RADIO CLUB の夢解きの大家「' + master.jp + '」，「' + master.school.jp +
-      '」の流派を代表しています。その流派の口調と視点で、来訪者の夢を読んでください。';
+      '」の流派を代表しています。その流派の口調と視点で、来訪者の夢を読んでください。' +
+      'すでに述べた内容を繰り返さず、来訪者の新しい情報に基づいて対話を進めてください。';
     return { cn: cn, jp: jp };
   }
+  function showMsg(els, text, cls) {
+    if (!els.msg) return;
+    els.msg.innerHTML = '<span class="' + (cls || 'amber') + '">※ ' + text + '</span>';
+    setTimeout(function () { if (els.msg) els.msg.innerHTML = ''; }, 5000);
+  }
+
   function modelReply(els) {
     if (!cur) return;
     if (!RC.gen || !RC.gen.isReady || !RC.gen.isReady()) return false;
@@ -491,9 +499,14 @@
       if (loading && loading.parentNode) loading.parentNode.removeChild(loading);
       if (r && r.ok && r.text) {
         bubbleText(els.log, 'm', r.text, false);
+        /* 关键修复：把模型回复写进历史，否则下一轮看不到上下文 */
+        cur.history.push({ role: 'assistant', text: r.text });
       } else {
-        /* 模型失败自动降级模板 */
+        /* 模型失败：提示用户并降级模板，同时把降级回复也写进历史 */
+        var reason = (r && r.source) ? r.source : 'unknown';
+        showMsg(els, '模型连接失败（' + reason + '），已切换本机模板代笔。', 'red');
         var fallback = replyOf(cur.m, cur.dream, cur.turn, cur.history);
+        cur.history.push({ role: 'assistant', text: I.of(fallback) });
         bubble(els.log, 'm', fallback);
       }
     });
