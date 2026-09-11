@@ -474,7 +474,7 @@ onMounted(() => {
       </div>
       <div v-else class="daily-card">
         <div class="daily-glyph">{{ card(dailyCard.id).g }}</div>
-        <div class="daily-name">{{ bi(card(dailyCard.id).cn, card(dailyCard.id).jp) }} · {{ t(dailyCard.upright ? 'upright' : 'reversed') }}</div>
+        <div class="daily-name"><span v-html="bi(card(dailyCard.id).cn, card(dailyCard.id).jp)"></span> · {{ t(dailyCard.upright ? 'upright' : 'reversed') }}</div>
         <p class="daily-text">{{ dailyCard.upright ? card(dailyCard.id).up : card(dailyCard.id).rv }}</p>
         <a class="daily-link" :href="'cards.html#card-' + dailyCard.id"><span class="i18n-cn">看完整牌义 →</span><span class="i18n-jp">詳細を見る →</span></a>
       </div>
