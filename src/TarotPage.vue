@@ -216,8 +216,8 @@ function finish(save = true) {
   nextTick(renderSynth);
 }
 
-/* 综合解读：萨弗兰的结语（挂载点由 rc.ui.dialog 自行填充，Vue 不接管） */
-function renderSynth() {
+/* 综合解读：优先走用户自己的模型，未配置走本机模板 */
+async function renderSynth() {
   const mount = synthMount.value;
   if (!mount) return;
   mount.innerHTML = '';
@@ -228,16 +228,50 @@ function renderSynth() {
   const sPos = posAt(idx);
   const domObj = DOMAINS.filter((x) => x.k === curQ.value)[0] || null;
   const qPrefix = domObj ? of({ cn: '关于「' + domObj.cn + '」：', jp: '「' + domObj.jp + '」について：' }) : '';
-  const conclDim = (T.dimOf && curQ.value) ? T.dimOf(concl.id, curQ.value) : null;
-  const conclDimTxt = conclDim ? of(conclDim) : '';
+
+  /* 静态兜底文本 */
+  const fallbackText = qPrefix + rawBi(sPos) + '位落在「' + (lang.value === 'jp' ? cc.jp : cc.cn) + '」' + t(concl.upright ? 'upright' : 'reversed') +
+    '——' + (concl.upright ? cc.up : cc.rv) +
+    ' ……先别下结论，等会诊和联想做完，我再把三样东西拼起来给你看。';
+
+  /* 构建证据：牌阵 / 问题 / 每张牌的位置与正逆 */
+  if (rc.gen && (rc.gen as any).isReady && (rc.gen as any).isReady()) {
+    const evidence = {
+      spread: spreadKey.value,
+      question: curQ.value || '',
+      domain: domObj ? of(domObj) : '',
+      cards: results.value.map((d) => {
+        const c = card(d.id);
+        const p = posAt(d.pos);
+        return {
+          pos: rawBi(p),
+          name: lang.value === 'jp' ? c.jp : c.cn,
+          upright: d.upright,
+          meaning: d.upright ? c.up : c.rv,
+          element: c.element || ''
+        };
+      })
+    };
+    try {
+      const r = await (rc.gen as any).interpret('tarot', evidence, (C.get() as any).handle || '客人');
+      if (r && r.ok && r.text) {
+        rc.ui.dialog({
+          who: { cn: '萨弗兰', jp: 'サフラン' },
+          jp: { cn: '梦侦探', jp: '夢探偵' },
+          mount,
+          text: r.text,
+          speed: 26
+        });
+        return;
+      }
+    } catch (e) { /* 失败回退兜底 */ }
+  }
+
   rc.ui.dialog({
     who: { cn: '萨弗兰', jp: 'サフラン' },
     jp: { cn: '梦侦探', jp: '夢探偵' },
     mount,
-    text: qPrefix + rawBi(sPos) + '位落在「' + (lang.value === 'jp' ? cc.jp : cc.cn) + '」' + t(concl.upright ? 'upright' : 'reversed') +
-      '——' + (concl.upright ? cc.up : cc.rv) +
-      (conclDimTxt ? ' 就这件事而言：' + conclDimTxt : '') +
-      ' ……先别下结论，等会诊和联想做完，我再把三样东西拼起来给你看。',
+    text: fallbackText,
     speed: 26
   });
 }

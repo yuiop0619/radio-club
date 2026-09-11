@@ -24,6 +24,7 @@ const stage = ref<'intro' | 'quiz' | 'result'>('intro');
 const answers = ref<Answer[]>(items.map(() => null));
 const idx = ref(0);
 const result = ref<Result | null>(null);
+const aiNote = ref<string>('');
 const hasDraft = ref(false);
 
 /* 恢复草稿 */
@@ -55,9 +56,34 @@ function pick(v: 0 | 1): void {
   else finish();
 }
 function back(): void { if (idx.value > 0) { idx.value--; saveDraft(); } }
+async function loadAiNote(r: Result) {
+  if (!(rc.gen as any)?.isReady || !(rc.gen as any).isReady()) { aiNote.value = ''; return; }
+  const evidence = {
+    type: r.type,
+    name: nameOf(r.type),
+    note: noteOf(r.type),
+    balanced: r.balanced,
+    dims: r.dims,
+    axes: (r.axes || []).map((a: any) => ({
+      axis: a.k,
+      letter: a.letter,
+      pct: a.pct,
+      balanced: a.balanced
+    })),
+    answered: r.answered,
+    total: r.total
+  };
+  try {
+    const res = await (rc.gen as any).interpret('persona', evidence, '你');
+    if (res && res.ok && res.text) aiNote.value = res.text;
+    else aiNote.value = '';
+  } catch (e) { aiNote.value = ''; }
+}
+
 function finish(): void {
   const r = score(answers.value, content);
   result.value = r;
+  loadAiNote(r);
   profile.savePersonality({
     type: r.type,
     dims: r.dims,
@@ -167,6 +193,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
         <div class="pfm-code" id="pfmType">{{ result.type }}</div>
         <div class="pfm-name">{{ nameOf(result.type) }}</div>
         <p class="pfm-note">{{ noteOf(result.type) }}</p>
+      </div>
+    </div>
+
+    <div v-if="aiNote" class="panel">
+      <div class="p-head">
+        <h2><span class="i18n-cn">模型侧写</span><span class="i18n-jp">モデル側写</span></h2>
+        <span class="p-en">MODEL NOTE</span>
+        <span class="p-note"><span class="i18n-cn">由你在「模型」页接入的模型生成</span><span class="i18n-jp">「モデル」页で接続したモデルによる</span></span>
+      </div>
+      <div class="p-body">
+        <p class="pfm-note" style="white-space:pre-line">{{ aiNote }}</p>
       </div>
     </div>
 
